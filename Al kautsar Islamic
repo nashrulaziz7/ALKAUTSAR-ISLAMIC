@@ -1,0 +1,449 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { 
+  Home, Book, Compass, Clock, MapPin, BookOpen, ArrowLeft, Play, Pause, 
+  Settings, Copy, CheckCircle, Volume2, Gamepad2, Search, 
+  Bookmark, Trophy, Star, ChevronRight, Check, X, FileText, 
+  MessageCircle, User, Globe, Type, Palette, Download, Info, 
+  Trash2, Smartphone, RotateCcw, Send, Map
+} from 'lucide-react';
+
+// --- STYLES & FONTS ---
+const addStyles = () => {
+  const style = document.createElement('style');
+  style.textContent = `
+    @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Scheherazade+New:wght@400;700&family=Lateef:wght@400;700&family=Inter:wght@300;400;500;600;700;800;900&family=Nunito:wght@600;700;800;900&display=swap');
+    body { font-family: 'Inter', sans-serif; background-color: #e2e8f0; }
+    
+    @keyframes spin-slow { 100% { transform: rotate(360deg); } }
+    .animate-spin-slow { animation: spin-slow 35s linear infinite; }
+    @keyframes pulse-glow { 0%, 100% { filter: drop-shadow(0 0 10px rgba(255,255,255,0.3)); } 50% { filter: drop-shadow(0 0 20px rgba(255,255,255,0.6)); } }
+    .animate-pulse-glow { animation: pulse-glow 3s ease-in-out infinite; }
+    @keyframes pop { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+    .animate-pop { animation: pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+    @keyframes wiggle { 0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(5deg); } }
+    .animate-wiggle { animation: wiggle 1s ease-in-out infinite; }
+    
+    .font-uthmani { font-family: 'Amiri', serif; line-height: 2.1; }
+    .font-kids { font-family: 'Nunito', sans-serif; }
+    
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+  `;
+  document.head.appendChild(style);
+};
+addStyles();
+
+// --- THEME ENGINE (DYNAMIC) ---
+const THEMES = {
+  pink: { id: 'pink', hex: '#EC4899', light: '#FDF2F8', grad: 'from-[#F472B6] to-[#DB2777]', shadow: 'shadow-pink-500/20' },
+  hijau: { id: 'hijau', hex: '#14A895', light: '#E6F4F1', grad: 'from-[#1EBAA5] to-[#0F8A7A]', shadow: 'shadow-teal-500/20' },
+  biru: { id: 'biru', hex: '#3B82F6', light: '#EFF6FF', grad: 'from-[#60A5FA] to-[#2563EB]', shadow: 'shadow-blue-500/20' },
+  emas: { id: 'emas', hex: '#F59E0B', light: '#FFFBEB', grad: 'from-[#FBBF24] to-[#D97706]', shadow: 'shadow-amber-500/20' },
+};
+
+// --- DATABASE DUMMY LENGKAP ---
+const SURAHS_DB = [
+  { n: 1, id: 'Al-Fatihah', ar: 'الفاتحة', ay: 7, type: 'Makkiyah', tr: 'Pembukaan' }, { n: 2, id: 'Al-Baqarah', ar: 'البقرة', ay: 286, type: 'Madaniyah', tr: 'Sapi Betina' }, { n: 3, id: 'Ali \'Imran', ar: 'آل عمران', ay: 200, type: 'Madaniyah', tr: 'Keluarga Imran' }, { n: 4, id: 'An-Nisa\'', ar: 'النساء', ay: 176, type: 'Madaniyah', tr: 'Wanita' }, { n: 5, id: 'Al-Ma\'idah', ar: 'المائدة', ay: 120, type: 'Madaniyah', tr: 'Jamuan' },
+];
+
+const DOA_DB = [
+  { id: 1, title: 'Doa Bangun Tidur', ar: 'اَلْحَمْدُ لِلَّهِ الَّذِيْ أَحْيَانَا بَعْدَ مَا أَمَاتَنَا وَإِلَيْهِ النُّشُوْرُ', tr: 'Segala puji bagi Allah yang menghidupkan kami kembali setelah mematikan kami dan kepada-Nya kami akan dibangkitkan.' },
+  { id: 2, title: 'Doa Masuk Kamar Mandi', ar: 'اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْخُبُثِ وَالْخَبَائِثِ', tr: 'Ya Allah, sesungguhnya aku berlindung kepada-Mu dari godaan setan laki-laki dan setan perempuan.' },
+  { id: 3, title: 'Doa Keluar Rumah', ar: 'بِسْمِ اللَّهِ تَوَكَّلْتُ عَلَى اللَّهِ، لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ', tr: 'Dengan nama Allah, aku bertawakal kepada Allah. Tiada daya dan kekuatan kecuali dengan pertolongan Allah.' },
+  { id: 4, title: 'Doa Belajar', ar: 'رَبِّ زِدْنِي عِلْمًا وَارْزُقْنِي فَهْمًا', tr: 'Ya Tuhanku, tambahkanlah kepadaku ilmu dan berikanlah aku pengertian yang baik.' },
+];
+
+const MASJID_DB = [
+  { name: 'Masjid Raya Al Kautsar', jarak: '0.2 km', alamat: 'Komp. SDIT Muhammadiyah' },
+  { name: 'Masjid An Nur', jarak: '1.5 km', alamat: 'Jl. Merdeka No 12' },
+  { name: 'Masjid Agung', jarak: '3.2 km', alamat: 'Pusat Kota' },
+];
+
+// --- MAIN APP ---
+export default function App() {
+  const [activeTab, setActiveTab] = useState('home');
+  const [appTheme, setAppTheme] = useState(THEMES.pink); // Default Pink sesuai referensi
+  
+  // Realtime Engine
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <div className="min-h-screen flex justify-center overflow-hidden bg-slate-200">
+      <div className={`w-full max-w-[390px] bg-[#F8FAFC] relative flex flex-col h-[100dvh] overflow-hidden shadow-2xl ring-1 ring-white/50`}>
+        
+        {/* Background Pattern */}
+        <div className="absolute top-0 right-0 w-[200px] h-[200px] opacity-[0.05] pointer-events-none z-0 overflow-hidden">
+          <svg viewBox="0 0 100 100" style={{ fill: appTheme.hex }} className="animate-spin-slow drop-shadow-md translate-x-10 -translate-y-10">
+            {[...Array(12)].map((_, i) => (<g key={i} transform={`rotate(${i * 30} 50 50)`}><polygon points="47,20 53,20 50,-5" /><polygon points="48,25 52,25 50,10" transform="rotate(15 50 50)" /></g>))}
+            <circle cx="50" cy="50" r="22" fill="none" stroke="currentColor" strokeWidth="2.5" /><circle cx="50" cy="50" r="16" fill="none" stroke="currentColor" strokeWidth="1" /><circle cx="50" cy="50" r="12" fill="currentColor" opacity="0.8" />
+          </svg>
+        </div>
+
+        <main className="flex-1 overflow-y-auto pb-24 scroll-smooth relative z-10">
+          {activeTab === 'home' && <HomeView nav={setActiveTab} theme={appTheme} currentTime={currentTime} />}
+          {activeTab === 'quran' && <QuranView theme={appTheme} nav={setActiveTab} />}
+          {activeTab === 'doa' && <DoaView theme={appTheme} nav={setActiveTab} />}
+          {activeTab === 'masjid' && <MasjidView theme={appTheme} nav={setActiveTab} />}
+          {activeTab === 'chat' && <ChatView theme={appTheme} nav={setActiveTab} />}
+          {activeTab === 'bookmark' && <BookmarkView theme={appTheme} nav={setActiveTab} />}
+          {activeTab === 'dzikir' && <DzikirView theme={appTheme} nav={setActiveTab} />}
+          {activeTab === 'edu' && <EduView theme={appTheme} nav={setActiveTab} />}
+          {activeTab === 'qibla' && <QiblaView theme={appTheme} nav={setActiveTab} />}
+          {activeTab === 'settings' && <SettingsView nav={setActiveTab} theme={appTheme} setTheme={setAppTheme} />}
+        </main>
+        
+        {/* BOTTOM NAV */}
+        <nav className="absolute bottom-0 w-full bg-white border-t border-gray-100 pb-safe pt-2 px-6 shadow-[0_-10px_30px_rgba(0,0,0,0.03)] z-50 rounded-t-[24px]">
+          <div className="flex justify-between items-center h-16">
+            <NavItem icon={<Home />} label="Beranda" active={activeTab==='home'} onClick={()=>setActiveTab('home')} theme={appTheme} />
+            <NavItem icon={<BookOpen />} label="Al-Qur'an" active={activeTab==='quran'} onClick={()=>setActiveTab('quran')} theme={appTheme} />
+            <NavItem icon={<RotateCcw />} label="Dzikir" active={activeTab==='dzikir'} onClick={()=>setActiveTab('dzikir')} theme={appTheme} />
+            <NavItem icon={<Compass />} label="Kiblat" active={activeTab==='qibla'} onClick={()=>setActiveTab('qibla')} theme={appTheme} />
+          </div>
+        </nav>
+      </div>
+    </div>
+  );
+}
+
+function NavItem({ icon, label, active, onClick, theme }) {
+  return (
+    <button onClick={onClick} className="flex flex-col items-center justify-center w-16 group relative">
+      <div className={`p-2 transition-all duration-300 ${active ? 'scale-110 -translate-y-1' : 'text-gray-400 group-hover:text-gray-600'}`} style={{ color: active ? theme.hex : undefined }}>
+        {React.cloneElement(icon, { size: active ? 24 : 22, strokeWidth: active ? 2.5 : 2 })}
+      </div>
+      <span className={`text-[9px] mt-0.5 font-bold transition-all ${active ? 'opacity-100' : 'opacity-0'}`} style={{ color: theme.hex }}>{label}</span>
+    </button>
+  );
+}
+
+// ==========================================
+// 1. HOME VIEW (Sempurna sesuai Gambar 141290)
+// ==========================================
+function HomeView({ nav, theme, currentTime }) {
+  
+  // Realtime Jadwal Sholat Logic
+  const PRAYERS = [
+    { id: 'Imsak', timeStr: '04:22', icon: '🌙' }, 
+    { id: 'Subuh', timeStr: '04:32', icon: '🌙' }, 
+    { id: 'Dzuhur', timeStr: '11:48', icon: '☀️' }, 
+    { id: 'Ashar', timeStr: '15:08', icon: '🌤️' }, 
+    { id: 'Maghrib', timeStr: '17:38', icon: '🌇' }, 
+    { id: 'Isya', timeStr: '18:53', icon: '🌌' }
+  ];
+
+  // Logic Hitung Mundur Realtime
+  const getNextPrayer = () => {
+    const currentMins = currentTime.getHours() * 60 + currentTime.getMinutes();
+    for (let p of PRAYERS) {
+      const [h, m] = p.timeStr.split(':').map(Number);
+      if (h * 60 + m > currentMins) return p;
+    }
+    return { ...PRAYERS[0], isTomorrow: true }; // Balik ke Imsak besok
+  };
+
+  const nextPrayer = getNextPrayer();
+
+  const getCountdown = () => {
+    const [h, m] = nextPrayer.timeStr.split(':').map(Number);
+    let target = new Date(currentTime);
+    target.setHours(h, m, 0);
+    if (nextPrayer.isTomorrow) target.setDate(target.getDate() + 1);
+    
+    const diff = target - currentTime;
+    if(diff < 0) return "00:00:00";
+    
+    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    const minutes = Math.floor((diff / 1000 / 60) % 60);
+    const seconds = Math.floor((diff / 1000) % 60);
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  };
+
+  const MENU = [
+    { id: 'quran', label: 'Quran', icon: <Book size={18} />, act: () => nav('quran') },
+    { id: 'doa', label: 'Doa', icon: <FileText size={18} />, act: () => nav('doa') },
+    { id: 'kiblat', label: 'Kiblat', icon: <Compass size={18} />, act: () => nav('qibla') },
+    { id: 'dzikir', label: 'Dzikir', icon: <RotateCcw size={18} />, act: () => nav('dzikir') },
+    { id: 'masjid', label: 'Masjid', icon: <MapPin size={18} />, act: () => nav('masjid') },
+    { id: 'bookmark', label: 'Bookmark', icon: <Bookmark size={18} />, act: () => nav('bookmark') },
+    { id: 'chat', label: 'AI Chat', icon: <MessageCircle size={18} />, act: () => nav('chat') },
+    { id: 'game', label: 'Game', icon: <Gamepad2 size={18} />, act: () => nav('edu') },
+  ];
+
+  return (
+    <div className="p-4 animate-in fade-in duration-500">
+      {/* Header Loc & Setting */}
+      <div className="flex justify-between items-center mb-4 pt-1">
+        <div className="bg-white rounded-full px-3 py-1.5 flex items-center shadow-sm text-[12px] font-bold text-gray-700">
+          <MapPin size={14} className="mr-1.5" style={{ color: theme.hex }} /> Kab. Klaten
+        </div>
+        <button onClick={() => nav('settings')} className="bg-white p-2 rounded-full shadow-sm hover:scale-105 transition-transform text-gray-400 hover:text-gray-700">
+          <Settings size={16} style={{ color: theme.hex }} />
+        </button>
+      </div>
+
+      {/* 1. HERO CARD (Dibuat Lebih Kecil & Ramping) */}
+      <div className={`bg-gradient-to-br ${theme.grad} rounded-[20px] p-5 text-white ${theme.shadow} shadow-lg relative overflow-hidden mb-5`}>
+        <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
+        <p className="font-bold text-[11px] mb-1 opacity-90">Assalamu'alaikum,</p>
+        <div className="bg-white/20 inline-block px-2.5 py-0.5 rounded-full text-[9px] font-bold tracking-wide backdrop-blur-sm mb-4 border border-white/10">
+          13 Muharram 1448 H
+        </div>
+        <div className="flex justify-between items-end">
+          <div>
+            <h1 className="text-3xl font-black mb-0.5 tracking-tight">{nextPrayer.id}</h1>
+            <p className="font-semibold tracking-widest text-xs opacity-90">{nextPrayer.timeStr}</p>
+          </div>
+          <div className="bg-black/10 backdrop-blur-md rounded-[14px] px-3 py-2 text-center">
+            <div className="text-lg font-bold tracking-wider">{getCountdown()}</div>
+            <div className="text-[8px] font-bold uppercase tracking-widest mt-0.5 opacity-80">tersisa</div>
+          </div>
+        </div>
+      </div>
+
+      {/* 2. JADWAL SHOLAT (Animasi Icon & Shape Ketara) */}
+      <div className="mb-6">
+        <div className="flex items-center gap-2 mb-3 px-1">
+          <Clock size={16} style={{ color: theme.hex }} />
+          <h3 className="font-bold text-gray-800 text-[14px]">Jadwal Sholat</h3>
+        </div>
+        <div className="bg-white rounded-[20px] p-4 shadow-sm grid grid-cols-3 gap-y-4 gap-x-2 text-center border border-gray-50">
+          {PRAYERS.map(p => {
+            const isNext = p.id === nextPrayer.id;
+            return (
+            <div key={p.id} className={`flex flex-col items-center justify-center p-2 rounded-[16px] transition-all duration-300 ${isNext ? 'ring-2 ring-offset-2 scale-[1.05] shadow-md' : ''}`} style={isNext ? { backgroundColor: theme.light, ringColor: theme.hex } : {}}>
+              {/* Animasi memantul/bergerak pada icon yang aktif */}
+              <span className={`text-xl mb-1 ${isNext ? 'animate-bounce drop-shadow-md' : 'opacity-70 grayscale'}`}>{p.icon}</span>
+              <span className={`text-[10px] font-bold ${isNext ? 'text-gray-800' : 'text-gray-400'}`}>{p.id}</span>
+              <span className={`text-[12px] font-black`} style={{ color: isNext ? theme.hex : '#374151' }}>{p.timeStr}</span>
+            </div>
+          )})}
+        </div>
+      </div>
+
+      {/* 3. MENU 4 GRID (Super Kompak) */}
+      <div>
+        <div className="flex items-center justify-between mb-3 px-1">
+          <div className="flex items-center gap-2">
+            <Gamepad2 size={16} style={{ color: theme.hex }} />
+            <h3 className="font-bold text-gray-800 text-[14px]">Menu Utama</h3>
+          </div>
+        </div>
+        <div className="grid grid-cols-4 gap-2.5">
+          {MENU.map(m => (
+            <button key={m.id} onClick={m.act} className="bg-white rounded-[16px] p-2.5 flex flex-col items-center shadow-sm active:scale-95 transition-transform border border-transparent hover:border-gray-100">
+              <div className={`w-10 h-10 rounded-[12px] flex items-center justify-center mb-1.5`} style={{ backgroundColor: theme.light, color: theme.hex }}>
+                {m.icon}
+              </div>
+              <span className="text-[9px] font-bold text-gray-600 text-center leading-tight">{m.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ==========================================
+// PULL OUT VIEWS (Menu-menu yang baru diaktifkan)
+// ==========================================
+
+function DoaView({ nav, theme }) {
+  return (
+    <div className="animate-in fade-in slide-in-from-right-4 pb-20">
+      <div className="sticky top-0 bg-white/90 backdrop-blur-md px-5 py-4 flex items-center shadow-sm z-30">
+        <button onClick={() => nav('home')} className="p-2 rounded-xl bg-gray-100 mr-3"><ArrowLeft size={18} /></button>
+        <h1 className="text-lg font-black text-gray-800">Kumpulan Doa</h1>
+      </div>
+      <div className="p-4 space-y-3">
+        {DOA_DB.map(doa => (
+          <div key={doa.id} className="bg-white p-4 rounded-[16px] shadow-sm border border-gray-100">
+            <h3 className="font-bold text-sm mb-3" style={{ color: theme.hex }}>{doa.title}</h3>
+            <p className="text-right text-xl font-uthmani mb-3 text-gray-800 leading-loose" dir="rtl">{doa.ar}</p>
+            <p className="text-[11px] text-gray-500 font-medium italic">"{doa.tr}"</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function MasjidView({ nav, theme }) {
+  return (
+    <div className="animate-in fade-in slide-in-from-right-4 h-full flex flex-col">
+      <div className="bg-white px-5 py-4 flex items-center shadow-sm z-30">
+        <button onClick={() => nav('home')} className="p-2 rounded-xl bg-gray-100 mr-3"><ArrowLeft size={18} /></button>
+        <h1 className="text-lg font-black text-gray-800">Masjid Terdekat</h1>
+      </div>
+      <div className="flex-1 bg-gray-200 relative">
+        <div className="absolute inset-0 opacity-30" style={{ backgroundImage: 'url("https://www.transparenttextures.com/patterns/cartographer.png")' }}></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+           <Map size={64} className="text-gray-400 drop-shadow-lg" />
+        </div>
+        <div className="absolute bottom-4 left-4 right-4 space-y-2">
+          {MASJID_DB.map((m, i) => (
+            <div key={i} className="bg-white p-3 rounded-xl shadow-lg flex justify-between items-center">
+              <div>
+                <h4 className="font-bold text-xs text-gray-800">{m.name}</h4>
+                <p className="text-[9px] text-gray-500">{m.alamat}</p>
+              </div>
+              <span className="text-[10px] font-black px-2 py-1 rounded-md" style={{ backgroundColor: theme.light, color: theme.hex }}>{m.jarak}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ChatView({ nav, theme }) {
+  return (
+    <div className="animate-in fade-in slide-in-from-right-4 h-full flex flex-col bg-slate-50">
+      <div className="bg-white px-5 py-4 flex items-center shadow-sm z-30">
+        <button onClick={() => nav('home')} className="p-2 rounded-xl bg-gray-100 mr-3"><ArrowLeft size={18} /></button>
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-full flex items-center justify-center text-white" style={{ backgroundColor: theme.hex }}><Star size={14}/></div>
+          <div><h1 className="text-sm font-black text-gray-800">Asisten Al Kautsar</h1><p className="text-[9px] text-green-500 font-bold">Online</p></div>
+        </div>
+      </div>
+      <div className="flex-1 p-4 overflow-y-auto">
+        <div className="bg-white p-3 rounded-2xl rounded-tl-none shadow-sm max-w-[85%] border border-gray-100">
+          <p className="text-xs text-gray-600 font-medium">Assalamu'alaikum! Saya Asisten AI Al Kautsar. Ada pertanyaan seputar jadwal, PR, atau Al-Qur'an hari ini?</p>
+        </div>
+      </div>
+      <div className="p-4 bg-white border-t border-gray-100 flex gap-2">
+        <input type="text" placeholder="Ketik pesan..." className="flex-1 bg-gray-100 rounded-full px-4 py-2.5 text-xs outline-none focus:ring-1" style={{ outlineColor: theme.hex }} />
+        <button className="w-10 h-10 rounded-full flex items-center justify-center text-white shadow-md" style={{ backgroundColor: theme.hex }}><Send size={16} className="ml-1"/></button>
+      </div>
+    </div>
+  );
+}
+
+function BookmarkView({ nav, theme }) {
+  return (
+    <div className="animate-in fade-in slide-in-from-right-4 pb-20">
+      <div className="bg-white px-5 py-4 flex items-center shadow-sm z-30 sticky top-0">
+        <button onClick={() => nav('home')} className="p-2 rounded-xl bg-gray-100 mr-3"><ArrowLeft size={18} /></button>
+        <h1 className="text-lg font-black text-gray-800">Bookmark Saya</h1>
+      </div>
+      <div className="p-4">
+        <div className="bg-white p-4 rounded-[16px] shadow-sm border border-gray-100 flex justify-between items-center">
+          <div>
+            <h3 className="font-bold text-sm text-gray-800">Surah Al-Baqarah</h3>
+            <p className="text-xs text-gray-500 mt-1">Ayat 255 (Ayat Kursi)</p>
+          </div>
+          <button className="p-2 rounded-full" style={{ backgroundColor: theme.light, color: theme.hex }}><Play size={16}/></button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ==========================================
+// QURAN, DZIKIR, KIBLAT, EDU, SETTINGS (Sama seperti sebelumnya)
+// ==========================================
+
+function QuranView({ nav, theme }) {
+  return (
+    <div className="p-5 animate-in slide-in-from-right-4">
+      <div className="flex items-center gap-3 mb-6">
+        <button onClick={() => nav('home')} className="p-2 bg-white rounded-xl shadow-sm"><ArrowLeft size={18} /></button>
+        <h1 className="text-xl font-black text-gray-800">Al-Quran</h1>
+      </div>
+      <div className="space-y-3">
+        {SURAHS_DB.map((s) => (
+          <div key={s.n} className="bg-white p-4 rounded-[16px] flex justify-between items-center shadow-sm border border-gray-100">
+            <div className="flex gap-3 items-center">
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs" style={{ backgroundColor: theme.light, color: theme.hex }}>{s.n}</div>
+              <div><h4 className="font-bold text-sm">{s.id}</h4><p className="text-[10px] text-gray-400">{s.tr}</p></div>
+            </div>
+            <div className="text-lg font-uthmani" style={{ color: theme.hex }}>{s.ar}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function DzikirView({ nav, theme }) {
+  const [count, setCount] = useState(0);
+  return (
+    <div className="p-5 animate-in slide-in-from-right-4 h-[80vh] flex flex-col">
+       <div className="flex items-center gap-3 mb-10">
+        <button onClick={() => nav('home')} className="p-2 bg-white rounded-xl shadow-sm"><ArrowLeft size={18} /></button>
+        <h1 className="text-xl font-black text-gray-800">Dzikir</h1>
+      </div>
+      <div className="flex-1 flex flex-col items-center justify-center">
+        <h2 className="text-3xl font-uthmani mb-8">سُبْحَانَ اللَّهِ</h2>
+        <button onClick={() => { setCount(c=>c+1); if(navigator.vibrate) navigator.vibrate(20); }} className="w-56 h-56 rounded-full text-white text-6xl font-black shadow-2xl active:scale-95 transition-transform border-8 border-white/20 flex items-center justify-center" style={{ backgroundColor: theme.hex }}>
+          {count}
+        </button>
+        <button onClick={() => setCount(0)} className="mt-10 px-6 py-2 bg-white rounded-full shadow-sm text-xs font-bold text-gray-500">Reset</button>
+      </div>
+    </div>
+  );
+}
+
+function QiblaView({ nav, theme }) {
+  return (
+    <div className="p-5 animate-in slide-in-from-right-4 h-[80vh] flex flex-col">
+       <div className="flex items-center gap-3 mb-10">
+        <button onClick={() => nav('home')} className="p-2 bg-white rounded-xl shadow-sm"><ArrowLeft size={18} /></button>
+        <h1 className="text-xl font-black text-gray-800">Kiblat</h1>
+      </div>
+      <div className="flex-1 flex items-center justify-center">
+        <div className="w-64 h-64 rounded-full bg-white shadow-xl border-4 border-gray-50 flex items-center justify-center relative">
+          <Compass size={80} style={{ color: theme.hex }} className="opacity-80" />
+          <div className="absolute top-4 font-bold text-xs text-gray-400">U</div>
+          <div className="absolute bottom-4 font-bold text-xs" style={{ color: theme.hex }}>S</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function EduView({ nav, theme }) {
+  return (
+    <div className="p-5 animate-in slide-in-from-right-4">
+       <div className="flex items-center gap-3 mb-6">
+        <button onClick={() => nav('home')} className="p-2 bg-white rounded-xl shadow-sm"><ArrowLeft size={18} /></button>
+        <h1 className="text-xl font-black text-gray-800">Game Edukasi</h1>
+      </div>
+      <div className="bg-white p-5 rounded-[20px] shadow-sm border border-gray-100 flex items-center gap-4 mb-4">
+        <div className="text-4xl">🤔</div>
+        <div><h3 className="font-bold text-sm">Tebak Surah</h3><p className="text-[10px] text-gray-500">Level 1 - Mudah</p></div>
+      </div>
+      <div className="bg-white p-5 rounded-[20px] shadow-sm border border-gray-100 flex items-center gap-4">
+        <div className="text-4xl">📖</div>
+        <div><h3 className="font-bold text-sm">Kuis Tajwid</h3><p className="text-[10px] text-gray-500">Uji pengetahuanmu</p></div>
+      </div>
+    </div>
+  );
+}
+
+function SettingsView({ nav, theme, setTheme }) {
+  return (
+    <div className="p-5 animate-in slide-in-from-right-4">
+       <div className="flex items-center gap-3 mb-8">
+        <button onClick={() => nav('home')} className="p-2 bg-white rounded-xl shadow-sm"><ArrowLeft size={18} /></button>
+        <h1 className="text-xl font-black text-gray-800">Pengaturan</h1>
+      </div>
+      <div className="bg-white rounded-[20px] p-4 shadow-sm border border-gray-100">
+        <h3 className="text-xs font-bold text-gray-400 mb-3 uppercase">Pilih Tema</h3>
+        <div className="flex justify-between">
+          {Object.values(THEMES).map(t => (
+            <button key={t.id} onClick={() => setTheme(t)} className={`w-12 h-12 rounded-full shadow-sm flex items-center justify-center transition-transform ${theme.id === t.id ? 'scale-110 ring-4 ring-offset-2' : ''}`} style={{ backgroundColor: t.hex, ringColor: t.hex }}>
+              {theme.id === t.id && <Check size={20} color="white"/>}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
