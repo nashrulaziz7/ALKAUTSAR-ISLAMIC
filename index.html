@@ -4,7 +4,8 @@ import {
   Settings, Settings2, Copy, CheckCircle, Volume2, Gamepad2, Search, 
   Bookmark, Trophy, Star, ChevronRight, Check, X, FileText, 
   Headphones, MessageCircle, User, Globe, Type, Palette, Download, Info, 
-  Trash2, Smartphone, RotateCcw, Navigation, Send, ListOrdered, Heart 
+  Trash2, Smartphone, RotateCcw, Navigation, Send, ListOrdered, Heart,
+  ChevronDown, Menu
 } from 'lucide-react';
 
 const addStyles = () => {
@@ -38,8 +39,37 @@ const addStyles = () => {
     ::-webkit-scrollbar-thumb { background: #99F6E4; border-radius: 10px; }
     .scrollbar-hide::-webkit-scrollbar { display: none; }
     .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* TAJWID COLORS */
+    .tajweed-1, .tajweed-ghunnah { color: #D946EF; } 
+    .tajweed-2, .tajweed-idgham { color: #3B82F6; } 
+    .tajweed-3, .tajweed-ikhfa { color: #F59E0B; } 
+    .tajweed-4, .tajweed-iqlab { color: #10B981; } 
+    .tajweed-5, .tajweed-qalqalah { color: #EF4444; } 
+    .tajweed-6, .tajweed-madd { color: #8B5CF6; } 
+    .tajweed-7 { color: #06B6D4; }
+    .tajweed-8 { color: #14B8A6; }
+    .tajweed-9 { color: #F43F5E; }
+    .tajweed-10 { color: #84CC16; }
   `;
   document.head.appendChild(style);
+};
+
+// Polyfill Copy Aman (Mengatasi Error Clipboard)
+const copyToClipboard = (text) => {
+  try {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.style.position = "fixed";
+    textArea.style.left = "-9999px";
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textArea);
+  } catch (err) {
+    console.error("Gagal menyalin", err);
+  }
 };
 
 const THEMES = {
@@ -66,11 +96,11 @@ const SURAHS_DB = [
 ];
 
 const QARI_LIST = [
-  { id: 'ar.alafasy', name: 'Misyari Rasyid Al-Afasi' },
-  { id: 'ar.yasserdussary', name: 'Yasser Al-Dosari' },
-  { id: 'ar.abdurrahmaansudais', name: 'Abdurrahman as-Sudais' },
-  { id: 'ar.abdullahbasfar', name: 'Abdullah Al-Juhany' },
-  { id: 'ar.abdulmuhsinqasim', name: 'Abdul Muhsin Al-Qasim' }
+  { id: '01', name: 'Misyari Rasyid Al-Afasi', dir: 'Misyari-Rasyid-Al-Afasi' },
+  { id: '02', name: 'Yasser Al-Dosari', dir: 'Yasser-Al-Dosari' },
+  { id: '03', name: 'Abdurrahman as-Sudais', dir: 'Abdurrahman-as-Sudais' },
+  { id: '04', name: 'Abdullah Al-Juhany', dir: 'Abdullah-Al-Juhany' },
+  { id: '05', name: 'Abdul Muhsin Al-Qasim', dir: 'Abdul-Muhsin-Al-Qasim' }
 ];
 
 const DOA_HPT = [
@@ -83,13 +113,47 @@ const DOA_HPT = [
   { category: 'sunnah', id: 7, title: 'Doa Menjenguk Sakit', ar: 'لَا بَأْسَ طَهُورٌ إِنْ شَاءَ اللَّهُ', tr: 'Tidak mengapa, semoga sakitmu ini membersihkan dosamu, Insya Allah.' }
 ];
 
+// ==========================================
+// CUSTOM PREMIUM DROPDOWN
+// ==========================================
+function PremiumSelect({ options, value, onChange, placeholder, alignRight=false, theme }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const selected = options.find(o => o.value === value);
+
+  return (
+    <div className="relative flex-1" ref={ref}>
+      <button onClick={() => setOpen(!open)} className="w-full bg-slate-800/80 backdrop-blur-md border border-slate-700 text-white rounded-[12px] px-3 py-2 text-[11px] font-bold flex items-center justify-between shadow-sm hover:bg-slate-700 transition-all outline-none">
+        <span className="truncate pr-2">{selected ? selected.label : placeholder}</span>
+        <ChevronDown size={12} className={`transition-transform duration-300 ${open ? 'rotate-180' : ''}`} style={{ color: theme.light }} />
+      </button>
+      {open && (
+        <div className={`absolute top-full mt-2 ${alignRight ? 'right-0' : 'left-0'} min-w-full max-w-[200px] max-h-56 overflow-y-auto bg-white rounded-[16px] shadow-2xl border border-gray-100 z-[70] p-1.5 animate-in slide-in-from-top-2`}>
+          {options.map((o, i) => (
+            <button key={i} onClick={() => { onChange(o.value); setOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-[10px] text-[11px] font-bold transition-all truncate ${value === o.value ? 'text-white' : 'text-gray-700 hover:bg-slate-50'}`} style={value === o.value ? { backgroundColor: theme.hex } : {}}>
+              {o.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function App() {
   const [activeTab, setActiveTab] = useState('home');
   const [navParams, setNavParams] = useState(null);
   
   // GLOBAL SETTINGS
   const [appTheme, setAppTheme] = useState(THEMES.hijau); 
-  const [appQari, setAppQari] = useState('ar.alafasy');
+  const [appQari, setAppQari] = useState('01');
   const [appFont, setAppFont] = useState('uthmani');
   const [appLang, setAppLang] = useState('id');
 
@@ -168,12 +232,9 @@ function HomeView({ nav, theme }) {
   useEffect(() => { const t = setInterval(() => setTime(new Date()), 1000); return () => clearInterval(t); }, []);
 
   const PRAYERS = [
-    { id: 'Imsak', label: 'Imsak', time: '04:22', icon: '🌙' }, 
-    { id: 'Fajr', label: 'Subuh', time: '04:32', icon: '🌙' }, 
-    { id: 'Dhuhr', label: 'Dzuhur', time: '11:48', icon: '☀️' }, 
-    { id: 'Asr', label: 'Ashar', time: '15:08', icon: '🌤️' }, 
-    { id: 'Maghrib', label: 'Maghrib', time: '17:38', icon: '🌇' }, 
-    { id: 'Isha', label: 'Isya', time: '18:53', icon: '🌙' }
+    { id: 'Imsak', label: 'Imsak', time: '04:22', icon: '🌙' }, { id: 'Fajr', label: 'Subuh', time: '04:32', icon: '🌙' }, 
+    { id: 'Dhuhr', label: 'Dzuhur', time: '11:48', icon: '☀️' }, { id: 'Asr', label: 'Ashar', time: '15:08', icon: '🌤️' }, 
+    { id: 'Maghrib', label: 'Maghrib', time: '17:38', icon: '🌇' }, { id: 'Isha', label: 'Isya', time: '18:53', icon: '🌙' }
   ];
 
   const getNextPrayer = () => {
@@ -272,7 +333,7 @@ function HomeView({ nav, theme }) {
 }
 
 // ==========================================
-// 2. QURAN VIEW (Dengan Toolbar Kontrol Langsung + API Kemenag)
+// 2. QURAN VIEW 
 // ==========================================
 function QuranView({ nav, navParams, theme, qari, setQari, fontType, setFontType }) {
   const [search, setSearch] = useState('');
@@ -281,17 +342,90 @@ function QuranView({ nav, navParams, theme, qari, setQari, fontType, setFontType
   const [surahDetail, setSurahDetail] = useState(null);
   const [loading, setLoading] = useState(false);
   
+  // Toggles & Settings
+  const [showSettings, setShowSettings] = useState(false);
+  const [showTajwid, setShowTajwid] = useState(false);
   const [showTrans, setShowTrans] = useState(true);
   const [showLatin, setShowLatin] = useState(false);
+  const [autoPlay, setAutoPlay] = useState(true);
   const [fontSize, setFontSize] = useState(28);
   const [ayahBg, setAyahBg] = useState('#FFFFFF');
   
-  const audioRef = useRef(new Audio());
+  // Tafsir
+  const [showTafsir, setShowTafsir] = useState(null);
+  const [tafsirTab, setTafsirTab] = useState('kemenag'); // 'kemenag' or 'jalalayn'
+  const [tafsirData, setTafsirData] = useState({ kemenag: [], jalalayn: [] });
   
+  const [showInfo, setShowInfo] = useState(false);
+  const [infoSurah, setInfoSurah] = useState('');
+
+  const audioRef = useRef(new Audio());
+  const ayahRefs = useRef({});
+  
+  // State Refs for Audio Event Listener
+  const autoPlayRef = useRef(autoPlay);
+  const playingAyahRef = useRef(playingAyah);
+  const surahDetailRef = useRef(surahDetail);
+  const qariRef = useRef(qari);
+  const activeSurahRef = useRef(activeSurah);
+  
+  const [playingPart, setPlayingPart] = useState('ayah'); // 'bismillah' or 'ayah'
+  const playingPartRef = useRef(playingPart);
+
+  useEffect(() => { autoPlayRef.current = autoPlay; }, [autoPlay]);
+  useEffect(() => { playingAyahRef.current = playingAyah; }, [playingAyah]);
+  useEffect(() => { surahDetailRef.current = surahDetail; }, [surahDetail]);
+  useEffect(() => { qariRef.current = qari; }, [qari]);
+  useEffect(() => { activeSurahRef.current = activeSurah; }, [activeSurah]);
+  useEffect(() => { playingPartRef.current = playingPart; }, [playingPart]);
+  
+  // Audio Ended Listener (Auto Play & Bismillah Logic)
   useEffect(() => {
+    const handleEnded = () => {
+        if (!surahDetailRef.current) return;
+        const currentNum = playingAyahRef.current;
+        const currentSurah = activeSurahRef.current;
+        const currentQari = qariRef.current;
+        const qariObj = QARI_LIST.find(q => q.id === currentQari) || QARI_LIST[0];
+        
+        if (playingPartRef.current === 'bismillah') {
+            // Selesai baca Bismillah, lanjut ayat 1
+            setPlayingPart('ayah');
+            const aObj = surahDetailRef.current.find(a => a.numberInSurah === 1);
+            if (aObj) {
+                audioRef.current.src = aObj.audio[currentQari] || aObj.audio['01'];
+                audioRef.current.play().catch(e => console.log(e));
+            }
+        } else {
+            // Selesai baca ayat
+            if (autoPlayRef.current) {
+                const nextAyah = surahDetailRef.current.find(a => a.numberInSurah === currentNum + 1);
+                if (nextAyah) {
+                    setPlayingAyah(nextAyah.numberInSurah);
+                    setPlayingPart('ayah');
+                    audioRef.current.src = nextAyah.audio[currentQari] || nextAyah.audio['01'];
+                    audioRef.current.play().catch(e => console.log(e));
+                    
+                    // Auto scroll
+                    const el = ayahRefs.current[nextAyah.numberInSurah];
+                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                } else {
+                    setPlayingAyah(null);
+                    setPlayingPart('ayah');
+                }
+            } else {
+                setPlayingAyah(null);
+                setPlayingPart('ayah');
+            }
+        }
+    };
+
+    const audioEl = audioRef.current;
+    audioEl.addEventListener('ended', handleEnded);
     return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
+      if (audioEl) {
+        audioEl.removeEventListener('ended', handleEnded);
+        audioEl.pause();
       }
     };
   }, []);
@@ -316,17 +450,53 @@ function QuranView({ nav, navParams, theme, qari, setQari, fontType, setFontType
     setActiveSurah(surah); 
     setLoading(true);
     setSurahDetail(null);
+    setShowTafsir(null);
+    setTafsirData({ kemenag: [], jalalayn: [] });
     
     try {
-      const res = await fetchWithTimeout(`https://equran.id/api/v2/surat/${surah.n}`, {}, 5000);
+      // 1. Fetch Surah Text
+      const [res, tafKemenagRes, tafJalalaynRes] = await Promise.all([
+          fetchWithTimeout(`https://equran.id/api/v2/surat/${surah.n}`, {}, 5000),
+          fetchWithTimeout(`https://equran.id/api/v2/tafsir/${surah.n}`, {}, 5000).catch(()=>null),
+          fetchWithTimeout(`https://api.alquran.cloud/v1/surah/${surah.n}/id.jalalayn`, {}, 5000).catch(()=>null)
+      ]);
+      
       if(!res.ok) throw new Error("API Fail");
       const data = await res.json();
-      setSurahDetail(data.data.ayat.map(a => ({
+      setInfoSurah(data.data.deskripsi || "Informasi tidak tersedia.");
+      
+      // 2. Fetch Tafsir Kemenag
+      let kData = [];
+      if (tafKemenagRes && tafKemenagRes.ok) {
+          const ktJson = await tafKemenagRes.json();
+          kData = ktJson.data.tafsir;
+      }
+      
+      // 3. Fetch Tafsir Jalalayn
+      let jData = [];
+      if (tafJalalaynRes && tafJalalaynRes.ok) {
+          const jtJson = await tafJalalaynRes.json();
+          jData = jtJson.data.ayahs;
+      }
+      setTafsirData({ kemenag: kData, jalalayn: jData });
+
+      // 4. Fetch Tajweed (Opsional)
+      let tajweedData = null;
+      try {
+        const tajRes = await fetchWithTimeout(`https://api.alquran.cloud/v1/surah/${surah.n}/ar.tajweed`, {}, 4000);
+        if(tajRes.ok) {
+           const tajJson = await tajRes.json();
+           tajweedData = tajJson.data.ayahs;
+        }
+      } catch (err) {}
+
+      setSurahDetail(data.data.ayat.map((a, i) => ({
          numberInSurah: a.nomorAyat,
          text: a.teksArab, 
+         tajweedText: (tajweedData && tajweedData[i]) ? tajweedData[i].text : null,
          latin: a.teksLatin,
          trans: a.teksIndonesia,
-         audio: a.audio // Objek berisi banyak versi qari dari Kemenag
+         audio: a.audio 
       })));
     } catch (err) {
       setSurahDetail([{numberInSurah: 1, text: "Gagal memuat ayat.", latin: "", trans: "Harap periksa koneksi internet Anda.", audio: {"01": ""}}]);
@@ -334,123 +504,216 @@ function QuranView({ nav, navParams, theme, qari, setQari, fontType, setFontType
     setLoading(false);
   };
 
+  const scrollToAyah = (num) => {
+    if (!num) return;
+    const ayahNum = parseInt(num);
+    const el = ayahRefs.current[ayahNum];
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      if (playingAyahRef.current !== ayahNum) {
+        setPlayingAyah(ayahNum);
+        setTimeout(() => { if (audioRef.current && audioRef.current.paused) setPlayingAyah(null); }, 2000); 
+      }
+    }
+  };
+
+  const playAyahAudio = (ayahNum) => {
+      if (playingAyah === ayahNum) {
+          audioRef.current.pause();
+          setPlayingAyah(null);
+          setPlayingPart('ayah');
+          return;
+      }
+      
+      const qariObj = QARI_LIST.find(q => q.id === qari) || QARI_LIST[0];
+      const ayahObj = surahDetail.find(a => a.numberInSurah === ayahNum);
+      const isAyah1 = ayahNum === 1;
+      const needsBismillah = isAyah1 && activeSurah.n !== 1 && activeSurah.n !== 9;
+      
+      setPlayingAyah(ayahNum);
+      
+      if (needsBismillah) {
+          setPlayingPart('bismillah');
+          audioRef.current.src = `https://equran.nos.wjv-1.neo.id/audio-partial/${qariObj.dir}/001001.mp3`;
+      } else {
+          setPlayingPart('ayah');
+          audioRef.current.src = ayahObj.audio[qari] || ayahObj.audio['01'];
+      }
+      audioRef.current.play().catch(e => console.log(e));
+  };
+
+  // Smart Copy
+  const handleSmartCopy = (ayah) => {
+      let text = ayah.text + '\n';
+      if (showLatin) text += '\n' + ayah.latin.replace(/<[^>]*>?/gm, '');
+      if (showTrans) text += '\n' + ayah.trans;
+      copyToClipboard(text.trim());
+      // Sedikit efek getar jika support
+      if (navigator.vibrate) navigator.vibrate(30);
+  };
+
+  const renderArabic = (ayah) => {
+    if (!showTajwid || !ayah.tajweedText) return ayah.text;
+    let text = ayah.tajweedText;
+    text = text.replace(/<tajweed class="?([^>"]+)"?>(.*?)<\/tajweed>/g, "<span class='tajweed-$1'>$2</span>");
+    text = text.replace(/\[h:(\d+)\](.*?)\[l\]/g, "<span class='tajweed-$1'>$2</span>");
+    text = text.replace(/\[.*?\]/g, ""); 
+    return <span dangerouslySetInnerHTML={{__html: text}} />;
+  };
+
   if (activeSurah) {
-    // Memetakan ID Qari dari Pengaturan ke ID Kemenag (01, 02, 03, dst)
-    const QARI_MAP = { 'ar.alafasy': '01', 'ar.yasserdussary': '02', 'ar.abdurrahmaansudais': '03', 'ar.abdullahbasfar': '04', 'ar.abdulmuhsinqasim': '05' };
-    const qariId = QARI_MAP[qari] || '01';
+    const surahOpts = SURAHS_DB.map(s => ({ value: s.n, label: `${s.n}. ${s.id}` }));
+    const ayahOpts = Array.from({length: activeSurah.ay}, (_, i) => ({ value: i + 1, label: `Ayat ${i + 1}` }));
 
     return (
-      <div className="pb-20 bg-slate-50 min-h-full px-4 animate-in fade-in">
+      <div className="pb-20 bg-slate-50 min-h-full animate-in fade-in">
         
-        {/* KEPALA SURAT & TOMBOL KEMBALI */}
-        <div className="sticky top-0 bg-slate-50/90 backdrop-blur-md z-40 pb-3 pt-4 flex items-center gap-3">
+        {/* Info Surah Modal */}
+        {showInfo && (
+           <div className="fixed inset-0 z-[80] flex items-center justify-center p-5 bg-black/50 backdrop-blur-sm animate-in fade-in" onClick={()=>setShowInfo(false)}>
+              <div className="bg-white rounded-[24px] p-6 w-full max-w-[340px] max-h-[70vh] overflow-y-auto shadow-2xl" onClick={e=>e.stopPropagation()}>
+                 <div className="flex justify-between items-center mb-4 pb-2 border-b border-gray-100">
+                    <h3 className="font-bold text-gray-800 flex items-center gap-2"><Info size={18} style={{color: theme.hex}}/> Asbabun Nuzul</h3>
+                    <button onClick={()=>setShowInfo(false)} className="bg-gray-100 p-1.5 rounded-full"><X size={16}/></button>
+                 </div>
+                 <div className="text-[12px] text-gray-600 text-justify leading-relaxed" dangerouslySetInnerHTML={{__html: infoSurah}}></div>
+              </div>
+           </div>
+        )}
+
+        {/* TOOLBAR MEMBEKU (STICKY TOP) - GELAP & PREMIUM */}
+        <div className="sticky top-0 z-[60] bg-slate-900 text-white shadow-xl flex flex-col transition-all">
+          <div className="px-4 py-3 flex items-center gap-2">
             <button onClick={() => {
                 setActiveSurah(null);
                 if (audioRef.current) audioRef.current.pause();
                 setPlayingAyah(null);
-            }} className="p-2.5 bg-white rounded-xl shadow-sm active:scale-95 transition-all text-gray-700 hover:bg-gray-50 border border-gray-100">
-                <ArrowLeft size={18} />
+            }} className="p-2 bg-slate-800 rounded-[12px] active:scale-95 text-gray-300 hover:text-white transition-all shrink-0">
+                <ArrowLeft size={16} />
             </button>
-            <div>
-                <h2 className="font-black text-[16px] text-gray-800 tracking-tight">{activeSurah.id}</h2>
-                <p className="text-[10px] font-bold" style={{ color: theme.hex }}>{activeSurah.type} • {activeSurah.ay} Ayat</p>
+            
+            <PremiumSelect options={surahOpts} value={activeSurah.n} onChange={(v) => openSurah(SURAHS_DB.find(s=>s.n===v))} placeholder="Surah..." theme={theme} />
+            <div className="w-[80px]">
+               <PremiumSelect options={ayahOpts} value={""} onChange={(v) => scrollToAyah(v)} placeholder="Ayat..." alignRight={true} theme={theme} />
             </div>
+
+            <button onClick={() => setShowSettings(!showSettings)} className={`p-2 rounded-[12px] active:scale-95 transition-all shrink-0 ${showSettings ? 'bg-white text-slate-900' : 'bg-slate-800 text-gray-300 hover:text-white'}`}>
+                <Menu size={16} />
+            </button>
+          </div>
+
+          {/* MENU SETTING TOGGLE (Bergulir ke bawah sejajar Toolbar) */}
+          {showSettings && (
+            <div className="px-4 pb-4 animate-in slide-in-from-top-2 border-t border-slate-800 pt-3">
+              <div className="grid grid-cols-5 gap-2 mb-3">
+                <button onClick={() => setShowLatin(!showLatin)} className={`py-2 flex justify-center rounded-[10px] text-xs font-bold transition-all shadow-sm ${showLatin ? 'text-white' : 'bg-slate-800 text-gray-400'}`} style={showLatin ? { backgroundColor: theme.hex } : {}}><Type size={14}/></button>
+                <button onClick={() => setShowTrans(!showTrans)} className={`py-2 flex justify-center rounded-[10px] text-xs font-bold transition-all shadow-sm ${showTrans ? 'text-white' : 'bg-slate-800 text-gray-400'}`} style={showTrans ? { backgroundColor: theme.hex } : {}}><Globe size={14}/></button>
+                <button onClick={() => setAutoPlay(!autoPlay)} className={`py-2 flex justify-center rounded-[10px] text-xs font-bold transition-all shadow-sm ${autoPlay ? 'text-white' : 'bg-slate-800 text-gray-400'}`} style={autoPlay ? { backgroundColor: theme.hex } : {}}><ListOrdered size={14}/></button>
+                <button onClick={() => setShowTajwid(!showTajwid)} className={`py-2 flex justify-center rounded-[10px] text-xs font-bold transition-all shadow-sm ${showTajwid ? 'text-white' : 'bg-slate-800 text-gray-400'}`} style={showTajwid ? { backgroundColor: theme.hex } : {}}><Palette size={14}/></button>
+                <button onClick={() => setShowInfo(true)} className="py-2 flex justify-center rounded-[10px] text-xs font-bold transition-all shadow-sm bg-slate-800 text-gray-400 hover:text-white"><Info size={14}/></button>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <select value={qari} onChange={e => { setQari(e.target.value); if(audioRef.current) audioRef.current.pause(); setPlayingAyah(null); }} className="flex-1 bg-slate-800 border border-slate-700 px-3 py-2 rounded-[10px] text-[10px] font-bold text-white outline-none focus:ring-1" style={{ focusRingColor: theme.hex }}>
+                    {QARI_LIST.map(q => <option key={q.id} value={q.id}>{q.name}</option>)}
+                </select>
+                <select value={fontType} onChange={e => setFontType(e.target.value)} className="w-[80px] bg-slate-800 border border-slate-700 px-2 py-2 rounded-[10px] text-[10px] font-bold text-white outline-none focus:ring-1" style={{ focusRingColor: theme.hex }}>
+                    <option value="uthmani">Madinah</option>
+                    <option value="kemenag">Kemenag</option>
+                </select>
+                <div className="flex items-center bg-slate-800 px-2 py-1.5 rounded-[10px] border border-slate-700 shrink-0">
+                  <button onClick={() => setFontSize(Math.max(20, fontSize - 4))} className="w-5 h-5 flex items-center justify-center text-gray-400 hover:text-white font-bold text-xs">-</button>
+                  <span className="text-[10px] font-bold text-white w-6 text-center">{fontSize}</span>
+                  <button onClick={() => setFontSize(Math.min(48, fontSize + 4))} className="w-5 h-5 flex items-center justify-center text-gray-400 hover:text-white font-bold text-xs">+</button>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-2 mt-3 bg-slate-800 p-2 rounded-[12px]">
+                 <span className="text-[9px] font-bold text-gray-400 uppercase ml-1 flex-1">Warna Latar</span>
+                 {['#FFFFFF', '#FEF3C7', '#ECFDF5', '#EFF6FF', '#F3E8FF'].map(c => (
+                     <button key={c} onClick={() => setAyahBg(c)} className={`w-5 h-5 rounded-full border-2 transition-all shadow-sm ${ayahBg === c ? 'scale-110' : 'border-transparent'}`} style={{ backgroundColor: c, borderColor: ayahBg === c ? theme.hex : 'transparent' }}></button>
+                 ))}
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* TOOLBAR PENGATURAN SURAH LANGSUNG */}
-        <div className="bg-white rounded-[20px] p-3 shadow-sm mb-4 border border-gray-100 z-30 relative flex flex-col gap-3">
-          
-          {/* Baris 1: Toggle Bacaan & Ukuran Font */}
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex gap-1.5 overflow-x-auto scrollbar-hide">
-              <button onClick={() => setShowLatin(!showLatin)} className={`px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all shadow-sm whitespace-nowrap ${showLatin ? 'text-white' : 'bg-gray-100 text-gray-500 border border-gray-200'}`} style={showLatin ? { backgroundColor: theme.hex } : {}}>
-                Latin: {showLatin ? 'ON' : 'OFF'}
-              </button>
-              <button onClick={() => setShowTrans(!showTrans)} className={`px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all shadow-sm whitespace-nowrap ${showTrans ? 'text-white' : 'bg-gray-100 text-gray-500 border border-gray-200'}`} style={showTrans ? { backgroundColor: theme.hex } : {}}>
-                Arti: {showTrans ? 'ON' : 'OFF'}
-              </button>
-            </div>
-            <div className="flex items-center bg-slate-50 p-1 rounded-[10px] border border-gray-100 shrink-0">
-              <button onClick={() => setFontSize(Math.max(20, fontSize - 4))} className="w-6 h-6 flex items-center justify-center bg-white rounded shadow-sm text-gray-700 font-bold active:scale-95 text-xs">-</button>
-              <span className="text-[10px] font-bold text-gray-600 w-6 text-center">{fontSize}</span>
-              <button onClick={() => setFontSize(Math.min(48, fontSize + 4))} className="w-6 h-6 flex items-center justify-center bg-white rounded shadow-sm text-gray-700 font-bold active:scale-95 text-xs">+</button>
-            </div>
-          </div>
-
-          {/* Baris 2: Pilih Qari & Jenis Khat */}
-          <div className="flex items-center justify-between gap-2 border-t border-gray-50 pt-2">
-             <select value={qari} onChange={e => { if(setQari) setQari(e.target.value); if(audioRef.current) audioRef.current.pause(); setPlayingAyah(null); }} className="flex-1 bg-slate-50 border border-gray-100 px-2 py-1.5 rounded-[10px] text-[10px] font-bold text-gray-700 outline-none focus:ring-1" style={{ focusRingColor: theme.hex }}>
-                {QARI_LIST.map(q => <option key={q.id} value={q.id}>{q.name}</option>)}
-             </select>
-             <div className="flex gap-1 shrink-0">
-                <button onClick={() => setFontType && setFontType('uthmani')} className={`px-2 py-1.5 rounded-[8px] text-[9px] font-bold transition-all ${fontType === 'uthmani' ? 'text-white' : 'bg-slate-50 text-gray-500 border border-gray-100'}`} style={fontType === 'uthmani' ? { backgroundColor: theme.hex } : {}}>Madinah</button>
-                <button onClick={() => setFontType && setFontType('kemenag')} className={`px-2 py-1.5 rounded-[8px] text-[9px] font-bold transition-all ${fontType === 'kemenag' ? 'text-white' : 'bg-slate-50 text-gray-500 border border-gray-100'}`} style={fontType === 'kemenag' ? { backgroundColor: theme.hex } : {}}>Kemenag</button>
-             </div>
-          </div>
-
-          {/* Baris 3: Pemilih Warna Latar Belakang Ayat */}
-          <div className="flex items-center justify-between border-t border-gray-50 pt-2">
-             <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Warna Latar</span>
-             <div className="flex gap-1.5">
-                {['#FFFFFF', '#FEF3C7', '#ECFDF5', '#EFF6FF', '#F3E8FF'].map(c => (
-                   <button key={c} onClick={() => setAyahBg(c)} className={`w-5 h-5 rounded-full border-2 transition-all shadow-sm ${ayahBg === c ? 'scale-110' : 'border-transparent'}`} style={{ backgroundColor: c, borderColor: ayahBg === c ? theme.hex : 'transparent' }}></button>
-                ))}
-             </div>
-          </div>
+        {/* SCROLLABLE KOP HALAMAN (Header Surah Ramping Premium) */}
+        <div className="mx-4 mb-6 mt-2 rounded-[24px] text-white text-center py-5 shadow-lg relative overflow-hidden flex flex-col items-center justify-center" style={{ background: `linear-gradient(135deg, ${theme.hex}, #0F172A)` }}>
+           <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/arabesque.png')] mix-blend-overlay"></div>
+           <h1 className="text-4xl font-uthmani font-bold drop-shadow-md mb-2 relative z-10">{activeSurah.ar}</h1>
+           <h2 className="text-[16px] font-black tracking-widest uppercase opacity-90 relative z-10 mb-2">{activeSurah.id}</h2>
+           <div className="flex gap-2 text-[9px] font-bold relative z-10">
+              <span className="bg-white/20 px-3 py-1 rounded-full backdrop-blur-sm">{activeSurah.type}</span>
+              <span className="bg-white/20 px-3 py-1 rounded-full backdrop-blur-sm">{activeSurah.ay} Ayat</span>
+           </div>
         </div>
 
-        {/* LOADING SKELETON */}
-        <div className="space-y-4">
+        {/* LOADING SKELETON OR CONTENT */}
+        <div className="space-y-4 px-4">
           {loading ? (
              <div className="space-y-4">
-                {[1,2,3,4].map(skeleton => (
+                {[1,2,3].map(skeleton => (
                    <div key={skeleton} className="bg-white p-6 rounded-[24px] shadow-sm animate-shimmer border border-gray-50">
-                      <div className="flex justify-between mb-6">
-                        <div className="h-6 w-6 bg-slate-200 rounded-full opacity-50"></div>
-                        <div className="h-6 bg-slate-200 rounded-md w-1/4 opacity-50"></div>
-                      </div>
-                      <div className="h-8 w-full bg-slate-200 rounded-md mb-3 opacity-50"></div>
-                      <div className="h-8 w-5/6 bg-slate-200 rounded-md ml-auto mb-5 opacity-50"></div>
-                      <div className="h-3 w-3/4 bg-slate-200 rounded-md opacity-50"></div>
+                      <div className="flex justify-between mb-6"><div className="h-6 w-6 bg-slate-200 rounded-full"></div></div>
+                      <div className="h-8 w-full bg-slate-200 rounded-md mb-3"></div>
+                      <div className="h-8 w-5/6 bg-slate-200 rounded-md ml-auto mb-5"></div>
                    </div>
                 ))}
              </div>
           ) : (
-            surahDetail && surahDetail.map((ayah) => (
-              <div key={ayah.numberInSurah} className="p-5 rounded-[24px] shadow-[0_4px_20px_rgba(0,0,0,0.03)] border transition-all" style={{ backgroundColor: ayahBg, borderColor: playingAyah === ayah.numberInSurah ? theme.hex : 'transparent', ...(playingAyah === ayah.numberInSurah ? { boxShadow: `0 4px 15px ${theme.hex}40` } : {}) }}>
-                <div className="flex justify-between items-center mb-5">
-                  <div className="w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-bold shadow-sm" style={{ backgroundColor: theme.light, color: theme.hex }}>
-                    {ayah.numberInSurah}
-                  </div>
-                  <div className="flex gap-2">
-                    <button className="p-2 text-gray-400 hover:bg-gray-50 rounded-xl transition-colors bg-white/50" onClick={() => navigator.clipboard.writeText(ayah.trans)}><Copy size={16}/></button>
-                    <button onClick={() => {
-                       if (playingAyah === ayah.numberInSurah) { 
-                         audioRef.current.pause(); 
-                         setPlayingAyah(null); 
-                       } else { 
-                         // Mengambil URL Audio Qari dari Data Kemenag (Fallback ke 01 jika Qari tidak tersedia)
-                         const audioUrl = ayah.audio[qariId] || ayah.audio['01'];
-                         audioRef.current.src = audioUrl; 
-                         audioRef.current.play().catch(e => console.log("Audio Error:", e)); 
-                         setPlayingAyah(ayah.numberInSurah); 
-                         audioRef.current.onended = () => setPlayingAyah(null);
-                       }
-                    }} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full font-bold active:scale-95 transition-colors`} style={playingAyah === ayah.numberInSurah ? { backgroundColor: theme.hex, color: 'white' } : { backgroundColor: theme.light, color: theme.hex }}>
-                      {playingAyah === ayah.numberInSurah ? <Pause size={12} /> : <Play size={12} />} <span className="text-[10px]">Putar</span>
-                    </button>
-                  </div>
+            <>
+              {/* KARTU BASMALLAH (Jika bukan Al-Fatihah & At-Taubah) */}
+              {activeSurah.n !== 1 && activeSurah.n !== 9 && (
+                <div className="bg-white p-5 rounded-[24px] shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-gray-50 text-center mb-6 flex justify-center items-center">
+                   <p className="font-uthmani text-3xl text-gray-800 tracking-widest opacity-90" style={{color: theme.hex}}>بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>
                 </div>
-                
-                {/* Teks Arab dengan Ukuran Dinamis */}
-                <div className={`text-right mb-4 text-gray-800 font-${fontType} transition-all duration-300`} style={{ fontSize: `${fontSize}px`, lineHeight: fontType === 'uthmani' ? 2.3 : 2.0 }} dir="rtl">
-                   {ayah.text}
+              )}
+
+              {/* LIST AYAT */}
+              {surahDetail && surahDetail.map((ayah) => (
+                <div ref={(el) => ayahRefs.current[ayah.numberInSurah] = el} key={ayah.numberInSurah} className="p-5 rounded-[24px] shadow-[0_4px_20px_rgba(0,0,0,0.03)] border transition-all mb-4" style={{ backgroundColor: ayahBg, borderColor: playingAyah === ayah.numberInSurah ? theme.hex : 'transparent', ...(playingAyah === ayah.numberInSurah ? { boxShadow: `0 4px 15px ${theme.hex}40` } : {}) }}>
+                  <div className="flex justify-between items-center mb-5">
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-bold shadow-sm" style={{ backgroundColor: theme.light, color: theme.hex }}>
+                      {ayah.numberInSurah}
+                    </div>
+                    <div className="flex gap-2">
+                      <button className="p-2 text-gray-400 hover:bg-gray-100 rounded-[12px] transition-colors bg-white/60 active:scale-95 shadow-sm" onClick={() => handleSmartCopy(ayah)}><Copy size={16}/></button>
+                      <button className={`p-2 rounded-[12px] transition-colors active:scale-95 shadow-sm ${showTafsir === ayah.numberInSurah ? 'text-white' : 'text-gray-400 hover:bg-gray-100 bg-white/60'}`} style={showTafsir === ayah.numberInSurah ? { backgroundColor: theme.hex } : {}} onClick={() => setShowTafsir(showTafsir === ayah.numberInSurah ? null : ayah.numberInSurah)}><BookOpen size={16}/></button>
+                      <button onClick={() => playAyahAudio(ayah.numberInSurah)} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-[12px] font-bold active:scale-95 transition-colors shadow-sm`} style={playingAyah === ayah.numberInSurah ? { backgroundColor: theme.hex, color: 'white' } : { backgroundColor: theme.light, color: theme.hex }}>
+                        {playingAyah === ayah.numberInSurah ? <Pause size={12} className={playingPart === 'bismillah' ? 'animate-pulse' : ''} /> : <Play size={12} />} 
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {/* Teks Arab Dinamis dengan Dukungan Tajwid */}
+                  <div className={`text-right mb-4 text-gray-800 font-${fontType} transition-all duration-300`} style={{ fontSize: `${fontSize}px`, lineHeight: fontType === 'uthmani' ? 2.3 : 2.0 }} dir="rtl">
+                     {renderArabic(ayah)}
+                  </div>
+                  
+                  {showLatin && <div className="text-[12px] leading-relaxed font-semibold mb-3 animate-in fade-in italic" style={{ color: theme.hex }} dangerouslySetInnerHTML={{__html: ayah.latin}}></div>}
+                  {showTrans && <div className="text-[12px] text-gray-600 leading-relaxed font-medium animate-in fade-in">{ayah.trans}</div>}
+                  
+                  {/* BLOK TAFSIR PREMIUM */}
+                  {showTafsir === ayah.numberInSurah && (
+                     <div className="mt-5 border border-gray-100 rounded-[16px] overflow-hidden animate-in slide-in-from-top-2 shadow-sm">
+                        <div className="flex">
+                           <button onClick={() => setTafsirTab('kemenag')} className={`flex-1 py-2.5 text-[10px] font-bold transition-colors ${tafsirTab === 'kemenag' ? 'bg-amber-100 text-amber-800' : 'bg-gray-50 text-gray-400'}`}>Tafsir Kemenag</button>
+                           <button onClick={() => setTafsirTab('jalalayn')} className={`flex-1 py-2.5 text-[10px] font-bold transition-colors ${tafsirTab === 'jalalayn' ? 'bg-teal-100 text-teal-800' : 'bg-gray-50 text-gray-400'}`}>Tafsir Jalalayn</button>
+                        </div>
+                        <div className={`p-4 text-[11px] leading-relaxed text-justify font-medium text-gray-700 ${tafsirTab === 'kemenag' ? 'bg-amber-50/50' : 'bg-teal-50/50'}`}>
+                           {tafsirTab === 'kemenag' ? 
+                              (tafsirData.kemenag.find(t => t.ayat === ayah.numberInSurah)?.teks || "Tafsir Kemenag belum tersedia untuk ayat ini.") 
+                              : 
+                              (tafsirData.jalalayn.find(t => t.numberInSurah === ayah.numberInSurah)?.text || "Tafsir Jalalayn belum tersedia untuk ayat ini.")
+                           }
+                        </div>
+                     </div>
+                  )}
                 </div>
-                
-                {showLatin && <div className="text-[12px] leading-relaxed font-semibold mb-3 animate-in fade-in italic" style={{ color: theme.hex }} dangerouslySetInnerHTML={{__html: ayah.latin}}></div>}
-                {showTrans && <div className="text-[12px] text-gray-600 leading-relaxed font-medium animate-in fade-in">{ayah.trans}</div>}
-              </div>
-            ))
+              ))
+            }
+            </>
           )}
         </div>
       </div>
@@ -463,14 +726,23 @@ function QuranView({ nav, navParams, theme, qari, setQari, fontType, setFontType
         <Search className="absolute left-4 top-3.5 text-gray-400" size={18} />
         <input type="text" placeholder="Cari 114 surat..." value={search} onChange={e=>setSearch(e.target.value)} className="w-full bg-white border border-gray-100 shadow-sm text-sm font-medium text-gray-700 rounded-[20px] pl-12 pr-4 py-3.5 outline-none focus:ring-2 transition-all" style={{ focusRingColor: theme.hex }} />
       </div>
+      <div className="flex gap-2 mb-4 overflow-x-auto scrollbar-hide pb-1">
+         {['Semua', 'Makkiyah', 'Madaniyah'].map(f => (
+            <button key={f} className={`px-4 py-2 rounded-full text-[10px] font-bold border transition-all shadow-sm ${f==='Semua' ? 'text-white' : 'bg-white text-gray-500 border-gray-100'}`} style={f==='Semua' ? {backgroundColor: theme.hex, borderColor: theme.hex} : {}}>{f}</button>
+         ))}
+      </div>
       <div className="space-y-3">
         {filteredSurahs.map((s) => (
-          <button key={s.n} onClick={() => openSurah(s)} className="w-full bg-white p-3.5 rounded-[20px] flex items-center justify-between shadow-sm hover:shadow-md transition-all text-left">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 flex items-center justify-center rounded-[12px]" style={{ backgroundColor: theme.light, color: theme.hex }}><span className="text-[11px] font-bold">{s.n}</span></div>
-              <div><h3 className="font-bold text-gray-800 text-[13px]">{s.id}</h3><p className="text-[9px] font-bold mt-0.5" style={{ color: theme.hex }}>{s.type} • {s.tr}</p></div>
+          <button key={s.n} onClick={() => openSurah(s)} className="w-full bg-white p-3.5 rounded-[20px] flex items-center justify-between shadow-sm hover:shadow-md transition-all text-left border border-gray-50">
+            <div className="flex items-center gap-4">
+              <div className="relative w-10 h-10 flex items-center justify-center shrink-0">
+                 <div className="absolute inset-0 rotate-45 rounded-[8px] opacity-10" style={{ backgroundColor: theme.hex }}></div>
+                 <div className="absolute inset-0 rounded-[8px] opacity-10" style={{ backgroundColor: theme.hex }}></div>
+                 <span className="relative z-10 text-[11px] font-bold" style={{ color: theme.hex }}>{s.n}</span>
+              </div>
+              <div><h3 className="font-bold text-gray-800 text-[13px]">{s.id}</h3><p className="text-[9px] font-bold mt-0.5 text-gray-400"><span style={{ color: theme.hex }}>{s.type}</span> • {s.tr}</p></div>
             </div>
-            <div className="text-xl font-bold font-uthmani" style={{ color: theme.hex }}>{s.ar}</div>
+            <div className="text-[20px] font-bold font-uthmani" style={{ color: theme.hex }}>{s.ar}</div>
           </button>
         ))}
       </div>
