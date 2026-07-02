@@ -1774,12 +1774,12 @@
             };
 
             return (
-                <div className="h-[100dvh] flex flex-col animate-in slide-in-from-right-4 bg-transparent relative z-10">
-                    <div className="bg-white/90 backdrop-blur-md px-4 py-3 flex items-center shadow-sm z-30">
-                        <button onClick={() => nav('home')} className="p-2 rounded-[14px] bg-slate-100 mr-3 hover:bg-slate-200 transition-colors"><ArrowLeft size={18} className="text-slate-600" /></button>
+                <div className="absolute inset-0 flex flex-col animate-in slide-in-from-right-4 bg-[#F8FAFC] z-20 pb-[70px]">
+                    <div className="bg-white/90 backdrop-blur-md px-4 py-3 flex items-center shadow-sm z-30 shrink-0">
+                        <button onClick={() => nav('home')} className="p-2 rounded-[14px] bg-slate-100 mr-3 hover:bg-slate-200 transition-colors active:scale-95"><ArrowLeft size={18} className="text-slate-600" /></button>
                         <div><h1 className="text-[13px] font-black text-slate-800">Tarjih AI (Gaul)</h1><p className="text-[9px] font-bold text-green-500">Sesuai HPT Muhammadiyah</p></div>
                     </div>
-                    <div className="flex-1 p-4 overflow-y-auto space-y-4 relative z-10 pb-4">
+                    <div className="flex-1 p-4 overflow-y-auto space-y-4 relative z-10">
                         {messages.map((m, i) => (
                             <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                                 <div className={`p-3.5 rounded-[20px] max-w-[85%] text-[12px] font-medium leading-relaxed shadow-sm ${m.role === 'user' ? 'text-white rounded-tr-none' : 'bg-white border border-slate-100 text-slate-700 rounded-tl-none'}`} style={m.role === 'user' ? { backgroundColor: theme.hex } : {}}>
@@ -1790,9 +1790,9 @@
                         {loading && <div className="flex justify-start"><div className="bg-white border border-slate-100 p-3 rounded-[20px] rounded-tl-none shadow-sm flex gap-1"><span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"></span></div></div>}
                         <div ref={endRef}></div>
                     </div>
-                    <div className="p-4 bg-white/90 backdrop-blur-md border-t border-slate-100 flex gap-2 relative z-20">
+                    <div className="p-4 bg-white/90 backdrop-blur-md border-t border-slate-100 flex gap-2 relative z-20 shrink-0">
                         <input type="text" value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>e.key==='Enter' && handleSend()} placeholder="Tanya santai soal agama..." className="flex-1 bg-slate-100 rounded-full px-4 py-2.5 text-xs font-medium outline-none focus:ring-2 transition-all" style={{ focusRingColor: theme.hex }} />
-                        <button onClick={handleSend} disabled={loading} className="w-10 h-10 rounded-full flex items-center justify-center text-white shadow-md active:scale-95 transition-transform" style={{ backgroundColor: theme.hex }}><Send size={16} className="ml-1 -mt-0.5"/></button>
+                        <button onClick={handleSend} disabled={loading} className="w-10 h-10 rounded-full flex items-center justify-center text-white shadow-md active:scale-95 transition-transform shrink-0" style={{ backgroundColor: theme.hex }}><Send size={16} className="ml-1 -mt-0.5"/></button>
                     </div>
                 </div>
             );
