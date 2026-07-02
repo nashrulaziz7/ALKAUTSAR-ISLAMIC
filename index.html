@@ -12,10 +12,8 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
-        /* Google Fonts Cadangan Anti-Gagal */
-        @import url('https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Inter:wght@300;400;500;600;700;800;900&family=Lateef&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Inter:wght@300;400;500;600;700;800;900&family=Lateef&family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap');
         
-        /* Font Mushaf Standar Madinah (Muslim Pro) - Ketebalan Normal (Server Baru) */
         @font-face {
             font-family: 'KFGQPC_HAFS';
             src: url('https://cdn.jsdelivr.net/gh/fawazahmed0/quran-fonts@master/kfgqpc_hafs_uthmanic_script.woff2') format('woff2'),
@@ -25,7 +23,6 @@
             font-display: swap;
         }
 
-        /* Font Kemenag LPMQ */
         @font-face {
             font-family: 'LPMQ';
             src: url('https://cdn.jsdelivr.net/gh/lpmq-font/lpmq-font@master/lpmq.woff2') format('woff2');
@@ -43,17 +40,17 @@
         @keyframes bounce-soft { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
         .animate-bounce-soft { animation: bounce-soft 2s ease-in-out infinite; }
         
-        /* Animasi Polkadot Super Jumbo & Fleksibel untuk Semua Kamar */
+        /* Polkadot Raksasa & Sangat Fleksibel (Berlaku Global) */
         @keyframes float-polka {
             0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.15; }
-            33% { transform: translate(120px, -150px) scale(1.8); opacity: 0.3; }
-            66% { transform: translate(-100px, 80px) scale(0.8); opacity: 0.25; }
+            33% { transform: translate(150px, -200px) scale(2.2); opacity: 0.25; }
+            66% { transform: translate(-120px, 100px) scale(0.9); opacity: 0.2; }
         }
-        .polka-dot { position: absolute; border-radius: 50%; animation: float-polka 15s ease-in-out infinite; pointer-events: none; }
+        .polka-dot { position: absolute; border-radius: 50%; animation: float-polka 20s ease-in-out infinite; pointer-events: none; z-index: 0; }
 
-        /* Font Arab - Disetel dengan fallback kuat agar perbedaan 100% terlihat nyata */
-        .font-uthmani { font-family: 'KFGQPC_HAFS', 'Amiri Quran', 'Arial', serif !important; line-height: 2.0 !important; font-weight: normal !important; word-spacing: normal !important; }
-        .font-kemenag { font-family: 'LPMQ', 'Lateef', 'Arial', serif !important; line-height: 2.2 !important; font-size: 1.15em !important; font-weight: normal !important; word-spacing: normal !important; }
+        /* Setup ketebalan Normal untuk font Arab agar tidak bertabrakan */
+        .font-uthmani { font-family: 'KFGQPC_HAFS', 'Amiri Quran', 'Noto Naskh Arabic', serif !important; line-height: 2.0 !important; font-weight: normal !important; word-spacing: normal !important; }
+        .font-kemenag { font-family: 'LPMQ', 'Lateef', 'Arial', serif !important; line-height: 2.0 !important; font-size: 1.15em !important; font-weight: normal !important; word-spacing: normal !important; }
         
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -61,7 +58,6 @@
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* KELAS WARNA TAJWID (Tanpa Bold) */
         .tajweed-ghunnah { color: #D946EF !important; font-weight: normal !important; } 
         .tajweed-idgham-bighunnah { color: #3B82F6 !important; font-weight: normal !important; } 
         .tajweed-idgham-bilaghunnah { color: #60A5FA !important; font-weight: normal !important; } 
@@ -77,10 +73,23 @@
     </style>
 </head>
 <body class="bg-slate-200 flex justify-center">
-    <div id="root" class="w-full max-w-[390px] h-[100dvh] bg-[#F8FAFC] shadow-2xl overflow-hidden relative"></div>
+    <div id="root" class="w-full max-w-[390px] h-[100dvh] bg-[#F8FAFC] shadow-2xl overflow-hidden relative mx-auto"></div>
 
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
+
+        // GLOBAL MEMORY CACHE - Rahasia Loading Secepat Cahaya!
+        if (!window.AL_KAUTSAR_CACHE) {
+            window.AL_KAUTSAR_CACHE = {
+                surahs: {},
+                loc: { lat: -7.5666, lon: 110.8166, name: 'Surakarta, Jawa Tengah' },
+                prayerTimes: [
+                    { id: 'Imsak', label: 'Imsak', time: '04:15', icon: '🌙' }, { id: 'Fajr', label: 'Subuh', time: '04:25', icon: '🌙' }, 
+                    { id: 'Dhuhr', label: 'Dzuhur', time: '11:45', icon: '☀️' }, { id: 'Asr', label: 'Ashar', time: '15:00', icon: '🌤️' }, 
+                    { id: 'Maghrib', label: 'Maghrib', time: '17:35', icon: '🌇' }, { id: 'Isha', label: 'Isya', time: '18:50', icon: '🌙' }
+                ]
+            };
+        }
         
         const fetchWithTimeout = (url, options = {}, timeout = 5000) => {
             return Promise.race([
@@ -100,12 +109,9 @@
                 if (svgRef.current && window.lucide && window.lucide.icons[name]) {
                     const iconData = window.lucide.icons[name];
                     const svg = window.lucide.createElement(iconData);
-                    svg.setAttribute('width', size);
-                    svg.setAttribute('height', size);
-                    svg.setAttribute('stroke', color);
-                    svg.setAttribute('stroke-width', strokeWidth);
-                    svgRef.current.innerHTML = '';
-                    svgRef.current.appendChild(svg);
+                    svg.setAttribute('width', size); svg.setAttribute('height', size);
+                    svg.setAttribute('stroke', color); svg.setAttribute('stroke-width', strokeWidth);
+                    svgRef.current.innerHTML = ''; svgRef.current.appendChild(svg);
                 }
             }, [name, size, color, strokeWidth]);
             return <span ref={svgRef} className={`inline-flex items-center justify-center ${className}`} {...rest} />;
@@ -151,23 +157,20 @@
         ];
 
         const QARI_LIST = [
-            { id: 'alafasy', name: 'Mishary Alafasy (Merdu)' },
+            { id: 'alafasy', name: 'Mishary Rashid Alafasy' },
             { id: 'ghamdi', name: 'Saad Al-Ghamdi (Tenang)' },
             { id: 'shatri', name: 'Abu Bakr Ash-Shatri (Jiharkah)' },
             { id: 'qasim', name: 'Abdul Muhsin Al-Qasim (Tenang)' },
             { id: 'rifai', name: 'Hani Ar-Rifai (Syahdu)' },
-            { id: 'husary', name: 'Mahmoud Al-Husary (Tartil)' }
+            { id: 'husary', name: 'Mahmud Kholil Al-Husari (Tartil)' },
+            { id: 'ayman', name: 'Syekh Ayman Suwaid (Tajwid)' }
         ];
 
         const handleCopyText = (text) => {
-            const textArea = document.createElement("textarea");
-            textArea.value = text;
-            textArea.style.position = "fixed"; textArea.style.top = "0"; textArea.style.left = "0";
-            textArea.style.opacity = "0";
-            document.body.appendChild(textArea);
-            textArea.focus(); textArea.select();
-            try { document.execCommand('copy'); } catch (err) {}
-            document.body.removeChild(textArea);
+            const textArea = document.createElement("textarea"); textArea.value = text;
+            textArea.style.position = "fixed"; textArea.style.top = "0"; textArea.style.left = "0"; textArea.style.opacity = "0";
+            document.body.appendChild(textArea); textArea.focus(); textArea.select();
+            try { document.execCommand('copy'); } catch (err) {} document.body.removeChild(textArea);
         };
 
         const getAudioUrl = (qariId, surahNum, ayahNum) => {
@@ -176,10 +179,11 @@
             switch(qariId) {
                 case 'alafasy': return `https://everyayah.com/data/Alafasy_128kbps/${file}`;
                 case 'ghamdi': return `https://everyayah.com/data/Ghamadi_40kbps/${file}`; 
-                case 'rifai': return `https://everyayah.com/data/Hani_Rifai_192kbps/${file}`;
                 case 'shatri': return `https://everyayah.com/data/Abu_Bakr_Ash-Shaatree_128kbps/${file}`;
                 case 'qasim': return `https://everyayah.com/data/Muhsin_Al_Qasim_192kbps/${file}`;
+                case 'rifai': return `https://everyayah.com/data/Hani_Rifai_192kbps/${file}`;
                 case 'husary': return `https://everyayah.com/data/Husary_128kbps/${file}`;
+                case 'ayman': return `https://everyayah.com/data/Ayman_Sowaid_64kbps/${file}`;
                 default: return `https://everyayah.com/data/Alafasy_128kbps/${file}`;
             }
         };
@@ -219,13 +223,14 @@
             const [appQari, setAppQari] = useState('alafasy'); 
             const [appFont, setAppFont] = useState('uthmani'); 
 
-            const [userLoc, setUserLoc] = useState({ lat: -7.5666, lon: 110.8166, name: 'Mencari lokasi...' });
-            const [prayerTimes, setPrayerTimes] = useState(null);
+            // Loading 0 Detik dari Global Cache
+            const [userLoc, setUserLoc] = useState(window.AL_KAUTSAR_CACHE.loc);
+            const [prayerTimes, setPrayerTimes] = useState(window.AL_KAUTSAR_CACHE.prayerTimes);
 
-            // Fetch Data GPS & Jadwal Sholat Tahan Banting (Anti-Crash)
+            // Fetch Background Senyap untuk GPS yang Akurat
             useEffect(() => {
                 const fetchLocationData = async (lat, lon) => {
-                    let locName = 'Lokasi Anda';
+                    let locName = 'Surakarta, Jawa Tengah';
                     try {
                         const resLoc = await fetchWithTimeout(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=id`, {}, 5000);
                         if(resLoc.ok) {
@@ -239,11 +244,12 @@
                                  const dataNom = await resNom.json();
                                  locName = (dataNom.address && dataNom.address.city) || (dataNom.address && dataNom.address.county) || (dataNom.address && dataNom.address.state) || 'Lokasi Anda';
                              }
-                        } catch (err) {
-                             locName = 'Lokasi Anda (Offline)';
-                        }
+                        } catch (err) {}
                     }
-                    setUserLoc({ lat, lon, name: locName });
+                    
+                    const newLoc = { lat, lon, name: locName };
+                    setUserLoc(newLoc);
+                    window.AL_KAUTSAR_CACHE.loc = newLoc;
 
                     try {
                         const t = Math.floor(Date.now() / 1000);
@@ -252,53 +258,38 @@
                             const dataP = await resP.json();
                             if (dataP && dataP.data && dataP.data.timings) {
                                 const pt = dataP.data.timings;
-                                setPrayerTimes([
-                                    { id: 'Imsak', label: 'Imsak', time: pt.Imsak, icon: '🌙' }, 
-                                    { id: 'Fajr', label: 'Subuh', time: pt.Fajr, icon: '🌙' }, 
-                                    { id: 'Dhuhr', label: 'Dzuhur', time: pt.Dhuhr, icon: '☀️' }, 
-                                    { id: 'Asr', label: 'Ashar', time: pt.Asr, icon: '🌤️' }, 
-                                    { id: 'Maghrib', label: 'Maghrib', time: pt.Maghrib, icon: '🌇' }, 
-                                    { id: 'Isha', label: 'Isya', time: pt.Isha, icon: '🌙' }
-                                ]);
-                                return;
+                                const newTimes = [
+                                    { id: 'Imsak', label: 'Imsak', time: pt.Imsak, icon: '🌙' }, { id: 'Fajr', label: 'Subuh', time: pt.Fajr, icon: '🌙' }, 
+                                    { id: 'Dhuhr', label: 'Dzuhur', time: pt.Dhuhr, icon: '☀️' }, { id: 'Asr', label: 'Ashar', time: pt.Asr, icon: '🌤️' }, 
+                                    { id: 'Maghrib', label: 'Maghrib', time: pt.Maghrib, icon: '🌇' }, { id: 'Isha', label: 'Isya', time: pt.Isha, icon: '🌙' }
+                                ];
+                                setPrayerTimes(newTimes);
+                                window.AL_KAUTSAR_CACHE.prayerTimes = newTimes;
                             }
                         }
-                        throw new Error();
-                    } catch (e) { 
-                        setPrayerTimes([
-                            { id: 'Imsak', label: 'Imsak', time: '04:15', icon: '🌙' }, 
-                            { id: 'Fajr', label: 'Subuh', time: '04:25', icon: '🌙' }, 
-                            { id: 'Dhuhr', label: 'Dzuhur', time: '11:45', icon: '☀️' }, 
-                            { id: 'Asr', label: 'Ashar', time: '15:00', icon: '🌤️' }, 
-                            { id: 'Maghrib', label: 'Maghrib', time: '17:35', icon: '🌇' }, 
-                            { id: 'Isha', label: 'Isya', time: '18:50', icon: '🌙' }
-                        ]);
-                    }
+                    } catch (e) {}
                 };
 
                 if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(
                         (pos) => fetchLocationData(pos.coords.latitude, pos.coords.longitude),
-                        (err) => fetchLocationData(-7.5666, 110.8166)
+                        () => fetchLocationData(-7.5666, 110.8166)
                     );
                 } else {
                     fetchLocationData(-7.5666, 110.8166);
                 }
             }, []);
 
-            const navigate = (tab, params = null) => {
-                setActiveTab(tab);
-                setNavParams(params);
-            };
+            const navigate = (tab, params = null) => { setActiveTab(tab); setNavParams(params); };
 
             return (
-                <div className={`w-full max-w-[390px] h-[100dvh] bg-[#F8FAFC] flex flex-col relative overflow-hidden shadow-2xl ring-1 ring-white/50 mx-auto`}>
+                <div className={`w-full max-w-[390px] h-[100dvh] bg-[#F8FAFC] flex flex-col relative overflow-hidden shadow-2xl ring-1 ring-white/50`}>
                     
-                    {/* Polkadot Global Effect - Raksasa & Fleksibel untuk Semua Kamar */}
+                    {/* Polkadot Global Raksasa & Fleksibel */}
                     <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden mix-blend-multiply opacity-20">
-                        <div className="polka-dot w-[32rem] h-[32rem] top-[-10%] left-[-20%]" style={{ animationDelay: '0s', backgroundColor: appTheme.hex }}></div>
-                        <div className="polka-dot w-[38rem] h-[38rem] top-[30%] right-[-30%]" style={{ animationDelay: '3s', backgroundColor: appTheme.hex }}></div>
-                        <div className="polka-dot w-[28rem] h-[28rem] bottom-[-10%] left-[-10%]" style={{ animationDelay: '6s', backgroundColor: appTheme.hex }}></div>
+                        <div className="polka-dot w-[45rem] h-[45rem] top-[-25%] left-[-30%]" style={{ animationDelay: '0s', backgroundColor: appTheme.hex }}></div>
+                        <div className="polka-dot w-[35rem] h-[35rem] top-[40%] right-[-20%]" style={{ animationDelay: '5s', backgroundColor: appTheme.hex }}></div>
+                        <div className="polka-dot w-[28rem] h-[28rem] bottom-[-15%] left-[-15%]" style={{ animationDelay: '10s', backgroundColor: appTheme.hex }}></div>
                     </div>
 
                     <main id="main-scroll-container" className="flex-1 overflow-y-auto pb-24 scroll-smooth relative z-10">
@@ -314,8 +305,8 @@
                         {activeTab === 'settings' && <SettingsView nav={navigate} theme={appTheme} setTheme={setAppTheme} />}
                     </main>
                     
-                    {/* Navigasi Bawah Premium dengan Glassmorphism dan Animasi Simetris */}
-                    <nav className="absolute bottom-0 w-full bg-[#F8FAFC]/90 backdrop-blur-xl border-t border-gray-200/50 pb-safe shadow-[0_-8px_30px_rgba(0,0,0,0.04)] z-50">
+                    {/* Navigasi Bawah Super Simetris Glassmorphism */}
+                    <nav className="absolute bottom-0 w-full bg-[#F8FAFC]/95 backdrop-blur-xl border-t border-slate-200/60 pb-safe shadow-[0_-8px_30px_rgba(0,0,0,0.05)] z-50">
                         <div className="flex justify-evenly items-center h-[70px]">
                             <NavItem icon={<Home />} label="Beranda" active={activeTab==='home'} onClick={()=>navigate('home')} theme={appTheme} />
                             <NavItem icon={<BookOpen />} label="Al-Qur'an" active={activeTab==='quran'} onClick={()=>navigate('quran')} theme={appTheme} />
@@ -330,9 +321,9 @@
         function NavItem({ icon, label, active, onClick, theme }) {
             return (
                 <button onClick={onClick} className="flex flex-col items-center justify-center flex-1 relative h-full group">
-                    <div className={`transition-all duration-300 flex flex-col items-center transform ${active ? '-translate-y-1.5' : 'text-gray-400 group-hover:text-gray-500 group-active:scale-95'}`} style={{ color: active ? theme.hex : undefined }}>
-                        <div className={`p-1.5 rounded-xl transition-colors duration-300 ${active ? 'bg-white shadow-md ring-1 ring-gray-100/50' : 'bg-transparent'}`}>
-                             {React.cloneElement(icon, { size: active ? 24 : 22, strokeWidth: active ? 2.5 : 2 })}
+                    <div className={`transition-all duration-300 flex flex-col items-center transform ${active ? '-translate-y-1.5' : 'text-slate-400 group-hover:text-slate-500 group-active:scale-95'}`} style={{ color: active ? theme.hex : undefined }}>
+                        <div className={`p-1.5 rounded-xl transition-colors duration-300 ${active ? 'bg-white shadow-md ring-1 ring-slate-100' : 'bg-transparent'}`}>
+                             {React.cloneElement(icon, { size: active ? 22 : 20, strokeWidth: active ? 2.5 : 2 })}
                         </div>
                         <span className={`text-[9px] font-bold mt-1 transition-all duration-300 tracking-wide ${active ? 'opacity-100' : 'opacity-0 absolute -bottom-4'}`} style={{ color: theme.hex }}>{label}</span>
                     </div>
@@ -344,22 +335,10 @@
             const [time, setTime] = useState(new Date());
             useEffect(() => { const t = setInterval(() => setTime(new Date()), 1000); return () => clearInterval(t); }, []);
 
-            const fallbackPrayers = [
-                { id: 'Imsak', label: 'Imsak', time: '--:--', icon: '🌙' }, 
-                { id: 'Fajr', label: 'Subuh', time: '--:--', icon: '🌙' }, 
-                { id: 'Dhuhr', label: 'Dzuhur', time: '--:--', icon: '☀️' }, 
-                { id: 'Asr', label: 'Ashar', time: '--:--', icon: '🌤️' }, 
-                { id: 'Maghrib', label: 'Maghrib', time: '--:--', icon: '🌇' }, 
-                { id: 'Isha', label: 'Isya', time: '--:--', icon: '🌙' }
-            ];
-
-            const activePrayers = prayerTimes || fallbackPrayers;
-
             const getNextPrayer = () => {
-                if (!prayerTimes) return { label: 'Memuat...', time: '--:--', diff: '--:--:--' };
                 const currentMins = time.getHours() * 60 + time.getMinutes();
-                let next = activePrayers[0]; let isTom = true;
-                for (let p of activePrayers) {
+                let next = prayerTimes[0]; let isTom = true;
+                for (let p of prayerTimes) {
                     const [h, m] = p.time.split(':').map(Number);
                     if (h * 60 + m > currentMins) { next = p; isTom = false; break; }
                 }
@@ -389,15 +368,15 @@
 
             const dateM = time.toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
             let dateH = "";
-            try { dateH = new Intl.DateTimeFormat('id-TN-u-ca-islamic', {day: 'numeric', month: 'long', year: 'numeric'}).format(time); } catch(e) { dateH = "Hijriah"; }
+            try { dateH = new Intl.DateTimeFormat('id-TN-u-ca-islamic', {day: 'numeric', month: 'long', year: 'numeric'}).format(time); } catch(e) { dateH = "Kalender Hijriah"; }
 
             return (
                 <div className="p-5 animate-in fade-in duration-500 bg-transparent relative z-10">
                     <div className="flex justify-between items-center mb-5 pt-2 relative z-10">
                         <div>
-                            <h1 className="text-[18px] font-black text-gray-800 tracking-tight leading-none">AL KAUTSAR ISLAMIC</h1>
-                            <h2 className="text-[11px] font-black text-gray-600 tracking-widest mt-1.5 mb-1.5">SDIT MUHAMMADIYAH AL KAUTSAR</h2>
-                            <div className="flex items-center text-[10px] font-bold text-gray-500 mt-1">
+                            <h1 className="text-[18px] font-black text-slate-800 tracking-tight leading-none">AL KAUTSAR ISLAMIC</h1>
+                            <h2 className="text-[10px] font-bold text-slate-500 tracking-widest mt-1.5 mb-1.5 uppercase">SDIT MUHAMMADIYAH AL KAUTSAR</h2>
+                            <div className="flex items-center text-[10px] font-bold text-slate-500 mt-1">
                                 <MapPin size={12} className="mr-1" style={{ color: theme.hex }} /> {userLoc.name}
                             </div>
                         </div>
@@ -407,7 +386,7 @@
                         <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
                         <p className="font-semibold text-xs mb-1.5 opacity-90">Assalamu'alaikum Warahmatullahi Wabarakatuh,</p>
                         
-                        <div className="bg-white/20 inline-block px-3 py-1.5 rounded-xl text-[10px] font-bold tracking-wide backdrop-blur-sm mb-5 border border-white/10 text-center shadow-inner">
+                        <div className="bg-white/20 inline-block px-3 py-1.5 rounded-xl text-[10px] font-bold tracking-wide backdrop-blur-sm mb-5 border border-white/10 shadow-inner">
                             <div>{dateM} M</div>
                             <div className="border-t border-white/20 my-0.5"></div>
                             <div>{dateH}</div>
@@ -426,15 +405,15 @@
                     </div>
 
                     <div className="mb-6">
-                        <h3 className="font-bold text-gray-800 text-[14px] mb-3 flex items-center"><Clock size={16} className="mr-2" style={{ color: theme.hex }} /> Jadwal Sholat</h3>
-                        <div className="bg-white rounded-[24px] p-4 shadow-sm grid grid-cols-3 gap-y-4 gap-x-2 text-center border border-gray-100">
-                            {activePrayers.map(p => {
+                        <h3 className="font-bold text-slate-800 text-[14px] mb-3 flex items-center"><Clock size={16} className="mr-2" style={{ color: theme.hex }} /> Jadwal Sholat</h3>
+                        <div className="bg-white rounded-[24px] p-4 shadow-sm grid grid-cols-3 gap-y-4 gap-x-2 text-center border border-slate-100">
+                            {prayerTimes.map(p => {
                                 const isNext = p.id === nextP.id;
                                 return (
                                     <div key={p.id} className={`flex flex-col items-center py-2.5 rounded-2xl transition-all duration-300 ${isNext ? 'ring-2 shadow-md scale-[1.05] relative z-10' : ''}`} style={isNext ? { backgroundColor: theme.light, ringColor: theme.hex } : {}}>
                                         <span className={`text-2xl mb-1 ${isNext ? 'animate-bounce-soft drop-shadow-md' : 'opacity-70 grayscale'}`}>{p.icon}</span>
-                                        <span className={`text-[10px] font-bold ${isNext ? 'text-gray-800' : 'text-gray-500'}`}>{p.label}</span>
-                                        <span className="text-[12px] font-black mt-0.5" style={{ color: isNext ? theme.hex : '#374151' }}>{p.time}</span>
+                                        <span className={`text-[10px] font-bold ${isNext ? 'text-slate-800' : 'text-slate-500'}`}>{p.label}</span>
+                                        <span className="text-[12px] font-black mt-0.5" style={{ color: isNext ? theme.hex : '#334155' }}>{p.time}</span>
                                     </div>
                                 );
                             })}
@@ -442,14 +421,14 @@
                     </div>
 
                     <div>
-                        <h3 className="font-bold text-gray-800 text-[14px] mb-3 flex items-center"><Gamepad2 size={16} className="mr-2" style={{ color: theme.hex }} /> Menu Utama</h3>
+                        <h3 className="font-bold text-slate-800 text-[14px] mb-3 flex items-center"><Gamepad2 size={16} className="mr-2" style={{ color: theme.hex }} /> Menu Utama</h3>
                         <div className="grid grid-cols-3 gap-3">
                             {MENU.map(m => (
-                                <button key={m.id} onClick={m.act} className="bg-white rounded-[18px] p-3 flex flex-col items-center shadow-sm active:scale-95 transition-transform hover:shadow-md border border-gray-50">
+                                <button key={m.id} onClick={m.act} className="bg-white rounded-[18px] p-3 flex flex-col items-center shadow-sm active:scale-95 transition-transform hover:shadow-md border border-slate-50">
                                     <div className={`w-10 h-10 rounded-[12px] flex items-center justify-center mb-1.5`} style={{ backgroundColor: theme.light, color: theme.hex }}>
                                         {m.icon}
                                     </div>
-                                    <span className="text-[10px] font-bold text-gray-600 text-center leading-tight">{m.label}</span>
+                                    <span className="text-[10px] font-bold text-slate-600 text-center leading-tight">{m.label}</span>
                                 </button>
                             ))}
                         </div>
@@ -462,12 +441,15 @@
             const [search, setSearch] = useState('');
             const [activeSurah, setActiveSurah] = useState(null);
             
+            const [surahDetail, setSurahDetail] = useState(null);
+            const [isFetching, setIsFetching] = useState(false);
+
             const [playingAyah, setPlayingAyah] = useState(null);
             const [playingPart, setPlayingPart] = useState(null); 
             const audioRef = useRef(new Audio());
             const [isPlayAll, setIsPlayAll] = useState(false);
 
-            const [surahDetail, setSurahDetail] = useState(null);
+            const [surahDesc, setSurahDesc] = useState('');
             const [showTajwid, setShowTajwid] = useState(true);
             const [showTrans, setShowTrans] = useState(true);
             const [showLatin, setShowLatin] = useState(false);
@@ -477,13 +459,13 @@
             const [activeTafsirTab, setActiveTafsirTab] = useState('kemenag'); 
             const [showSettings, setShowSettings] = useState(false);
             const [showAsbabun, setShowAsbabun] = useState(false);
-            const [surahDesc, setSurahDesc] = useState('');
             
             const [showSwitcher, setShowSwitcher] = useState(false);
             const [switcherTab, setSwitcherTab] = useState('surah');
             const [isPageMode, setIsPageMode] = useState(false);
             const [activeTajweed, setActiveTajweed] = useState(null); 
             const [isScrolled, setIsScrolled] = useState(false);
+            const [toastMsg, setToastMsg] = useState(null);
             
             const playingAyahRef = useRef(playingAyah);
             const playingPartRef = useRef(playingPart);
@@ -497,11 +479,11 @@
             useEffect(() => { isPlayAllRef.current = isPlayAll; }, [isPlayAll]);
             useEffect(() => { activeSurahRef.current = activeSurah; }, [activeSurah]);
 
-            // Deteksi scroll untuk Header Pintar & Animasi Halus
+            // Deteksi Scroll untuk Judul
             useEffect(() => {
                 const scrollContainer = document.getElementById('main-scroll-container');
                 const handleScroll = () => {
-                    if (scrollContainer && scrollContainer.scrollTop > 80) setIsScrolled(true);
+                    if (scrollContainer && scrollContainer.scrollTop > 90) setIsScrolled(true);
                     else setIsScrolled(false);
                 };
                 if (scrollContainer) scrollContainer.addEventListener('scroll', handleScroll);
@@ -517,7 +499,7 @@
                 }
             }, [navParams]);
 
-            // Audio Anti-Macet logic
+            // Audio Anti-Error Logic
             const playAyahSequence = (ayahNum) => {
                 if (!surahDetailRef.current) return;
                 const targetAyah = surahDetailRef.current.find(a => a.numberInSurah === ayahNum);
@@ -535,8 +517,6 @@
                         if (playPromise !== undefined) {
                             playPromise.catch(error => {
                                 if (error.name === 'AbortError') return;
-
-                                // Anti-Macet (Lompat jika API Bismillah down)
                                 if (playingPartRef.current === 'bismillah') {
                                     setPlayingPart('ayah');
                                     playSafe(getAudioUrl(qari, activeSurahRef.current.n, targetAyah.numberInSurah));
@@ -553,13 +533,8 @@
                     } catch(err) {}
                 };
 
-                if (needsBismillah) {
-                    setPlayingPart('bismillah');
-                    playSafe(BISMILLAH_UNIVERSAL); 
-                } else {
-                    setPlayingPart('ayah');
-                    playSafe(getAudioUrl(qari, activeSurahRef.current.n, targetAyah.numberInSurah));
-                }
+                if (needsBismillah) { setPlayingPart('bismillah'); playSafe(BISMILLAH_UNIVERSAL); } 
+                else { setPlayingPart('ayah'); playSafe(getAudioUrl(qari, activeSurahRef.current.n, targetAyah.numberInSurah)); }
             };
 
             useEffect(() => {
@@ -579,8 +554,7 @@
                     } else {
                         if (isPlayAllRef.current && currentNum < activeSurahRef.current.ay) {
                             const nextAyahNum = currentNum + 1;
-                            setPlayingAyah(nextAyahNum);
-                            setPlayingPart('ayah'); 
+                            setPlayingAyah(nextAyahNum); setPlayingPart('ayah'); 
                             audioRef.current.src = getAudioUrl(qari, activeSurahRef.current.n, nextAyahNum);
                             const playPromise = audioRef.current.play();
                             if(playPromise !== undefined) playPromise.catch(e => {});
@@ -595,87 +569,80 @@
                 return () => { if (audioEl) { audioEl.removeEventListener('ended', handleAudioEnded); audioEl.pause(); } };
             }, [qari]);
 
-            // PROGRESSIVE FETCHING (Instan Load tanpa Skeleton, Background fetching)
             const openSurah = async (surah) => {
                 setActiveSurah(surah); 
+                setOpenedTafsir(null); setShowSwitcher(false); setShowSettings(false);
+                setIsPlayAll(false); setShowAsbabun(false); setActiveTajweed(null); setIsScrolled(false);
+                
+                // JIKA ADA DI CACHE: TAMPILKAN INSTAN 0 DETIK
+                if (window.AL_KAUTSAR_CACHE.surahs[surah.n]) {
+                    setSurahDetail(window.AL_KAUTSAR_CACHE.surahs[surah.n]);
+                    setSurahDesc(window.AL_KAUTSAR_CACHE.surahs[surah.n].desc);
+                    setIsFetching(false);
+                    return;
+                }
+
+                // JIKA BELUM ADA DI CACHE: FETCH BERSAMAAN (CONCURRENT)
                 setSurahDetail(null);
-                setOpenedTafsir(null);
-                setShowSwitcher(false);
-                setShowSettings(false);
-                setIsPlayAll(false);
-                setShowAsbabun(false);
-                setActiveTajweed(null);
-                setIsScrolled(false);
+                setIsFetching(true);
                 
                 try {
-                    // 1. Fetch Teks Dasar Kemenag (Sangat Cepat - Hitungan ms)
-                    const resKemenag = await fetchWithTimeout(`https://equran.id/api/v2/surat/${surah.n}`);
-                    if (resKemenag.ok) {
-                        const dataKemenag = await resKemenag.json();
-                        setSurahDesc(dataKemenag.data.deskripsi);
-                        
-                        const basicAyahs = dataKemenag.data.ayat.map(a => ({
+                    const pKemenag = fetchWithTimeout(`https://equran.id/api/v2/surat/${surah.n}`).then(r => r.json());
+                    const pTajweed = fetchWithTimeout(`https://raw.githubusercontent.com/nashrulaziz7/quran-data/main/${surah.n}.json`).then(r => r.json()).catch(() => []);
+
+                    // Tunggu Keduanya Selesai (Sangat Cepat karena barengan)
+                    const [resKem, resTaj] = await Promise.all([pKemenag, pTajweed]);
+
+                    const dG = Array.isArray(resTaj) ? resTaj : (resTaj.data || []);
+                    const desc = resKem.data.deskripsi;
+                    setSurahDesc(desc);
+                    
+                    let ayahs = resKem.data.ayat.map(a => {
+                        const g = dG.find(x => x.aya_number === a.nomorAyat || x.nomorAyat === a.nomorAyat) || {};
+                        return {
                             numberInSurah: a.nomorAyat,
-                            text: a.teksArab, // Teks arab dasar
+                            text: g.aya_text || a.teksArab,
                             latin: a.teksLatin,
                             trans: a.teksIndonesia,
-                            tajweedRules: [], // Kosong dulu
+                            tajweedRules: g.tajweed || g.tajwid || [], // TAJWID LANGSUNG MASUK!
                             tafsirKemenag: "Memuat tafsir...",
                             tafsirJalalayn: "Memuat tafsir..."
-                        }));
-                        
-                        // RENDER INSTAN SEKARANG JUGA! (Tanpa loading skeleton jadul)
-                        setSurahDetail(basicAyahs);
+                        };
+                    });
 
-                        // 2. Fetch Tajwid & Tafsir Siluman di Latar Belakang (Progressive)
-                        Promise.allSettled([
-                            fetchWithTimeout(`https://equran.id/api/v2/tafsir/${surah.n}`),
-                            fetchWithTimeout(`https://api.alquran.cloud/v1/surah/${surah.n}/id.jalalayn`),
-                            fetchWithTimeout(`https://raw.githubusercontent.com/nashrulaziz7/quran-data/main/${surah.n}.json`)
-                        ]).then(async ([resTafsirKemenag, resTafsirJalalayn, resGithub]) => {
-                            let dTK = null, dTJ = null, dG = [];
-                            
-                            if (resTafsirKemenag.status === 'fulfilled' && resTafsirKemenag.value.ok) dTK = await resTafsirKemenag.value.json();
-                            if (resTafsirJalalayn.status === 'fulfilled' && resTafsirJalalayn.value.ok) dTJ = await resTafsirJalalayn.value.json();
-                            if (resGithub.status === 'fulfilled' && resGithub.value.ok) {
-                                const jsonG = await resGithub.value.json();
-                                dG = Array.isArray(jsonG) ? jsonG : (jsonG.data || []);
-                            }
+                    setSurahDetail(ayahs);
+                    setIsFetching(false);
 
-                            // Inject data tajwid & tafsir secara senyap tanpa loading screen
-                            setSurahDetail(prev => {
-                                if (!prev) return prev;
-                                return prev.map((a, index) => {
-                                    // Cari rules tajwid yang cocok dari data github
-                                    const githubAyah = dG.find(g => (g.aya_number === a.numberInSurah || g.nomorAyat === a.numberInSurah)) || {};
-                                    const rules = githubAyah.tajweed || githubAyah.tajwid || [];
-                                    
-                                    let tKem = "Tafsir Kemenag tidak tersedia saat ini.";
-                                    if (dTK && dTK.data && dTK.data.tafsir) {
-                                        const ft = dTK.data.tafsir.find(t => t.ayat === a.numberInSurah);
-                                        if (ft && ft.teks) tKem = ft.teks;
-                                    }
-                                    
-                                    let tJal = "Tafsir Jalalayn tidak tersedia saat ini.";
-                                    if (dTJ && dTJ.data && dTJ.data.ayahs && dTJ.data.ayahs[index]) {
-                                        tJal = dTJ.data.ayahs[index].text || tJal;
-                                    }
+                    // SIMPAN KE CACHE GLOBAL
+                    window.AL_KAUTSAR_CACHE.surahs[surah.n] = ayahs;
+                    window.AL_KAUTSAR_CACHE.surahs[surah.n].desc = desc;
 
-                                    return {
-                                        ...a,
-                                        text: githubAyah.aya_text || a.text,
-                                        tajweedRules: rules,
-                                        tafsirKemenag: tKem,
-                                        tafsirJalalayn: tJal
-                                    };
-                                });
+                    // Fetch Tafsir di Latar Belakang & Update Cache Diam-diam
+                    Promise.allSettled([
+                        fetchWithTimeout(`https://equran.id/api/v2/tafsir/${surah.n}`),
+                        fetchWithTimeout(`https://api.alquran.cloud/v1/surah/${surah.n}/id.jalalayn`)
+                    ]).then(async ([resTK, resTJ]) => {
+                        let dTK = null, dTJ = null;
+                        if (resTK.status === 'fulfilled' && resTK.value.ok) dTK = await resTK.value.json();
+                        if (resTJ.status === 'fulfilled' && resTJ.value.ok) dTJ = await resTJ.value.json();
+
+                        setSurahDetail(prev => {
+                            if (!prev) return prev;
+                            const updated = prev.map((a, index) => {
+                                let tKem = a.tafsirKemenag;
+                                if (dTK && dTK.data && dTK.data.tafsir) { const ft = dTK.data.tafsir.find(t => t.ayat === a.numberInSurah); if (ft && ft.teks) tKem = ft.teks; }
+                                let tJal = a.tafsirJalalayn;
+                                if (dTJ && dTJ.data && dTJ.data.ayahs && dTJ.data.ayahs[index]) tJal = dTJ.data.ayahs[index].text;
+                                return { ...a, tafsirKemenag: tKem, tafsirJalalayn: tJal };
                             });
+                            window.AL_KAUTSAR_CACHE.surahs[surah.n] = updated; // Perbarui memori dengan Tafsir
+                            return updated;
                         });
-                    } else {
-                        throw new Error("Gagal mengambil teks");
-                    }
+                    });
+
                 } catch (err) {
-                    setSurahDetail([{numberInSurah: 1, text: "Gagal memuat ayat.", latin: "", trans: "Harap periksa koneksi internet Anda.", tajweedRules: [], tafsirKemenag: "Gagal memuat.", tafsirJalalayn: "Gagal Memuat."}]);
+                    setIsFetching(false);
+                    setSurahDetail([{numberInSurah: 1, text: "Gagal memuat data.", latin: "", trans: "Periksa koneksi internet Anda.", tajweedRules: [], tafsirKemenag: "", tafsirJalalayn: ""}]);
                 }
             };
 
@@ -685,7 +652,7 @@
                  setShowSwitcher(false);
             };
 
-            // Fungsi Rendering Warna Tajwid & Klik Popup
+            // Rendering Tajwid & Klik Popup
             const renderArabicWithTajweed = (text, rules) => {
                 if (!showTajwid || !rules || rules.length === 0 || !text) return text;
                 let elements = []; let lastIndex = 0; const sortedRules = [...rules].sort((a, b) => a.start - b.start);
@@ -693,7 +660,7 @@
                 sortedRules.forEach((rule, idx) => {
                     if (rule.start > lastIndex) elements.push(<span key={`plain-${idx}`}>{text.slice(lastIndex, rule.start)}</span>);
                     elements.push(
-                        <span key={`tajweed-${idx}`} className={`tajweed-${rule.class} cursor-pointer hover:opacity-80 transition-all font-normal`} onClick={(e) => { e.preventDefault(); e.stopPropagation(); setActiveTajweed({ ruleClass: rule.class, word: text.slice(rule.start, rule.end) }); }}>
+                        <span key={`tajweed-${idx}`} className={`tajweed-${rule.class} cursor-pointer hover:opacity-70 transition-all`} onClick={(e) => { e.preventDefault(); e.stopPropagation(); setActiveTajweed({ ruleClass: rule.class, word: text.slice(rule.start, rule.end) }); }}>
                             {text.slice(rule.start, rule.end)}
                         </span>
                     );
@@ -707,64 +674,69 @@
                 return (
                     <div className="pb-20 min-h-full relative bg-transparent">
                         
-                        {/* HEADER STICKY PINTAR & PREMIUM */}
-                        <div className="sticky top-0 z-40 w-full shadow-[0_4px_20px_rgba(0,0,0,0.05)]" style={{ backgroundColor: theme.hex }}>
-                            <div className="flex items-center justify-between px-3 py-3 h-14 relative z-20">
+                        {/* Header Pintar Premium (Tidak Melompat) */}
+                        <div className="sticky top-0 z-40 w-full bg-white shadow-sm border-b border-slate-100">
+                            <div className="flex items-center justify-between px-3 py-3 h-[52px] relative z-20">
                                 <div className="flex items-center gap-1 flex-1 min-w-0">
-                                    <button onClick={() => { setActiveSurah(null); if (audioRef.current) { audioRef.current.pause(); audioRef.current.removeAttribute('src'); audioRef.current.load(); } setPlayingAyah(null); setPlayingPart(null); setIsPlayAll(false); }} className="p-2 rounded-xl transition-all text-white hover:bg-white/20 active:scale-95 shrink-0">
+                                    <button onClick={() => { setActiveSurah(null); if (audioRef.current) { audioRef.current.pause(); audioRef.current.removeAttribute('src'); audioRef.current.load(); } setPlayingAyah(null); setPlayingPart(null); setIsPlayAll(false); }} className="p-2 rounded-xl transition-all text-slate-600 hover:bg-slate-100 active:scale-95 shrink-0">
                                         <ArrowLeft size={20} />
                                     </button>
                                     
-                                    {/* Judul Muncul Hanya Jika Discroll (Header Pintar Halus) */}
-                                    <div className={`cursor-pointer flex flex-col justify-center truncate transition-all duration-500 ease-in-out ${isScrolled ? 'opacity-100 translate-x-0 w-auto ml-1' : 'opacity-0 -translate-x-4 w-0 pointer-events-none'}`} onClick={() => setShowSwitcher(true)}>
-                                        <h2 className="font-black text-[14px] text-white tracking-tight leading-tight truncate">{activeSurah.n}. {activeSurah.id}</h2>
-                                        <p className="text-[9px] font-bold text-white/80 truncate">{activeSurah.type} • {activeSurah.ay} Ayat</p>
+                                    {/* Judul Bergeser Masuk dengan Halus Saat Discroll */}
+                                    <div className="flex flex-col justify-center ml-1 overflow-hidden h-full">
+                                        <div className={`transition-all duration-300 ease-out flex flex-col ${isScrolled ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'}`}>
+                                            <h2 className="font-black text-[13px] text-slate-800 tracking-tight leading-none truncate">{activeSurah.n}. {activeSurah.id}</h2>
+                                            <p className="text-[9px] font-bold text-slate-500 truncate mt-0.5">{activeSurah.type} • {activeSurah.ay} Ayat</p>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div className="flex items-center shrink-0 text-white gap-0.5">
-                                    <button onClick={() => setIsPageMode(!isPageMode)} className={`p-2 rounded-xl transition-all hover:bg-white/20 active:scale-95 ${isPageMode ? 'bg-white/20 shadow-inner' : ''}`} title="Mode Halaman">
+                                <div className="flex items-center shrink-0 text-slate-600 gap-0.5">
+                                    <button onClick={() => setIsPageMode(!isPageMode)} className={`p-2 rounded-xl transition-all hover:bg-slate-100 active:scale-95 ${isPageMode ? 'bg-slate-100 text-slate-900' : ''}`} title="Mode Halaman">
                                         {isPageMode ? <BookOpen size={18} /> : <LayoutGrid size={18} />}
                                     </button>
-                                    <button onClick={() => setShowAsbabun(true)} className="p-2 rounded-xl transition-all hover:bg-white/20 active:scale-95" title="Asbabun Nuzul">
+                                    <button onClick={() => setShowAsbabun(true)} className="p-2 rounded-xl transition-all hover:bg-slate-100 active:scale-95" title="Asbabun Nuzul">
                                         <Info size={18} />
                                     </button>
                                     <button onClick={() => {
                                         if (isPlayAll) { setIsPlayAll(false); if (!audioRef.current.paused) audioRef.current.pause(); setPlayingAyah(null); setPlayingPart(null); } 
                                         else { setIsPlayAll(true); if (!surahDetail || surahDetail.length === 0) return; playAyahSequence(1); scrollToAyah(1); }
-                                    }} className={`p-2 rounded-xl transition-all hover:bg-white/20 active:scale-95 ${isPlayAll ? 'bg-white/20 text-yellow-300 shadow-inner' : ''}`} title="Putar Semua Ayat">
+                                    }} className={`p-2 rounded-xl transition-all hover:bg-slate-100 active:scale-95 ${isPlayAll ? 'bg-slate-100 text-red-500' : ''}`} title="Putar Semua Ayat">
                                         {isPlayAll ? <Pause size={18} /> : <ListMusic size={18} />}
                                     </button>
-                                    <button onClick={() => setShowSettings(!showSettings)} className={`p-2 rounded-xl transition-all hover:bg-white/20 active:scale-95 ${showSettings ? 'bg-white/20 shadow-inner' : ''}`} title="Pengaturan">
+                                    <button onClick={() => setShowSettings(!showSettings)} className={`p-2 rounded-xl transition-all hover:bg-slate-100 active:scale-95 ${showSettings ? 'bg-slate-100 text-slate-900' : ''}`} title="Pengaturan">
                                         <Settings2 size={18} />
                                     </button>
                                 </div>
                             </div>
 
-                            {/* Dropdown Settings Premium Glassmorphism (Sesuai Foto 1) */}
-                            <div className={`overflow-hidden transition-all duration-300 absolute w-full z-10`} style={{ backgroundColor: theme.hex, top: '100%', left: 0, boxShadow: showSettings ? '0 10px 15px -3px rgba(0, 0, 0, 0.1)' : 'none', maxHeight: showSettings ? '200px' : '0px', opacity: showSettings ? 1 : 0 }}>
-                                <div className="px-4 pb-4 pt-1">
-                                    <div className="flex flex-col gap-2.5 relative z-10">
+                            {/* Dropdown Settings Ultra Premium Glassmorphism (Sesuai Foto 1) */}
+                            <div className="overflow-hidden transition-all duration-500 absolute w-full z-10 bg-white border-b border-slate-200" style={{ top: '100%', left: 0, boxShadow: showSettings ? '0 10px 15px -3px rgba(0, 0, 0, 0.05)' : 'none', maxHeight: showSettings ? '200px' : '0px', opacity: showSettings ? 1 : 0 }}>
+                                <div className="px-4 pb-4 pt-3" style={{ backgroundColor: theme.hex }}>
+                                    <div className="flex flex-col gap-3 relative z-10">
                                         <div className="flex gap-2">
-                                            <div className="flex items-center p-1 rounded-xl shrink-0 border shadow-inner bg-white/20 border-white/10">
+                                            <div className="flex items-center p-1 rounded-[14px] shrink-0 bg-white/20 shadow-inner backdrop-blur-sm">
                                                 <span className="text-[10px] font-black text-white px-2 opacity-90 uppercase tracking-widest hidden sm:block">Ukuran</span>
-                                                <button onClick={() => setFontSize(Math.max(20, fontSize - 2))} className="w-7 h-7 flex items-center justify-center bg-white rounded-lg shadow-sm text-gray-800 font-bold active:scale-95">-</button>
-                                                <span className="text-[12px] font-black text-white w-8 text-center">{fontSize}</span>
-                                                <button onClick={() => setFontSize(Math.min(48, fontSize + 2))} className="w-7 h-7 flex items-center justify-center bg-white rounded-lg shadow-sm text-gray-800 font-bold active:scale-95">+</button>
+                                                <button onClick={() => setFontSize(Math.max(20, fontSize - 2))} className="w-8 h-8 flex items-center justify-center bg-white rounded-[10px] shadow-sm text-slate-800 font-bold active:scale-95 text-lg leading-none">-</button>
+                                                <span className="text-[13px] font-black text-white w-8 text-center">{fontSize}</span>
+                                                <button onClick={() => setFontSize(Math.min(48, fontSize + 2))} className="w-8 h-8 flex items-center justify-center bg-white rounded-[10px] shadow-sm text-slate-800 font-bold active:scale-95 text-lg leading-none">+</button>
                                             </div>
-                                            <select value={qari} onChange={e => { setQari(e.target.value); if(!audioRef.current.paused) audioRef.current.pause(); setPlayingAyah(null); }} className="flex-1 bg-white px-3 py-1.5 rounded-xl text-[11px] font-bold text-gray-800 outline-none shadow-sm truncate border-0 appearance-none bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM0QjU1NjMiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cG9seWxpbmUgcG9pbnRzPSI2IDkgMTIgMTUgMTggOSI+PC9wb2x5bGluZT48L3N2Zz4=')] bg-no-repeat bg-[position:right_8px_center] bg-[length:16px]">
-                                                {QARI_LIST.map(q => <option key={q.id} value={q.id}>{q.name}</option>)}
-                                            </select>
+                                            <div className="flex-1 relative bg-white rounded-[14px] shadow-sm overflow-hidden flex items-center">
+                                                <select value={qari} onChange={e => { setQari(e.target.value); if(!audioRef.current.paused) audioRef.current.pause(); setPlayingAyah(null); }} className="w-full bg-transparent px-3 py-2 text-[11px] font-bold text-slate-700 outline-none truncate border-0 appearance-none cursor-pointer relative z-10">
+                                                    {QARI_LIST.map(q => <option key={q.id} value={q.id}>{q.name}</option>)}
+                                                </select>
+                                                <ChevronDown size={14} className="absolute right-3 text-slate-400 pointer-events-none" />
+                                            </div>
                                         </div>
                                         <div className="flex gap-2">
-                                            <div className="flex flex-1 p-1 rounded-xl gap-1 border shadow-inner bg-white/20 border-white/10">
-                                                <button onClick={() => setShowTajwid(!showTajwid)} className={`flex-1 py-2 rounded-lg text-[10px] font-bold transition-all ${showTajwid ? 'bg-white shadow-sm text-gray-800' : 'text-white hover:bg-white/10'}`}>Tajwid</button>
-                                                <button onClick={() => setShowLatin(!showLatin)} className={`flex-1 py-2 rounded-lg text-[10px] font-bold transition-all ${showLatin ? 'bg-white shadow-sm text-gray-800' : 'text-white hover:bg-white/10'}`}>Latin</button>
-                                                <button onClick={() => setShowTrans(!showTrans)} className={`flex-1 py-2 rounded-lg text-[10px] font-bold transition-all ${showTrans ? 'bg-white shadow-sm text-gray-800' : 'text-white hover:bg-white/10'}`}>Arti</button>
+                                            <div className="flex flex-1 p-1 rounded-[14px] gap-1 bg-white/20 shadow-inner backdrop-blur-sm">
+                                                <button onClick={() => setShowTajwid(!showTajwid)} className={`flex-1 py-2 rounded-[10px] text-[10px] font-bold transition-all ${showTajwid ? 'bg-white shadow-sm text-slate-800' : 'text-white hover:bg-white/10'}`}>Tajwid</button>
+                                                <button onClick={() => setShowLatin(!showLatin)} className={`flex-1 py-2 rounded-[10px] text-[10px] font-bold transition-all ${showLatin ? 'bg-white shadow-sm text-slate-800' : 'text-white hover:bg-white/10'}`}>Latin</button>
+                                                <button onClick={() => setShowTrans(!showTrans)} className={`flex-1 py-2 rounded-[10px] text-[10px] font-bold transition-all ${showTrans ? 'bg-white shadow-sm text-slate-800' : 'text-white hover:bg-white/10'}`}>Arti</button>
                                             </div>
-                                            <div className="flex shrink-0 p-1 rounded-xl gap-1 border shadow-inner bg-white/20 border-white/10">
-                                                <button onClick={() => setFontType('uthmani')} className={`px-3 py-2 rounded-lg text-[10px] font-bold transition-all ${fontType === 'uthmani' ? 'bg-white shadow-sm text-gray-800' : 'text-white/80 hover:bg-white/10'}`}>Madinah</button>
-                                                <button onClick={() => setFontType('kemenag')} className={`px-3 py-2 rounded-lg text-[10px] font-bold transition-all ${fontType === 'kemenag' ? 'bg-white shadow-sm text-gray-800' : 'text-white/80 hover:bg-white/10'}`}>Kemenag</button>
+                                            <div className="flex shrink-0 p-1 rounded-[14px] gap-1 bg-white/20 shadow-inner backdrop-blur-sm">
+                                                <button onClick={() => setFontType('uthmani')} className={`px-3 py-2 rounded-[10px] text-[10px] font-bold transition-all ${fontType === 'uthmani' ? 'bg-white shadow-sm text-slate-800' : 'text-white/80 hover:bg-white/10'}`}>Madinah</button>
+                                                <button onClick={() => setFontType('kemenag')} className={`px-3 py-2 rounded-[10px] text-[10px] font-bold transition-all ${fontType === 'kemenag' ? 'bg-white shadow-sm text-slate-800' : 'text-white/80 hover:bg-white/10'}`}>Kemenag</button>
                                             </div>
                                         </div>
                                     </div>
@@ -772,45 +744,53 @@
                             </div>
                         </div>
 
-                        {/* Banner Surah Minimalis (Lebih Ramping & Polkadot Aktif) */}
-                        <div onClick={() => setShowSwitcher(true)} className="mx-4 mt-4 mb-2 rounded-[20px] p-4 text-center shadow-md relative overflow-hidden cursor-pointer active:scale-95 transition-transform" style={{ background: `linear-gradient(135deg, ${theme.hex}, ${theme.hex}dd)` }}>
-                            {/* Efek Polkadot Eksklusif Banner */}
-                            <div className="absolute polka-dot w-20 h-20 top-[-20%] left-[-10%] bg-white/20 blur-sm" style={{ animationDelay: '0s' }}></div>
-                            <div className="absolute polka-dot w-28 h-28 bottom-[-20%] right-[-10%] bg-white/20 blur-sm" style={{ animationDelay: '2s' }}></div>
-                            <div className="absolute polka-dot w-14 h-14 top-[50%] right-[30%] bg-white/20 blur-[2px]" style={{ animationDelay: '4s' }}></div>
+                        {/* Banner Surah Minimalis (Ramping, Tidak Jumbo) */}
+                        <div onClick={() => setShowSwitcher(true)} className="mx-4 mt-5 mb-4 rounded-[16px] p-4 text-center shadow-sm relative overflow-hidden cursor-pointer active:scale-95 transition-transform" style={{ backgroundColor: theme.hex }}>
+                            {/* Efek Polkadot Khusus Banner */}
+                            <div className="absolute w-16 h-16 rounded-full bg-white/15 top-[-10px] left-[-10px] blur-[1px]"></div>
+                            <div className="absolute w-24 h-24 rounded-full bg-white/10 bottom-[-20px] right-[-20px] blur-sm"></div>
+                            <div className="absolute w-8 h-8 rounded-full bg-white/20 top-[40%] right-[20%] blur-[2px]"></div>
                             
-                            <h2 className="text-[24px] font-uthmani text-white mb-0 drop-shadow-md relative z-10 leading-none">{activeSurah.ar}</h2>
-                            <h3 className="font-black text-white text-[12px] uppercase tracking-widest relative z-10 mt-1 mb-0.5">{activeSurah.id}</h3>
-                            <p className="text-[9px] font-bold text-white/90 mb-1.5 relative z-10 tracking-wide">{activeSurah.tr}</p>
-                            <div className="bg-white/20 inline-block px-3 py-1 rounded-full relative z-10 border border-white/10 shadow-sm backdrop-blur-sm">
-                                <p className="text-[8px] font-bold text-white uppercase tracking-wider">{activeSurah.type} • {activeSurah.ay} Ayat</p>
+                            <h2 className="text-[26px] font-uthmani font-normal text-white mb-0 drop-shadow-sm relative z-10 leading-none">{activeSurah.ar}</h2>
+                            <h3 className="font-black text-white text-[13px] uppercase tracking-widest relative z-10 mt-1 mb-0.5">{activeSurah.id}</h3>
+                            <p className="text-[9px] font-bold text-white/90 mb-2 relative z-10 tracking-wide">{activeSurah.tr}</p>
+                            <div className="bg-white/20 inline-block px-3 py-1 rounded-full relative z-10 backdrop-blur-sm">
+                                <p className="text-[8px] font-bold text-white uppercase tracking-widest">{activeSurah.type} • {activeSurah.ay} Ayat</p>
                             </div>
                         </div>
 
-                        {/* Pop-Up Info Asbabun Nuzul */}
+                        {/* Indikator Loading Super Elegan & Tipis (Hanya muncul jika belum ada cache) */}
+                        {isFetching && !surahDetail && (
+                            <div className="flex flex-col items-center justify-center py-10 opacity-70 animate-pulse">
+                                <BookOpen size={24} className="mb-2" style={{ color: theme.hex }} />
+                                <p className="text-[10px] font-bold tracking-widest uppercase" style={{ color: theme.hex }}>Menyelaraskan Mushaf...</p>
+                            </div>
+                        )}
+
+                        {/* Pop-up Asbabun Nuzul */}
                         {showAsbabun && (
                             <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in" onClick={() => setShowAsbabun(false)}>
                                 <div className="bg-white w-full max-w-[340px] rounded-[24px] shadow-2xl p-6 relative" onClick={(e) => e.stopPropagation()}>
-                                    <button onClick={() => setShowAsbabun(false)} className="absolute top-4 right-4 p-1.5 bg-gray-100 rounded-full text-gray-500 hover:bg-gray-200 active:scale-95 transition-all"><X size={16}/></button>
-                                    <h3 className="font-black text-gray-800 text-[18px] mb-1">Asbabun Nuzul</h3>
-                                    <p className="text-[10px] font-bold text-gray-500 mb-5">{activeSurah.id} • Kemenag RI</p>
-                                    <div className="max-h-[60vh] overflow-y-auto pr-2 text-[11px] leading-loose text-gray-700 font-medium text-justify">
+                                    <button onClick={() => setShowAsbabun(false)} className="absolute top-4 right-4 p-1.5 bg-slate-100 rounded-full text-slate-500 hover:bg-slate-200 active:scale-95 transition-all"><X size={16}/></button>
+                                    <h3 className="font-black text-slate-800 text-[18px] mb-1">Asbabun Nuzul</h3>
+                                    <p className="text-[10px] font-bold text-slate-500 mb-5">{activeSurah.id} • Kemenag RI</p>
+                                    <div className="max-h-[60vh] overflow-y-auto pr-2 text-[11px] leading-loose text-slate-700 font-medium text-justify">
                                         <div dangerouslySetInnerHTML={{__html: surahDesc || "Info/Asbabun Nuzul tidak tersedia untuk Surah ini."}}></div>
                                     </div>
                                 </div>
                             </div>
                         )}
 
-                        {/* Pop-Up Tajwid Eksklusif (Premium Dark Mode + Audio Kata) */}
+                        {/* Pop-Up Tajwid Eksklusif (Mode Gelap + Suara) */}
                         {activeTajweed && TAJWEED_INFO[activeTajweed.ruleClass] && (
-                            <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in" onClick={() => setActiveTajweed(null)}>
-                                <div className="bg-[#1E293B] w-full max-w-[340px] rounded-[24px] shadow-2xl p-6 relative text-white border border-white/10" onClick={(e) => e.stopPropagation()}>
+                            <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm animate-in fade-in" onClick={() => setActiveTajweed(null)}>
+                                <div className="bg-[#1E293B] w-full max-w-[340px] rounded-[24px] shadow-2xl p-6 relative text-white border border-slate-700" onClick={(e) => e.stopPropagation()}>
                                     <button onClick={() => setActiveTajweed(null)} className="absolute top-4 right-4 p-1.5 bg-white/10 rounded-full text-white/70 hover:bg-white/20 active:scale-95 transition-all"><X size={16}/></button>
                                     
                                     <h3 className="font-black text-[18px] mb-3" style={{ color: TAJWEED_INFO[activeTajweed.ruleClass].color }}>
                                         {TAJWEED_INFO[activeTajweed.ruleClass].title}
                                     </h3>
-                                    <p className="text-[11px] leading-loose font-medium text-gray-300 mb-5 text-justify">
+                                    <p className="text-[11px] leading-loose font-medium text-slate-300 mb-5 text-justify">
                                         {TAJWEED_INFO[activeTajweed.ruleClass].desc}
                                     </p>
 
@@ -821,13 +801,13 @@
                                                     const utterance = new SpeechSynthesisUtterance(activeTajweed.word);
                                                     utterance.lang = 'ar-SA';
                                                     window.speechSynthesis.speak(utterance);
-                                                } else alert("Browser tidak mendukung suara Arab.");
+                                                }
                                             }} 
-                                            className="p-3 bg-white/10 rounded-full hover:bg-white/20 active:scale-95 transition-all shadow-sm"
+                                            className="p-3 bg-white/10 rounded-full hover:bg-white/20 active:scale-95 transition-all shadow-sm flex-shrink-0"
                                         >
-                                            <Play size={18} className="text-white shrink-0 ml-0.5" />
+                                            <Play size={18} className="text-white ml-0.5" />
                                         </button>
-                                        <span className={`text-[30px] font-uthmani font-normal drop-shadow-md text-right ml-4 tajweed-${activeTajweed.ruleClass}`} dir="rtl">
+                                        <span className={`text-[30px] font-uthmani font-normal drop-shadow-md text-right ml-4 tajweed-${activeTajweed.ruleClass}`} dir="rtl" style={{ lineHeight: '1.5' }}>
                                             {activeTajweed.word}
                                         </span>
                                     </div>
@@ -835,24 +815,24 @@
                             </div>
                         )}
 
-                        {/* Switcher Cepat */}
+                        {/* Switcher Navigasi */}
                         {showSwitcher && (
                             <div className="fixed inset-0 z-[60] flex flex-col justify-end bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200">
                                 <div className="bg-white w-full h-[75dvh] max-w-[390px] mx-auto rounded-t-[32px] shadow-2xl flex flex-col animate-in slide-in-from-bottom-8 duration-300">
-                                    <div className="flex items-center justify-between p-5 border-b border-gray-100">
-                                        <div><h3 className="font-black text-gray-800 text-[16px]">Navigasi Cepat</h3><p className="text-[10px] font-bold text-gray-500">Lompat ke Surah atau Ayat</p></div>
-                                        <button onClick={() => setShowSwitcher(false)} className="p-2 bg-gray-100 rounded-full text-gray-500 active:scale-95"><X size={16}/></button>
+                                    <div className="flex items-center justify-between p-5 border-b border-slate-100">
+                                        <div><h3 className="font-black text-slate-800 text-[16px]">Navigasi Cepat</h3><p className="text-[10px] font-bold text-slate-500">Lompat ke Surah atau Ayat</p></div>
+                                        <button onClick={() => setShowSwitcher(false)} className="p-2 bg-slate-100 rounded-full text-slate-500 active:scale-95"><X size={16}/></button>
                                     </div>
-                                    <div className="flex p-3 gap-2 border-b border-gray-50">
-                                        <button onClick={() => setSwitcherTab('surah')} className={`flex-1 py-2.5 rounded-xl text-[12px] font-bold transition-all ${switcherTab === 'surah' ? 'text-white shadow-sm' : 'bg-gray-100 text-gray-500'}`} style={switcherTab === 'surah' ? { backgroundColor: theme.hex } : {}}>Pilih Surah</button>
-                                        <button onClick={() => setSwitcherTab('ayah')} className={`flex-1 py-2.5 rounded-xl text-[12px] font-bold transition-all ${switcherTab === 'ayah' ? 'text-white shadow-sm' : 'bg-gray-100 text-gray-500'}`} style={switcherTab === 'ayah' ? { backgroundColor: theme.hex } : {}}>Pilih Ayat</button>
+                                    <div className="flex p-3 gap-2 border-b border-slate-50">
+                                        <button onClick={() => setSwitcherTab('surah')} className={`flex-1 py-2.5 rounded-[12px] text-[12px] font-bold transition-all ${switcherTab === 'surah' ? 'text-white shadow-sm' : 'bg-slate-100 text-slate-500'}`} style={switcherTab === 'surah' ? { backgroundColor: theme.hex } : {}}>Pilih Surah</button>
+                                        <button onClick={() => setSwitcherTab('ayah')} className={`flex-1 py-2.5 rounded-[12px] text-[12px] font-bold transition-all ${switcherTab === 'ayah' ? 'text-white shadow-sm' : 'bg-slate-100 text-slate-500'}`} style={switcherTab === 'ayah' ? { backgroundColor: theme.hex } : {}}>Pilih Ayat</button>
                                     </div>
                                     <div className="flex-1 overflow-y-auto p-4">
                                         {switcherTab === 'surah' ? (
                                             <div className="space-y-2 pb-10">
                                                 {SURAHS_DB.map((s) => (
-                                                    <button key={s.n} onClick={() => openSurah(s)} className={`w-full p-3.5 rounded-[16px] flex items-center justify-between transition-all text-left ${activeSurah.n === s.n ? 'ring-2 shadow-sm' : 'bg-gray-50 hover:bg-gray-100'}`} style={activeSurah.n === s.n ? { backgroundColor: theme.light, ringColor: theme.hex } : {}}>
-                                                        <div className="flex items-center gap-3"><div className="w-8 h-8 flex items-center justify-center rounded-[10px] bg-white text-gray-800 font-bold text-[10px] shadow-sm">{s.n}</div><div><h3 className={`font-bold text-[13px] ${activeSurah.n === s.n ? 'text-gray-900' : 'text-gray-700'}`}>{s.id}</h3></div></div>
+                                                    <button key={s.n} onClick={() => openSurah(s)} className={`w-full p-3.5 rounded-[16px] flex items-center justify-between transition-all text-left ${activeSurah.n === s.n ? 'ring-2 shadow-sm' : 'bg-slate-50 hover:bg-slate-100'}`} style={activeSurah.n === s.n ? { backgroundColor: theme.light, ringColor: theme.hex } : {}}>
+                                                        <div className="flex items-center gap-3"><div className="w-8 h-8 flex items-center justify-center rounded-[10px] bg-white text-slate-800 font-bold text-[10px] shadow-sm">{s.n}</div><div><h3 className={`font-bold text-[13px] ${activeSurah.n === s.n ? 'text-slate-900' : 'text-slate-700'}`}>{s.id}</h3></div></div>
                                                         <div className="text-lg font-normal font-uthmani" style={{ color: activeSurah.n === s.n ? theme.hex : '#9CA3AF' }}>{s.ar}</div>
                                                     </button>
                                                 ))}
@@ -860,7 +840,7 @@
                                         ) : (
                                             <div className="grid grid-cols-5 gap-2 pb-10">
                                                 {Array.from({ length: activeSurah.ay }, (_, i) => i + 1).map(num => (
-                                                    <button key={num} onClick={() => scrollToAyah(num)} className="aspect-square bg-gray-50 hover:bg-gray-100 rounded-2xl flex items-center justify-center font-bold text-[13px] text-gray-700 transition-all active:scale-95 border border-gray-100 shadow-sm" style={{ color: theme.hex }}>{num}</button>
+                                                    <button key={num} onClick={() => scrollToAyah(num)} className="aspect-square bg-slate-50 hover:bg-slate-100 rounded-[14px] flex items-center justify-center font-bold text-[13px] text-slate-700 transition-all active:scale-95 border border-slate-100 shadow-sm" style={{ color: theme.hex }}>{num}</button>
                                                 ))}
                                             </div>
                                         )}
@@ -869,23 +849,23 @@
                             </div>
                         )}
 
-                        {/* Rendering Ayat - Ramping & Padat (Inline Justification) */}
-                        <div className="space-y-3 px-4 pb-20">
+                        {}
+                        <div className="space-y-3 px-3 pb-20">
                             {surahDetail && (
                                 isPageMode ? (
-                                    <div className="bg-white p-5 rounded-[24px] shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-gray-100/80 mx-1 mb-8 animate-in fade-in duration-300">
-                                        <div className={`text-justify font-${fontType} font-normal transition-all duration-300 leading-[2.0]`} style={{ fontSize: `${fontSize}px` }} dir="rtl">
+                                    <div className="bg-white p-5 rounded-[20px] shadow-sm border border-slate-100 mx-1 mb-8 animate-in fade-in duration-300">
+                                        <div className={`text-justify font-${fontType} font-normal transition-all duration-300`} style={{ fontSize: `${fontSize}px`, lineHeight: '2.0' }} dir="rtl">
                                             {surahDetail.map((ayah) => (
-                                                <span key={ayah.numberInSurah} id={`ayah-${ayah.numberInSurah}`} className={`inline transition-colors ${playingAyah === ayah.numberInSurah ? 'text-blue-500 drop-shadow-sm' : 'text-gray-800'}`} onClick={() => {
+                                                <span key={ayah.numberInSurah} id={`ayah-${ayah.numberInSurah}`} className={`inline transition-colors ${playingAyah === ayah.numberInSurah ? 'text-blue-500 drop-shadow-sm' : 'text-slate-800'}`} onClick={() => {
                                                     if (playingAyah === ayah.numberInSurah) { if (!audioRef.current.paused) audioRef.current.pause(); setPlayingAyah(null); setPlayingPart(null); setIsPlayAll(false); } 
                                                     else { setIsPlayAll(false); playAyahSequence(ayah.numberInSurah); }
                                                 }}>
                                                     {renderArabicWithTajweed(ayah.text, ayah.tajweedRules)}
                                                     
-                                                    {/* Simbol Ayat Proporsional dengan Angka Arab Asli untuk Mode Halaman */}
-                                                    <span className="inline-flex items-center justify-center relative mx-1 cursor-pointer select-none align-middle" style={{ width: '1.4em', height: '1.4em', verticalAlign: '-0.15em' }}>
-                                                        <span className="absolute inset-0 flex items-center justify-center leading-none" style={{ color: '#D4AF37', fontFamily: 'Arial, sans-serif', fontSize: '1.4em' }}>۝</span>
-                                                        <span className="absolute font-normal font-uthmani text-amber-900/90 leading-none pt-0.5" style={{ fontSize: '0.6em' }}>{toArabicNumeral(ayah.numberInSurah)}</span>
+                                                    {/* Simbol Ayat Porsional & Rapi (Angka Arab Asli) */}
+                                                    <span className="inline-flex items-center justify-center relative mx-1.5 cursor-pointer select-none align-middle" style={{ width: '1.2em', height: '1.2em', verticalAlign: '-0.1em' }}>
+                                                        <span className="absolute inset-0 flex items-center justify-center leading-none" style={{ color: '#D4AF37', fontFamily: 'Arial, sans-serif', fontSize: '1.2em' }}>۝</span>
+                                                        <span className="absolute font-normal font-uthmani text-amber-900/90 leading-none pt-0.5" style={{ fontSize: '0.55em' }}>{toArabicNumeral(ayah.numberInSurah)}</span>
                                                     </span>
                                                 </span>
                                             ))}
@@ -893,14 +873,21 @@
                                     </div>
                                 ) : (
                                     surahDetail.map((ayah) => (
-                                        <div id={`ayah-${ayah.numberInSurah}`} key={ayah.numberInSurah} className="p-3.5 rounded-[20px] shadow-[0_2px_15px_rgba(0,0,0,0.03)] border scroll-mt-24 transition-all duration-500 bg-white animate-in fade-in duration-300" style={{ borderColor: playingAyah === ayah.numberInSurah ? theme.hex : 'transparent', ...(playingAyah === ayah.numberInSurah ? { boxShadow: `0 4px 15px ${theme.hex}40` } : {}) }}>
-                                            <div className="flex justify-between items-center mb-1">
-                                                <div className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold shadow-sm" style={{ backgroundColor: theme.light, color: theme.hex }}>
+                                        <div id={`ayah-${ayah.numberInSurah}`} key={ayah.numberInSurah} className="p-4 rounded-[20px] shadow-sm border scroll-mt-20 transition-all duration-300 bg-white" style={{ borderColor: playingAyah === ayah.numberInSurah ? theme.hex : 'transparent', ...(playingAyah === ayah.numberInSurah ? { boxShadow: `0 4px 15px ${theme.hex}20` } : {}) }}>
+                                            <div className="flex justify-between items-center mb-2">
+                                                <div className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold" style={{ backgroundColor: theme.light, color: theme.hex }}>
                                                     {ayah.numberInSurah}
                                                 </div>
                                                 <div className="flex gap-1.5">
-                                                    <button className="p-1.5 text-gray-500 hover:bg-gray-50 border border-gray-100 rounded-[10px] transition-colors bg-white shadow-sm active:scale-95" onClick={() => handleCopyText(`${ayah.text}\n\n${ayah.trans}`)}><Copy size={13}/></button>
-                                                    <button onClick={() => setOpenedTafsir(openedTafsir === ayah.numberInSurah ? null : ayah.numberInSurah)} className={`p-1.5 rounded-[10px] transition-colors shadow-sm border active:scale-95 ${openedTafsir === ayah.numberInSurah ? 'text-white' : 'bg-white text-gray-500 border-gray-100 hover:bg-gray-50'}`} style={openedTafsir === ayah.numberInSurah ? { backgroundColor: theme.hex, borderColor: theme.hex } : {}}>
+                                                    <button className="p-1.5 text-slate-500 hover:bg-slate-50 border border-slate-100 rounded-[10px] transition-colors bg-white active:scale-95" onClick={() => {
+                                                        let copyContent = ayah.text;
+                                                        if (showLatin && ayah.latin) { const tmp = document.createElement("div"); tmp.innerHTML = ayah.latin; copyContent += `\n\n${tmp.textContent || tmp.innerText}`; }
+                                                        if (showTrans && ayah.trans) copyContent += `\n\n${ayah.trans}`;
+                                                        handleCopyText(copyContent);
+                                                        setToastMsg(`Ayat ${ayah.numberInSurah} berhasil disalin!`);
+                                                        setTimeout(() => setToastMsg(null), 2500);
+                                                    }}><Copy size={13}/></button>
+                                                    <button onClick={() => setOpenedTafsir(openedTafsir === ayah.numberInSurah ? null : ayah.numberInSurah)} className={`p-1.5 rounded-[10px] transition-colors border active:scale-95 ${openedTafsir === ayah.numberInSurah ? 'text-white' : 'bg-white text-slate-500 border-slate-100 hover:bg-slate-50'}`} style={openedTafsir === ayah.numberInSurah ? { backgroundColor: theme.hex, borderColor: theme.hex } : {}}>
                                                         <BookOpen size={13} />
                                                     </button>
                                                     <button onClick={() => {
@@ -910,32 +897,33 @@
                                                        } else { 
                                                          setIsPlayAll(false); playAyahSequence(ayah.numberInSurah);
                                                        }
-                                                    }} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full font-bold active:scale-95 transition-colors shadow-sm`} style={{ backgroundColor: playingAyah === ayah.numberInSurah ? '#EF4444' : theme.hex, color: 'white' }}>
-                                                        {playingAyah === ayah.numberInSurah ? <Pause size={12} className={playingPart === 'bismillah' ? 'animate-pulse' : ''} /> : <Play size={12} />} <span className="text-[9px]">{playingAyah === ayah.numberInSurah ? 'Stop' : 'Putar'}</span>
+                                                    }} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] font-bold active:scale-95 transition-colors`} style={{ backgroundColor: playingAyah === ayah.numberInSurah ? '#EF4444' : theme.hex, color: 'white' }}>
+                                                        {playingAyah === ayah.numberInSurah ? <Pause size={12} className={playingPart === 'bismillah' ? 'animate-pulse' : ''} /> : <Play size={12} />} <span className="text-[10px]">{playingAyah === ayah.numberInSurah ? 'Stop' : 'Putar'}</span>
                                                     </button>
                                                 </div>
                                             </div>
                                             
-                                            {/* Ramping Spacing - Arab (Font Utsmani / Kemenag Nyata) */}
-                                            <div className={`text-right mb-1 text-gray-800 font-${fontType} font-normal transition-all duration-300`} style={{ fontSize: `${fontSize}px` }} dir="rtl">
+                                            {/* Area Arab Ramping, Spasi Ideal */}
+                                            <div className={`text-right mb-2 text-slate-800 font-${fontType} font-normal transition-all duration-300`} style={{ fontSize: `${fontSize}px`, lineHeight: '2.0' }} dir="rtl">
                                                {renderArabicWithTajweed(ayah.text, ayah.tajweedRules)}
                                             </div>
                                             
-                                            {/* Ramping Spacing - Latin & Arti */}
-                                            {showLatin && <div className="text-[10px] leading-relaxed font-semibold mb-0.5 animate-in fade-in italic" style={{ color: theme.hex }} dangerouslySetInnerHTML={{__html: ayah.latin}}></div>}
-                                            {showTrans && <div className="text-[10px] text-gray-600 leading-snug font-medium animate-in fade-in">{ayah.trans}</div>}
+                                            {/* Latin & Terjemahan Padat */}
+                                            {showLatin && <div className="text-[11px] leading-relaxed font-semibold mb-1 italic" style={{ color: theme.hex }} dangerouslySetInnerHTML={{__html: ayah.latin}}></div>}
+                                            {showTrans && <div className="text-[11px] text-slate-600 leading-snug font-medium">{ayah.trans}</div>}
                                             
+                                            {/* Panel Tafsir */}
                                             {openedTafsir === ayah.numberInSurah && (
-                                                <div className="mt-2 pt-2 border-t border-dashed border-gray-200 animate-in slide-in-from-top-2 duration-300">
-                                                    <div className="flex bg-slate-100 p-1 rounded-xl mb-2">
-                                                        <button onClick={() => setActiveTafsirTab('kemenag')} className={`flex-1 py-1.5 text-[10px] font-bold rounded-lg transition-all ${activeTafsirTab === 'kemenag' ? 'bg-white shadow-sm text-amber-700' : 'text-gray-500 hover:bg-gray-200'}`}>Tafsir Kemenag RI</button>
-                                                        <button onClick={() => setActiveTafsirTab('jalalayn')} className={`flex-1 py-1.5 text-[10px] font-bold rounded-lg transition-all ${activeTafsirTab === 'jalalayn' ? 'bg-white shadow-sm text-emerald-700' : 'text-gray-500 hover:bg-gray-200'}`}>Tafsir Jalalayn</button>
+                                                <div className="mt-3 pt-3 border-t border-dashed border-slate-200 animate-in slide-in-from-top-2 duration-300">
+                                                    <div className="flex bg-slate-50 p-1 rounded-xl mb-2">
+                                                        <button onClick={() => setActiveTafsirTab('kemenag')} className={`flex-1 py-1.5 text-[10px] font-bold rounded-lg transition-all ${activeTafsirTab === 'kemenag' ? 'bg-white shadow-sm text-amber-700' : 'text-slate-500 hover:bg-slate-200'}`}>Tafsir Kemenag RI</button>
+                                                        <button onClick={() => setActiveTafsirTab('jalalayn')} className={`flex-1 py-1.5 text-[10px] font-bold rounded-lg transition-all ${activeTafsirTab === 'jalalayn' ? 'bg-white shadow-sm text-emerald-700' : 'text-slate-500 hover:bg-slate-200'}`}>Tafsir Jalalayn</button>
                                                     </div>
 
-                                                    <div className={`p-3 rounded-2xl border ${activeTafsirTab === 'kemenag' ? 'bg-[#FDFBF7] border-amber-100' : 'bg-[#F2FBF5] border-emerald-100'}`}>
+                                                    <div className={`p-3 rounded-[14px] border ${activeTafsirTab === 'kemenag' ? 'bg-[#FDFBF7] border-amber-100' : 'bg-[#F2FBF5] border-emerald-100'}`}>
                                                         <div className="flex items-center gap-2 mb-2">
-                                                            <div className="p-1.5 rounded-lg" style={{ backgroundColor: activeTafsirTab === 'kemenag' ? '#FEF3C7' : '#D1FAE5', color: activeTafsirTab === 'kemenag' ? '#D97706' : '#059669' }}><Library size={14}/></div>
-                                                            <h4 className="font-bold text-[11px] text-gray-800">{activeTafsirTab === 'kemenag' ? 'Tafsir Tahlili Kemenag' : 'Tafsir Jalalayn'}</h4>
+                                                            <div className="p-1.5 rounded-lg" style={{ backgroundColor: activeTafsirTab === 'kemenag' ? '#FEF3C7' : '#D1FAE5', color: activeTafsirTab === 'kemenag' ? '#D97706' : '#059669' }}><Library size={12}/></div>
+                                                            <h4 className="font-bold text-[10px] text-slate-800">{activeTafsirTab === 'kemenag' ? 'Tafsir Tahlili Kemenag' : 'Tafsir Jalalayn'}</h4>
                                                         </div>
                                                         <p className={`text-[10px] leading-relaxed text-justify font-medium ${activeTafsirTab === 'kemenag' ? 'text-amber-900' : 'text-emerald-900'}`}>
                                                             {activeTafsirTab === 'kemenag' ? ayah.tafsirKemenag : ayah.tafsirJalalayn}
@@ -948,6 +936,13 @@
                                 )
                             )}
                         </div>
+
+                        {/* Toast Notifikasi Copas Pintar */}
+                        {toastMsg && (
+                            <div className="fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white px-5 py-2.5 rounded-full shadow-2xl text-[11px] font-bold z-[100] animate-pop flex items-center gap-2 border border-slate-700">
+                                <Check size={14} className="text-green-400" /> {toastMsg}
+                            </div>
+                        )}
                     </div>
                 );
             }
@@ -955,17 +950,17 @@
             return (
                 <div className="px-5 pt-6 pb-20 animate-in fade-in bg-transparent relative z-10">
                     <div className="relative mb-5">
-                        <Search className="absolute left-4 top-3.5 text-gray-400" size={18} />
-                        <input type="text" placeholder="Cari 114 surat..." value={search} onChange={e=>setSearch(e.target.value)} className="w-full bg-white border border-gray-100 shadow-sm text-sm font-medium text-gray-700 rounded-[20px] pl-12 pr-4 py-3.5 outline-none focus:ring-2 transition-all" style={{ focusRingColor: theme.hex }} />
+                        <Search className="absolute left-4 top-3.5 text-slate-400" size={18} />
+                        <input type="text" placeholder="Cari 114 surat..." value={search} onChange={e=>setSearch(e.target.value)} className="w-full bg-white border border-slate-100 shadow-sm text-sm font-medium text-slate-700 rounded-[20px] pl-12 pr-4 py-3.5 outline-none focus:ring-2 transition-all" style={{ focusRingColor: theme.hex }} />
                     </div>
                     <div className="space-y-3">
                         {filteredSurahs.map((s) => (
-                            <button key={s.n} onClick={() => openSurah(s)} className="w-full bg-white p-3.5 rounded-[20px] flex items-center justify-between shadow-sm hover:shadow-md transition-all text-left">
+                            <button key={s.n} onClick={() => openSurah(s)} className="w-full bg-white p-3.5 rounded-[20px] flex items-center justify-between shadow-sm hover:shadow-md transition-all text-left border border-slate-50">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-9 h-9 flex items-center justify-center rounded-[12px]" style={{ backgroundColor: theme.light, color: theme.hex }}><span className="text-[11px] font-bold">{s.n}</span></div>
-                                    <div><h3 className="font-bold text-gray-800 text-[13px]">{s.id}</h3><p className="text-[9px] font-bold mt-0.5" style={{ color: theme.hex }}>{s.type} • {s.tr}</p></div>
+                                    <div className="w-10 h-10 flex items-center justify-center rounded-[12px]" style={{ backgroundColor: theme.light, color: theme.hex }}><span className="text-[12px] font-bold">{s.n}</span></div>
+                                    <div><h3 className="font-bold text-slate-800 text-[13px]">{s.id}</h3><p className="text-[9px] font-bold mt-0.5" style={{ color: theme.hex }}>{s.type} • {s.tr}</p></div>
                                 </div>
-                                <div className="text-xl font-normal font-uthmani" style={{ color: theme.hex }}>{s.ar}</div>
+                                <div className="text-[20px] font-normal font-uthmani" style={{ color: theme.hex }}>{s.ar}</div>
                             </button>
                         ))}
                     </div>
@@ -980,17 +975,17 @@
                 const filteredDoa = DOA_HPT.filter(d => d.category === activeCat);
                 return (
                     <div className="pb-10 animate-in slide-in-from-right-4 h-full bg-transparent relative z-10">
-                        <div className="sticky top-0 bg-white/95 backdrop-blur-md px-5 pt-6 pb-4 flex items-center z-30 shadow-sm border-b border-gray-100">
-                            <button onClick={() => setActiveCat(null)} className="p-2 rounded-xl mr-4 active:scale-95" style={{ backgroundColor: theme.light, color: theme.hex }}><ArrowLeft size={18} /></button>
-                            <div><h1 className="text-[15px] font-black text-gray-800 uppercase">Kategori Doa</h1><p className="text-[10px] font-bold" style={{ color: theme.hex }}>HPT Muhammadiyah</p></div>
+                        <div className="sticky top-0 bg-white/90 backdrop-blur-md px-5 pt-6 pb-4 flex items-center z-30 shadow-sm border-b border-slate-100">
+                            <button onClick={() => setActiveCat(null)} className="p-2 rounded-xl mr-4 active:scale-95 transition-colors" style={{ backgroundColor: theme.light, color: theme.hex }}><ArrowLeft size={18} /></button>
+                            <div><h1 className="text-[15px] font-black text-slate-800 uppercase">Kategori Doa</h1><p className="text-[10px] font-bold" style={{ color: theme.hex }}>HPT Muhammadiyah</p></div>
                         </div>
                         <div className="p-4 space-y-4 relative z-10">
                             {filteredDoa.map(doa => (
-                                <div key={doa.id} className="bg-white p-5 rounded-[20px] shadow-sm border border-gray-100 relative overflow-hidden">
+                                <div key={doa.id} className="bg-white p-5 rounded-[20px] shadow-sm border border-slate-100 relative overflow-hidden">
                                     <div className="absolute top-0 right-0 w-16 h-16 bg-slate-50 rounded-full blur-xl"></div>
                                     <h3 className="font-bold text-[13px] mb-4 relative z-10" style={{ color: theme.hex }}>{doa.title}</h3>
-                                    <p className="text-right text-[22px] font-normal font-uthmani mb-4 text-gray-800 leading-loose relative z-10" dir="rtl">{doa.ar}</p>
-                                    <div className="p-3 rounded-[12px] relative z-10" style={{ backgroundColor: theme.light }}><p className="text-[11px] text-gray-700 font-medium italic leading-relaxed">"{doa.tr}"</p></div>
+                                    <p className="text-right text-[22px] font-normal font-uthmani mb-4 text-slate-800 leading-[2.2] relative z-10" dir="rtl">{doa.ar}</p>
+                                    <div className="p-3 rounded-[12px] relative z-10" style={{ backgroundColor: theme.light }}><p className="text-[11px] text-slate-700 font-medium italic leading-relaxed">"{doa.tr}"</p></div>
                                 </div>
                             ))}
                         </div>
@@ -1001,30 +996,30 @@
             return (
                 <div className="p-5 animate-in fade-in h-full bg-transparent relative z-10">
                      <div className="flex items-center gap-3 mb-6 pt-2">
-                        <button onClick={() => nav('home')} className="p-2 rounded-xl bg-white shadow-sm mr-2 active:scale-95"><ArrowLeft size={18} /></button>
-                        <div><h1 className="text-2xl font-black text-gray-800 tracking-tight">Doa Pilihan</h1><p className="text-[11px] font-bold" style={{ color: theme.hex }}>Sesuai HPT Muhammadiyah</p></div>
+                        <button onClick={() => nav('home')} className="p-2 rounded-[14px] bg-white shadow-sm mr-2 active:scale-95"><ArrowLeft size={18} className="text-slate-600" /></button>
+                        <div><h1 className="text-2xl font-black text-slate-800 tracking-tight">Doa Pilihan</h1><p className="text-[11px] font-bold" style={{ color: theme.hex }}>Sesuai HPT Muhammadiyah</p></div>
                     </div>
                     
                     <div className="grid grid-cols-2 gap-4">
-                        <div onClick={() => setActiveCat('shalat')} className="bg-white p-5 rounded-[24px] shadow-sm flex flex-col items-center justify-center text-center cursor-pointer hover:shadow-md active:scale-95 transition-all border border-gray-100">
+                        <div onClick={() => setActiveCat('shalat')} className="bg-white p-5 rounded-[24px] shadow-sm flex flex-col items-center justify-center text-center cursor-pointer hover:shadow-md active:scale-95 transition-all border border-slate-100">
                              <div className="w-12 h-12 rounded-[16px] flex items-center justify-center mb-3" style={{ backgroundColor: theme.light, color: theme.hex }}><BookOpen size={24}/></div>
-                             <h3 className="font-black text-gray-800 text-[13px]">Bacaan Shalat</h3>
-                             <p className="text-[9px] text-gray-500 font-medium mt-1">Takbir, Ruku, Sujud</p>
+                             <h3 className="font-black text-slate-800 text-[13px]">Bacaan Shalat</h3>
+                             <p className="text-[9px] text-slate-500 font-medium mt-1">Takbir, Ruku, Sujud</p>
                         </div>
-                        <div onClick={() => setActiveCat('dzikir')} className="bg-white p-5 rounded-[24px] shadow-sm flex flex-col items-center justify-center text-center cursor-pointer hover:shadow-md active:scale-95 transition-all border border-gray-100">
+                        <div onClick={() => setActiveCat('dzikir')} className="bg-white p-5 rounded-[24px] shadow-sm flex flex-col items-center justify-center text-center cursor-pointer hover:shadow-md active:scale-95 transition-all border border-slate-100">
                              <div className="w-12 h-12 rounded-[16px] flex items-center justify-center mb-3" style={{ backgroundColor: theme.light, color: theme.hex }}><RotateCcw size={24}/></div>
-                             <h3 className="font-black text-gray-800 text-[13px]">Dzikir Ba'da</h3>
-                             <p className="text-[9px] text-gray-500 font-medium mt-1">Sesuai Tuntunan</p>
+                             <h3 className="font-black text-slate-800 text-[13px]">Dzikir Ba'da</h3>
+                             <p className="text-[9px] text-slate-500 font-medium mt-1">Sesuai Tuntunan</p>
                         </div>
-                        <div onClick={() => setActiveCat('harian')} className="bg-white p-5 rounded-[24px] shadow-sm flex flex-col items-center justify-center text-center cursor-pointer hover:shadow-md active:scale-95 transition-all border border-gray-100">
+                        <div onClick={() => setActiveCat('harian')} className="bg-white p-5 rounded-[24px] shadow-sm flex flex-col items-center justify-center text-center cursor-pointer hover:shadow-md active:scale-95 transition-all border border-slate-100">
                              <div className="w-12 h-12 rounded-[16px] flex items-center justify-center mb-3" style={{ backgroundColor: theme.light, color: theme.hex }}><Compass size={24}/></div>
-                             <h3 className="font-black text-gray-800 text-[13px]">Doa Harian</h3>
-                             <p className="text-[9px] text-gray-500 font-medium mt-1">Aktivitas Sehari-hari</p>
+                             <h3 className="font-black text-slate-800 text-[13px]">Doa Harian</h3>
+                             <p className="text-[9px] text-slate-500 font-medium mt-1">Aktivitas Sehari-hari</p>
                         </div>
-                        <div onClick={() => setActiveCat('sunnah')} className="bg-white p-5 rounded-[24px] shadow-sm flex flex-col items-center justify-center text-center cursor-pointer hover:shadow-md active:scale-95 transition-all border border-gray-100">
+                        <div onClick={() => setActiveCat('sunnah')} className="bg-white p-5 rounded-[24px] shadow-sm flex flex-col items-center justify-center text-center cursor-pointer hover:shadow-md active:scale-95 transition-all border border-slate-100">
                              <div className="w-12 h-12 rounded-[16px] flex items-center justify-center mb-3" style={{ backgroundColor: theme.light, color: theme.hex }}><Star size={24}/></div>
-                             <h3 className="font-black text-gray-800 text-[13px]">Amalan Sunnah</h3>
-                             <p className="text-[9px] text-gray-500 font-medium mt-1">Rawatib & Puasa</p>
+                             <h3 className="font-black text-slate-800 text-[13px]">Amalan Sunnah</h3>
+                             <p className="text-[9px] text-slate-500 font-medium mt-1">Rawatib & Puasa</p>
                         </div>
                     </div>
                 </div>
@@ -1051,38 +1046,38 @@
             return (
                 <div className="px-5 pt-8 pb-10 animate-in fade-in h-[100dvh] flex flex-col bg-transparent relative z-10 overflow-hidden">
                     <div className="flex items-center gap-3 mb-6 relative z-10">
-                        <button onClick={()=>nav('home')} className="p-2.5 rounded-[16px] bg-white shadow-sm hover:shadow-md transition-shadow active:scale-95 text-teal-700" style={{ backgroundColor: '#E6F4F1' }}><ArrowLeft size={20} /></button>
+                        <button onClick={()=>nav('home')} className="p-2.5 rounded-[14px] bg-white shadow-sm hover:shadow-md transition-shadow active:scale-95" style={{ color: theme.hex }}><ArrowLeft size={20} /></button>
                         <h1 className="text-2xl font-black text-slate-800 tracking-tight">Dzikir</h1>
                     </div>
 
                     <div className="flex gap-2 overflow-x-auto scrollbar-hide mb-8 bg-transparent p-1 relative z-10">
                         {list.map((d, i) => (
                             <div key={i} className="flex-1 flex flex-col items-center">
-                                <button onClick={() => { setActiveDzikir(i); setCount(0); }} className="w-full px-2 py-3 rounded-xl font-bold text-[11px] whitespace-nowrap transition-all shadow-sm border border-gray-100" style={activeDzikir === i ? { backgroundColor: d.color, color: 'white' } : { backgroundColor: 'white', color: '#64748B' }}>
+                                <button onClick={() => { setActiveDzikir(i); setCount(0); }} className="w-full px-2 py-3 rounded-xl font-bold text-[11px] whitespace-nowrap transition-all shadow-sm border border-slate-100" style={activeDzikir === i ? { backgroundColor: d.color, color: 'white' } : { backgroundColor: 'white', color: '#64748B' }}>
                                     {d.label}
                                 </button>
-                                {activeDzikir === i && <div className="h-1.5 w-10/12 rounded-full mt-1.5 opacity-60" style={{ backgroundColor: d.color, boxShadow: `0 2px 8px ${d.color}` }}></div>}
+                                {activeDzikir === i && <div className="h-1.5 w-10/12 rounded-full mt-1.5 opacity-60 transition-all" style={{ backgroundColor: d.color, boxShadow: `0 2px 8px ${d.color}` }}></div>}
                             </div>
                         ))}
                     </div>
 
-                    <div className="bg-white rounded-[24px] p-8 text-center shadow-md border border-gray-100 mb-8 transition-colors duration-500 relative z-10">
-                        <h2 className="text-[38px] font-uthmani font-normal text-gray-800 mb-4 leading-relaxed mt-2 drop-shadow-sm">{currentTheme.ar}</h2>
-                        <p className="text-[11px] font-bold transition-colors duration-500 mb-2" style={{ color: currentTheme.color }}>{currentTheme.label}</p>
+                    <div className="bg-white rounded-[24px] p-8 text-center shadow-sm border border-slate-100 mb-8 transition-colors duration-500 relative z-10">
+                        <h2 className="text-[38px] font-uthmani font-normal text-slate-800 mb-4 leading-relaxed mt-2 drop-shadow-sm">{currentTheme.ar}</h2>
+                        <p className="text-[12px] font-bold transition-colors duration-500 mb-2" style={{ color: currentTheme.color }}>{currentTheme.label}</p>
                     </div>
 
                     <div className="mt-auto mb-20 flex flex-col items-center relative z-10">
-                        <div className="relative w-[240px] h-[240px] flex justify-center items-center cursor-pointer active:scale-95 transition-all duration-100 bg-white shadow-[0_10px_40px_rgba(0,0,0,0.06)] rounded-full border-[6px] border-white group" onClick={handleTap}>
-                            <svg className="absolute inset-0 w-full h-full transform -rotate-90 drop-shadow-md">
-                                <circle cx="114" cy="114" r="100" fill="none" stroke="#F1F5F9" strokeWidth="12" />
-                                <circle cx="114" cy="114" r="100" fill="none" stroke="#F59E0B" strokeWidth="12" strokeDasharray={`${2 * Math.PI * 100}`} strokeDashoffset={`${2 * Math.PI * 100 * (1 - (count/target))}`} strokeLinecap="round" className="transition-all duration-300" />
+                        <div className="relative w-[240px] h-[240px] flex justify-center items-center cursor-pointer active:scale-95 transition-all duration-100 bg-white shadow-[0_10px_40px_rgba(0,0,0,0.04)] rounded-full border-[8px] border-white group" onClick={handleTap}>
+                            <svg className="absolute inset-0 w-full h-full transform -rotate-90 drop-shadow-sm">
+                                <circle cx="112" cy="112" r="98" fill="none" stroke="#F1F5F9" strokeWidth="14" />
+                                <circle cx="112" cy="112" r="98" fill="none" stroke="#F59E0B" strokeWidth="14" strokeDasharray={`${2 * Math.PI * 98}`} strokeDashoffset={`${2 * Math.PI * 98 * (1 - (count/target))}`} strokeLinecap="round" className="transition-all duration-300" />
                             </svg>
                             <div className="text-center transition-transform group-active:scale-95">
                                 <div className="text-[76px] font-black text-slate-800 tracking-tighter drop-shadow-sm select-none leading-none mb-3">{count}</div>
-                                <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest bg-slate-100 px-4 py-2 rounded-full inline-block shadow-inner">Tap Jempol</div>
+                                <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest bg-slate-100 px-4 py-2.5 rounded-full inline-block shadow-inner">Tap Jempol</div>
                             </div>
                         </div>
-                        <button onClick={() => setCount(0)} className="mt-8 px-8 py-3 bg-white rounded-full shadow-sm text-[11px] font-bold text-red-500 border border-red-100 flex items-center gap-2 active:scale-95 tracking-wider hover:bg-red-50 transition-colors">
+                        <button onClick={() => setCount(0)} className="mt-8 px-8 py-3 bg-white rounded-full shadow-sm text-[11px] font-bold text-red-500 border border-red-50 flex items-center gap-2 active:scale-95 tracking-wider hover:bg-red-50 transition-colors">
                             <RotateCcw size={14}/> Reset
                         </button>
                     </div>
@@ -1104,17 +1099,14 @@
                         
                         const R = 6371; 
                         const results = data.elements.map(e => {
-                            const dLat = (e.lat - userLoc.lat) * Math.PI / 180;
-                            const dLon = (e.lon - userLoc.lon) * Math.PI / 180;
+                            const dLat = (e.lat - userLoc.lat) * Math.PI / 180; const dLon = (e.lon - userLoc.lon) * Math.PI / 180;
                             const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(userLoc.lat * Math.PI / 180) * Math.cos(e.lat * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
                             const dist = R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
                             return { name: e.tags.name || 'Masjid Terdekat', dist: dist.toFixed(1) + ' km', raw: dist, lat: e.lat, lon: e.lon };
                         }).filter(e => e.name !== 'Masjid Terdekat').sort((a, b) => a.raw - b.raw).slice(0, 5);
                         
-                        setMasjids(results.length > 0 ? results : [{name: 'Masjid Agung Raya (Offline Mode)', dist: '1.5 km', lat: userLoc.lat, lon: userLoc.lon}]);
-                    } catch(e) {
-                        setMasjids([{name: 'Masjid Agung Raya (Offline Mode)', dist: '1.5 km', lat: userLoc.lat, lon: userLoc.lon}]);
-                    }
+                        setMasjids(results.length > 0 ? results : [{name: 'Masjid Agung (Offline Mode)', dist: '1.5 km', lat: userLoc.lat, lon: userLoc.lon}]);
+                    } catch(e) { setMasjids([{name: 'Masjid Agung (Offline Mode)', dist: '1.5 km', lat: userLoc.lat, lon: userLoc.lon}]); }
                     setLoading(false);
                 }
                 getMasjids();
@@ -1123,25 +1115,25 @@
             return (
                 <div className="animate-in fade-in h-[100dvh] flex flex-col bg-transparent relative z-10">
                     <div className="bg-white/90 backdrop-blur-md px-5 py-4 flex items-center shadow-sm z-30">
-                        <button onClick={() => nav('home')} className="p-2 rounded-xl bg-gray-100 mr-3 hover:bg-gray-200 transition-colors"><ArrowLeft size={18} /></button>
-                        <h1 className="text-[15px] font-black text-gray-800">Masjid Terdekat</h1>
+                        <button onClick={() => nav('home')} className="p-2 rounded-[14px] bg-slate-100 mr-3 hover:bg-slate-200 transition-colors"><ArrowLeft size={18} className="text-slate-600" /></button>
+                        <h1 className="text-[15px] font-black text-slate-800">Masjid Terdekat</h1>
                     </div>
                     <div className="flex-1 relative">
                         <div className="absolute top-1/4 left-1/2 transform -translate-x-1/2 text-center w-full">
-                             <Navigation size={56} className="mx-auto text-gray-300 mb-3 drop-shadow-md animate-pulse" />
-                             <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest bg-white/80 px-4 py-1.5 rounded-full inline-block shadow-sm">Radius 3 KM (GPS)</p>
+                             <Navigation size={56} className="mx-auto text-slate-300 mb-3 drop-shadow-sm animate-pulse" />
+                             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest bg-white/80 px-4 py-1.5 rounded-full inline-block shadow-sm">Radius 3 KM (GPS)</p>
                         </div>
                         <div className="absolute bottom-6 left-4 right-4 space-y-3 z-10 pb-20">
                             {loading ? (
-                                <div className="text-center p-4 bg-white rounded-xl shadow-lg"><p className="text-xs font-bold text-gray-500 animate-pulse">Mencari di sekitar Anda...</p></div>
+                                <div className="text-center p-4 bg-white rounded-[20px] shadow-sm border border-slate-100"><p className="text-xs font-bold text-slate-500 animate-pulse">Mencari di sekitar Anda...</p></div>
                             ) : (
                                 masjids.map((m, i) => (
-                                    <button key={i} onClick={() => window.open(`https://www.google.com/maps/dir/?api=1&destination=${m.lat},${m.lon}`, '_blank')} className="w-full bg-white p-4 rounded-[20px] shadow-lg flex justify-between items-center border-l-4 active:scale-95 transition-all hover:bg-slate-50" style={{ borderLeftColor: theme.hex }}>
+                                    <button key={i} onClick={() => window.open(`https://www.google.com/maps/dir/?api=1&destination=${m.lat},${m.lon}`, '_blank')} className="w-full bg-white p-4 rounded-[20px] shadow-sm flex justify-between items-center border-l-4 active:scale-95 transition-all hover:bg-slate-50 border-y border-r border-slate-100" style={{ borderLeftColor: theme.hex }}>
                                         <div className="flex items-center gap-3">
                                             <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: theme.light, color: theme.hex }}><MapPin size={18} /></div>
-                                            <div className="text-left"><h4 className="font-bold text-[13px] text-gray-800">{m.name}</h4><p className="text-[9px] text-blue-500 font-bold mt-0.5 flex items-center gap-1">Buka Rute G.Maps <ChevronRight size={10}/></p></div>
+                                            <div className="text-left"><h4 className="font-bold text-[13px] text-slate-800">{m.name}</h4><p className="text-[9px] text-blue-500 font-bold mt-0.5 flex items-center gap-1">Buka Rute G.Maps <ChevronRight size={10}/></p></div>
                                         </div>
-                                        <span className="text-[10px] font-black px-2.5 py-1 rounded-lg" style={{ backgroundColor: theme.light, color: theme.hex }}>{m.dist}</span>
+                                        <span className="text-[10px] font-black px-2.5 py-1 rounded-[10px]" style={{ backgroundColor: theme.light, color: theme.hex }}>{m.dist}</span>
                                     </button>
                                 ))
                             )}
@@ -1159,22 +1151,16 @@
                 const handler = (e) => setHeading(e.webkitCompassHeading || Math.abs(e.alpha - 360) || 0); 
                 window.addEventListener('deviceorientation', handler, true); 
                 
-                const latK = 21.422487 * (Math.PI / 180); 
-                const lonK = 39.826206 * (Math.PI / 180); 
-                const latU = userLoc.lat * (Math.PI / 180); 
-                const lonU = userLoc.lon * (Math.PI / 180); 
+                const latK = 21.422487 * (Math.PI / 180); const lonK = 39.826206 * (Math.PI / 180); 
+                const latU = userLoc.lat * (Math.PI / 180); const lonU = userLoc.lon * (Math.PI / 180); 
 
                 const y = Math.sin(lonK - lonU);
                 const x = Math.cos(latU) * Math.tan(latK) - Math.sin(latU) * Math.cos(lonK - lonU);
-                let qiblaDir = Math.atan2(y, x) * (180 / Math.PI);
-                qiblaDir = (qiblaDir + 360) % 360;
+                let qiblaDir = Math.atan2(y, x) * (180 / Math.PI); qiblaDir = (qiblaDir + 360) % 360;
 
-                const R = 6371; 
-                const dLat = latK - latU;
-                const dLon = lonK - lonU;
+                const R = 6371; const dLat = latK - latU; const dLon = lonK - lonU;
                 const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(latU) * Math.cos(latK) * Math.sin(dLon/2) * Math.sin(dLon/2);
-                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-                const dist = R * c;
+                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); const dist = R * c;
 
                 setQiblaInfo({ dir: qiblaDir, dist: dist });
                 return () => window.removeEventListener('deviceorientation', handler, true); 
@@ -1183,14 +1169,14 @@
             return (
                 <div className="px-5 pt-8 pb-10 animate-in fade-in h-[100dvh] bg-transparent relative z-10">
                     <div className="flex items-center gap-3 mb-6">
-                        <button onClick={()=>nav('home')} className="p-2.5 rounded-[14px] bg-white shadow-sm hover:shadow-md transition-shadow active:scale-95"><ArrowLeft size={20} className="text-gray-600" /></button>
-                        <h1 className="text-2xl font-black text-gray-800 tracking-tight">Arah Kiblat</h1>
+                        <button onClick={()=>nav('home')} className="p-2.5 rounded-[14px] bg-white shadow-sm hover:shadow-md transition-shadow active:scale-95"><ArrowLeft size={20} className="text-slate-600" /></button>
+                        <h1 className="text-2xl font-black text-slate-800 tracking-tight">Arah Kiblat</h1>
                     </div>
                     
                     <div className="relative flex justify-center items-center w-64 h-64 mx-auto mb-10 mt-10">
-                        <div className="absolute inset-0 rounded-full border-[8px] border-white shadow-xl flex items-center justify-center transition-transform duration-100 bg-[#F4F9F9]" style={{ transform: `rotate(${-heading}deg)` }}>
-                            <span className="absolute top-4 font-bold text-gray-400 text-sm">S</span><span className="absolute bottom-4 font-black text-sm" style={{ color: theme.hex }}>N</span><span className="absolute right-4 font-bold text-gray-400 text-sm">W</span><span className="absolute left-4 font-bold text-gray-400 text-sm">E</span>
-                            <div className="absolute inset-2 rounded-full border border-dashed border-gray-300"></div>
+                        <div className="absolute inset-0 rounded-full border-[8px] border-white shadow-xl flex items-center justify-center transition-transform duration-100 bg-[#F8FAFC]" style={{ transform: `rotate(${-heading}deg)` }}>
+                            <span className="absolute top-4 font-bold text-slate-400 text-sm">S</span><span className="absolute bottom-4 font-black text-sm" style={{ color: theme.hex }}>N</span><span className="absolute right-4 font-bold text-slate-400 text-sm">W</span><span className="absolute left-4 font-bold text-slate-400 text-sm">E</span>
+                            <div className="absolute inset-2 rounded-full border border-dashed border-slate-300"></div>
                         </div>
                         <div className="w-4 h-4 bg-amber-500 rounded-full z-10 shadow-md ring-2 ring-white"></div>
                         <div className="absolute inset-0 transition-transform duration-100 z-10 flex justify-center" style={{ transform: `rotate(${qiblaInfo.dir - heading}deg)` }}>
@@ -1203,12 +1189,12 @@
                     </div>
 
                     <div className="grid grid-cols-2 gap-3 mt-20">
-                        <div className="col-span-2 bg-white p-4 rounded-[20px] shadow-sm">
+                        <div className="col-span-2 bg-white p-4 rounded-[20px] shadow-sm border border-slate-100">
                             <p className="text-[10px] font-bold mb-1 flex items-center gap-1" style={{ color: theme.hex }}><MapPin size={12}/> Lokasi Anda</p>
-                            <p className="text-sm font-bold text-gray-800">{userLoc.name}</p>
+                            <p className="text-sm font-bold text-slate-800">{userLoc.name}</p>
                         </div>
-                        <div className="bg-white p-4 rounded-[20px] shadow-sm"><p className="text-[10px] font-bold mb-1" style={{ color: theme.hex }}>Arah Kiblat</p><p className="text-lg font-black text-gray-800">{qiblaInfo.dir.toFixed(1)}°</p></div>
-                        <div className="bg-white p-4 rounded-[20px] shadow-sm"><p className="text-[10px] font-bold text-amber-500 mb-1">Jarak Ka'bah</p><p className="text-lg font-black text-gray-800">{qiblaInfo.dist.toFixed(1)} km</p></div>
+                        <div className="bg-white p-4 rounded-[20px] shadow-sm border border-slate-100"><p className="text-[10px] font-bold mb-1" style={{ color: theme.hex }}>Arah Kiblat</p><p className="text-lg font-black text-slate-800">{qiblaInfo.dir.toFixed(1)}°</p></div>
+                        <div className="bg-white p-4 rounded-[20px] shadow-sm border border-slate-100"><p className="text-[10px] font-bold text-amber-500 mb-1">Jarak Ka'bah</p><p className="text-lg font-black text-slate-800">{qiblaInfo.dist.toFixed(1)} km</p></div>
                     </div>
                 </div>
             );
@@ -1216,9 +1202,7 @@
 
         function ChatView({ nav, theme }) {
             const [messages, setMessages] = useState([{ role: 'model', text: "Wa'alaikumussalam! 👋 Aku asisten AI Tarjih. Lagi mau nanya hukum agama, atau cuma mau curhat tipis-tipis? Sini aku bantu jawab sesuai HPT Muhammadiyah." }]);
-            const [input, setInput] = useState('');
-            const [loading, setLoading] = useState(false);
-            const endRef = useRef(null);
+            const [input, setInput] = useState(''); const [loading, setLoading] = useState(false); const endRef = useRef(null);
 
             useEffect(() => { if (endRef.current) endRef.current.scrollIntoView({ behavior: "smooth" }); }, [messages]);
 
@@ -1242,22 +1226,22 @@
             return (
                 <div className="h-[100dvh] flex flex-col animate-in slide-in-from-right-4 pb-16 bg-transparent relative z-10">
                     <div className="bg-white/90 backdrop-blur-md px-4 py-3 flex items-center shadow-sm z-30">
-                        <button onClick={() => nav('home')} className="p-2 rounded-xl bg-gray-100 mr-3 hover:bg-gray-200 transition-colors"><ArrowLeft size={18} /></button>
-                        <div><h1 className="text-[13px] font-black text-gray-800">Tarjih AI (Gaul)</h1><p className="text-[9px] font-bold text-green-500">Sesuai HPT Muhammadiyah</p></div>
+                        <button onClick={() => nav('home')} className="p-2 rounded-[14px] bg-slate-100 mr-3 hover:bg-slate-200 transition-colors"><ArrowLeft size={18} className="text-slate-600" /></button>
+                        <div><h1 className="text-[13px] font-black text-slate-800">Tarjih AI (Gaul)</h1><p className="text-[9px] font-bold text-green-500">Sesuai HPT Muhammadiyah</p></div>
                     </div>
                     <div className="flex-1 p-4 overflow-y-auto space-y-4 relative z-10">
                         {messages.map((m, i) => (
                             <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                                <div className={`p-3.5 rounded-[20px] max-w-[85%] text-[12px] font-medium leading-relaxed shadow-sm ${m.role === 'user' ? 'text-white rounded-tr-none' : 'bg-white text-gray-700 rounded-tl-none'}`} style={m.role === 'user' ? { backgroundColor: theme.hex } : {}}>
+                                <div className={`p-3.5 rounded-[20px] max-w-[85%] text-[12px] font-medium leading-relaxed shadow-sm ${m.role === 'user' ? 'text-white rounded-tr-none' : 'bg-white border border-slate-100 text-slate-700 rounded-tl-none'}`} style={m.role === 'user' ? { backgroundColor: theme.hex } : {}}>
                                     {m.text}
                                 </div>
                             </div>
                         ))}
-                        {loading && <div className="flex justify-start"><div className="bg-white p-3 rounded-[20px] rounded-tl-none shadow-sm flex gap-1"><span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"></span></div></div>}
+                        {loading && <div className="flex justify-start"><div className="bg-white border border-slate-100 p-3 rounded-[20px] rounded-tl-none shadow-sm flex gap-1"><span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"></span></div></div>}
                         <div ref={endRef}></div>
                     </div>
-                    <div className="p-4 bg-white/90 backdrop-blur-md border-t border-gray-100 flex gap-2 relative z-20">
-                        <input type="text" value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>e.key==='Enter' && handleSend()} placeholder="Tanya santai soal agama..." className="flex-1 bg-gray-100 rounded-full px-4 py-2.5 text-xs font-medium outline-none focus:ring-2 transition-all" style={{ focusRingColor: theme.hex }} />
+                    <div className="p-4 bg-white/90 backdrop-blur-md border-t border-slate-100 flex gap-2 relative z-20">
+                        <input type="text" value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>e.key==='Enter' && handleSend()} placeholder="Tanya santai soal agama..." className="flex-1 bg-slate-100 rounded-full px-4 py-2.5 text-xs font-medium outline-none focus:ring-2 transition-all" style={{ focusRingColor: theme.hex }} />
                         <button onClick={handleSend} disabled={loading} className="w-10 h-10 rounded-full flex items-center justify-center text-white shadow-md active:scale-95 transition-transform" style={{ backgroundColor: theme.hex }}><Send size={16} className="ml-1 -mt-0.5"/></button>
                     </div>
                 </div>
@@ -1268,15 +1252,15 @@
             const bookmarks = [ { surahId: 36, name: 'Ya Sin', desc: 'Jantung Al-Quran' }, { surahId: 114, name: 'An-Nas', desc: 'Sering dibaca' } ];
             return (
                 <div className="pb-10 animate-in slide-in-from-right-4 h-[100dvh] bg-transparent relative z-10">
-                    <div className="bg-white/90 backdrop-blur-md px-5 py-4 flex items-center shadow-sm z-30 sticky top-0"><button onClick={() => nav('home')} className="p-2 rounded-xl bg-gray-100 mr-3"><ArrowLeft size={18} /></button><h1 className="text-[15px] font-black text-gray-800">Bookmark Saya</h1></div>
+                    <div className="bg-white/90 backdrop-blur-md px-5 py-4 flex items-center shadow-sm z-30 sticky top-0"><button onClick={() => nav('home')} className="p-2 rounded-[14px] bg-slate-100 mr-3"><ArrowLeft size={18} className="text-slate-600" /></button><h1 className="text-[15px] font-black text-slate-800">Bookmark Saya</h1></div>
                     <div className="p-4 space-y-3 relative z-10">
                         {bookmarks.map((b, i) => (
-                            <div key={i} onClick={() => nav('quran', { surahId: b.surahId })} className="bg-white p-4 rounded-[20px] shadow-sm flex justify-between items-center cursor-pointer active:scale-95 border border-transparent hover:border-gray-200">
+                            <div key={i} onClick={() => nav('quran', { surahId: b.surahId })} className="bg-white p-4 rounded-[20px] shadow-sm flex justify-between items-center cursor-pointer active:scale-95 border border-slate-50 hover:border-slate-200">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-[12px] flex items-center justify-center" style={{ backgroundColor: theme.light, color: theme.hex }}><Bookmark size={18} /></div>
-                                    <div><h3 className="font-bold text-[13px] text-gray-800">Surah {b.name}</h3><p className="text-[10px] text-gray-500 font-medium">{b.desc}</p></div>
+                                    <div className="w-10 h-10 rounded-[14px] flex items-center justify-center" style={{ backgroundColor: theme.light, color: theme.hex }}><Bookmark size={18} /></div>
+                                    <div><h3 className="font-bold text-[13px] text-slate-800">Surah {b.name}</h3><p className="text-[10px] text-slate-500 font-medium">{b.desc}</p></div>
                                 </div>
-                                <div className="text-[9px] font-bold text-blue-500 flex items-center gap-1 bg-blue-50 px-2.5 py-1.5 rounded-lg">Buka <ChevronRight size={12}/></div>
+                                <div className="text-[9px] font-bold text-blue-500 flex items-center gap-1 bg-blue-50 px-2.5 py-1.5 rounded-[10px]">Buka <ChevronRight size={12}/></div>
                             </div>
                         ))}
                     </div>
@@ -1291,12 +1275,12 @@
                 <div className="animate-in fade-in h-[100dvh] flex flex-col bg-transparent relative z-10">
                     <div className="bg-white/90 backdrop-blur-md px-5 py-4 flex items-center justify-between shadow-sm z-30">
                         <div className="flex items-center">
-                            <button onClick={() => nav('home')} className="p-2 rounded-xl bg-gray-100 mr-3 active:scale-95 transition-transform hover:bg-gray-200"><ArrowLeft size={18} /></button>
-                            <div><h1 className="text-[15px] font-black text-gray-800 tracking-tight">Maktabah</h1><p className="text-[10px] font-bold" style={{ color: theme.hex }}>Tafsir Jalalain 30 Juz</p></div>
+                            <button onClick={() => nav('home')} className="p-2 rounded-[14px] bg-slate-100 mr-3 active:scale-95 transition-transform hover:bg-slate-200"><ArrowLeft size={18} className="text-slate-600" /></button>
+                            <div><h1 className="text-[15px] font-black text-slate-800 tracking-tight">Maktabah</h1><p className="text-[10px] font-bold" style={{ color: theme.hex }}>Tafsir Jalalain 30 Juz</p></div>
                         </div>
-                        <a href={pdfUrl} target="_blank" rel="noreferrer" className="p-2 bg-gray-100 rounded-xl text-gray-600 active:scale-95 transition-transform hover:bg-gray-200 shadow-sm"><Download size={18} /></a>
+                        <a href={pdfUrl} target="_blank" rel="noreferrer" className="p-2 bg-slate-100 rounded-[14px] text-slate-600 active:scale-95 transition-transform hover:bg-slate-200 shadow-sm"><Download size={18} /></a>
                     </div>
-                    <div className="flex-1 w-full bg-gray-200 relative z-10"><iframe src={viewerUrl} className="w-full h-full border-none" title="Tafsir Jalalain PDF Reader" /></div>
+                    <div className="flex-1 w-full bg-slate-200 relative z-10"><iframe src={viewerUrl} className="w-full h-full border-none" title="Tafsir Jalalain PDF Reader" /></div>
                 </div>
             );
         }
@@ -1304,37 +1288,37 @@
         function SettingsView({ nav, theme, setTheme }) {
             const Section = ({ title, icon, children }) => (
                 <div className="mb-6 relative z-10">
-                    <h3 className="text-[13px] font-bold text-gray-700 flex items-center gap-2 mb-3 px-1"><span style={{ color: theme.hex }}>{icon}</span> {title}</h3>
-                    <div className="bg-white rounded-[20px] p-2 shadow-sm border border-gray-100">{children}</div>
+                    <h3 className="text-[13px] font-bold text-slate-700 flex items-center gap-2 mb-3 px-1"><span style={{ color: theme.hex }}>{icon}</span> {title}</h3>
+                    <div className="bg-white rounded-[20px] p-2 shadow-sm border border-slate-100">{children}</div>
                 </div>
             );
 
             return (
                 <div className="pb-10 animate-in slide-in-from-right-4 bg-transparent relative z-10">
-                    <div className="sticky top-0 bg-white/90 backdrop-blur-md px-5 pt-8 pb-4 flex items-center z-30 shadow-sm border-b border-gray-100">
-                        <button onClick={() => nav('home')} className="p-2 rounded-xl bg-gray-800 text-white mr-4 active:scale-95 hover:bg-gray-900 transition-colors"><ArrowLeft size={18} /></button>
-                        <h1 className="text-[18px] font-black text-gray-800 tracking-tight flex items-center gap-2"><Settings size={22} style={{ color: theme.hex }} /> Pengaturan</h1>
+                    <div className="sticky top-0 bg-white/90 backdrop-blur-md px-5 pt-8 pb-4 flex items-center z-30 shadow-sm border-b border-slate-100">
+                        <button onClick={() => nav('home')} className="p-2 rounded-[14px] bg-slate-800 text-white mr-4 active:scale-95 hover:bg-slate-900 transition-colors"><ArrowLeft size={18} /></button>
+                        <h1 className="text-[18px] font-black text-slate-800 tracking-tight flex items-center gap-2"><Settings size={22} style={{ color: theme.hex }} /> Pengaturan</h1>
                     </div>
                     <div className="p-5 relative z-10">
                         <Section title="Tampilan & Tema Warna" icon={<Palette size={18}/>}>
-                            <p className="text-[10px] font-bold text-gray-400 mb-2 px-2 uppercase mt-2">Warna Aplikasi</p>
+                            <p className="text-[10px] font-bold text-slate-400 mb-2 px-2 uppercase mt-2">Warna Aplikasi</p>
                             <div className="flex justify-between px-2 pb-2">
                                 {Object.values(THEMES).map(t => (
                                     <button key={t.id} onClick={() => setTheme(t)} className="flex flex-col items-center gap-1 group">
-                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${theme.id === t.id ? 'ring-2 ring-offset-2 scale-110 shadow-md' : 'border border-gray-200 group-hover:scale-105'}`} style={{ backgroundColor: t.hex, ringColor: t.hex }}>
+                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${theme.id === t.id ? 'ring-2 ring-offset-2 scale-110 shadow-md' : 'border border-slate-200 group-hover:scale-105'}`} style={{ backgroundColor: t.hex, ringColor: t.hex }}>
                                             {theme.id === t.id && <Check size={16} className="text-white animate-pop" strokeWidth={3} />}
                                         </div>
-                                        <span className={`text-[9px] font-bold mt-1 ${theme.id === t.id ? 'text-gray-800' : 'text-gray-400'}`}>{t.id.charAt(0).toUpperCase() + t.id.slice(1)}</span>
+                                        <span className={`text-[9px] font-bold mt-1 ${theme.id === t.id ? 'text-slate-800' : 'text-slate-400'}`}>{t.id.charAt(0).toUpperCase() + t.id.slice(1)}</span>
                                     </button>
                                 ))}
                             </div>
                         </Section>
                         <Section title="Tentang" icon={<Info size={18}/>}>
                             <div className="p-3 text-center">
-                                <div className="w-12 h-12 rounded-[14px] mx-auto flex items-center justify-center mb-2 shadow-sm" style={{ backgroundColor: theme.light, color: theme.hex }}><BookOpen size={24} /></div>
-                                <h4 className="font-black text-gray-800 text-sm">Al Kautsar Islamic</h4>
-                                <p className="text-[9px] text-gray-400 font-bold mb-3">Versi 10.0 (Ultimate Edition)</p>
-                                <p className="text-[10px] text-gray-500 leading-relaxed font-medium mb-4 text-justify">Aplikasi resmi SDIT Muhammadiyah Al Kautsar yang menyediakan Al-Quran digital tajwid cerdas, fitur Switcher (Lompat Cepat), Maktabah (PDF Jalalain), Tafsir Kemenag & Jalalayn per ayat, GPS Masjid Terdekat, Arah Kiblat Real-time, dan fitur interaktif premium lainnya.</p>
+                                <div className="w-12 h-12 rounded-[16px] mx-auto flex items-center justify-center mb-2 shadow-sm" style={{ backgroundColor: theme.light, color: theme.hex }}><BookOpen size={24} /></div>
+                                <h4 className="font-black text-slate-800 text-sm">Al Kautsar Islamic</h4>
+                                <p className="text-[9px] text-slate-400 font-bold mb-3">Versi 11.0 (Speed Edition)</p>
+                                <p className="text-[10px] text-slate-500 leading-relaxed font-medium mb-4 text-justify">Aplikasi resmi SDIT Muhammadiyah Al Kautsar. Dilengkapi teknologi Memory Cache Instan, Al-Quran digital tajwid cerdas bersuara, GPS Masjid Terdekat, Arah Kiblat Real-time, dan fitur interaktif premium tanpa loading lama.</p>
                             </div>
                         </Section>
                     </div>
