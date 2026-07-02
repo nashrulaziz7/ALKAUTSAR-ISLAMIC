@@ -6,9 +6,36 @@
     <title>Al Kautsar Islamic</title>
     
     <!-- Ikon Aplikasi untuk Install di HP -->
-    <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/nashrulaziz7/quran-data/main/islamic.png" />
-    <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/nashrulaziz7/quran-data/main/islamic.png" />
+    <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/nashrulaziz7/ALKAUTSAR-ISLAMIC/main/islamic.png" />
+    <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/nashrulaziz7/ALKAUTSAR-ISLAMIC/main/islamic.png" />
     
+    <script>
+        // TRIK SILUMAN: Membuat Manifest PWA & Service Worker secara dinamis di memori
+        const manifestData = {
+            "name": "Al Kautsar Islamic",
+            "short_name": "Al Kautsar",
+            "start_url": window.location.href,
+            "display": "standalone",
+            "background_color": "#F8FAFC",
+            "theme_color": "#14A895",
+            "icons": [{"src": "https://raw.githubusercontent.com/nashrulaziz7/ALKAUTSAR-ISLAMIC/main/islamic.png", "sizes": "512x512", "type": "image/png"}]
+        };
+        const manifestBlob = new Blob([JSON.stringify(manifestData)], {type: 'application/json'});
+        document.write('<link rel="manifest" href="' + URL.createObjectURL(manifestBlob) + '">');
+
+        if ('serviceWorker' in navigator) {
+            const swBlob = new Blob(["self.addEventListener('fetch', function(e) {});"], {type: 'application/javascript'});
+            navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(()=>{});
+        }
+
+        // Menangkap event Install Native bawaan Chrome/Android
+        window.deferredInstallPrompt = null;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            window.deferredInstallPrompt = e;
+        });
+    </script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
@@ -450,13 +477,13 @@
                         </div>
                         <div className="relative z-10 flex flex-col items-center animate-in zoom-in duration-700">
                             <img 
-                                src="https://raw.githubusercontent.com/nashrulaziz7/quran-data/main/islamic.png" 
+                                src="https://raw.githubusercontent.com/nashrulaziz7/ALKAUTSAR-ISLAMIC/main/islamic.png" 
                                 alt="Logo Al Kautsar" 
                                 className="w-32 h-32 object-contain mb-6 drop-shadow-xl animate-bounce-soft" 
                                 onError={(e) => { e.target.onerror = null; e.target.style.display = 'none'; }} 
                             />
                             <h1 className="text-2xl font-black text-slate-800 tracking-tight">AL KAUTSAR ISLAMIC</h1>
-                            <p className="text-[10px] font-bold text-slate-500 tracking-widest mt-2 uppercase">SDIT Muhammadiyah</p>
+                            <p className="text-[10px] font-bold text-slate-500 tracking-widest mt-2 uppercase">SDIT Muhammadiyah Al Kautsar</p>
                         </div>
                         <div className="absolute bottom-12 flex flex-col items-center">
                             <div className="w-6 h-6 border-4 border-slate-200 border-t-[#14A895] rounded-full animate-spin"></div>
@@ -469,9 +496,9 @@
             return (
                 <div className={`w-full max-w-[390px] h-[100dvh] bg-[#F8FAFC] flex flex-col relative overflow-hidden shadow-2xl ring-1 ring-white/50 mx-auto`}>
                     
-                    {/* Popup Premium Install (Sangat Agresif, Tanpa Tombol Skip) */}
+                    {/* Popup Premium Install (Wajib) */}
                     {showInstall && (
-                        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-5 bg-slate-900/95 backdrop-blur-md animate-in fade-in zoom-in-95 duration-300">
+                        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-5 bg-slate-900/90 backdrop-blur-md animate-in fade-in zoom-in-95 duration-300">
                             <div className="bg-white w-full max-w-[340px] rounded-[32px] shadow-[0_20px_50px_rgba(0,0,0,0.3)] p-6 relative flex flex-col items-center overflow-hidden border-2 border-slate-100">
                                 <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-amber-400/20 to-transparent pointer-events-none"></div>
                                 
@@ -479,23 +506,35 @@
                                     <Sparkles size={36} className="animate-pulse" />
                                 </div>
                                 
-                                <h2 className="text-[24px] font-black text-slate-800 mb-2 relative z-10 tracking-tight text-center">Akses Premium! 🚀</h2>
+                                <h2 className="text-[24px] font-black text-slate-800 mb-2 relative z-10 tracking-tight text-center">Wajib Install! 🚀</h2>
                                 <p className="text-[11px] text-slate-500 font-bold mb-4 relative z-10 text-center px-1 leading-relaxed">
-                                    Aplikasi Al Kautsar Islamic belum di-install di perangkat Anda. Install sekarang untuk mengaktifkan fitur tingkat dewa:
+                                    Rasakan pengalaman ibadah digital kelas dunia. Install aplikasi Al Kautsar Islamic sekarang untuk menikmati fitur premium:
                                 </p>
                                 
                                 <div className="w-full bg-slate-50 rounded-[20px] p-4 mb-6 relative z-10 border border-slate-100">
                                     <ul className="text-[11px] font-bold text-slate-700 space-y-3 text-left">
-                                        <li className="flex items-center gap-3"><div className="bg-white p-1.5 rounded-lg shadow-sm text-green-500"><BookOpen size={14}/></div> Al-Qur'an Tajwid & Suara Jernih</li>
-                                        <li className="flex items-center gap-3"><div className="bg-white p-1.5 rounded-lg shadow-sm text-blue-500"><Clock size={14}/></div> Notifikasi & Alarm Adzan Real-time</li>
-                                        <li className="flex items-center gap-3"><div className="bg-white p-1.5 rounded-lg shadow-sm text-amber-500"><RotateCcw size={14}/></div> Dzikir Alam Animasi Premium</li>
-                                        <li className="flex items-center gap-3"><div className="bg-white p-1.5 rounded-lg shadow-sm text-purple-500"><Compass size={14}/></div> Kompas Kiblat 4 Tema</li>
+                                        <li className="flex items-center gap-3"><div className="bg-white p-1.5 rounded-lg shadow-sm text-green-500"><BookOpen size={14}/></div> Al-Qur'an Tajwid & Suara</li>
+                                        <li className="flex items-center gap-3"><div className="bg-white p-1.5 rounded-lg shadow-sm text-blue-500"><Clock size={14}/></div> Notifikasi Adzan Real-time</li>
+                                        <li className="flex items-center gap-3"><div className="bg-white p-1.5 rounded-lg shadow-sm text-amber-500"><RotateCcw size={14}/></div> Dzikir Alam Dinamis</li>
+                                        <li className="flex items-center gap-3"><div className="bg-white p-1.5 rounded-lg shadow-sm text-purple-500"><Compass size={14}/></div> Kompas Kiblat Presisi</li>
+                                        <li className="flex items-center gap-3"><div className="bg-white p-1.5 rounded-lg shadow-sm text-indigo-500"><MessageCircle size={14}/></div> AI Asisten Tarjih Pintar</li>
                                     </ul>
                                 </div>
                                 
                                 <div className="w-full relative z-10">
-                                    <button onClick={() => { alert('Mengunduh dan Mengaktifkan fitur...'); setShowInstall(false); initNotifAndAudio(); }} className="w-full py-4 bg-slate-900 hover:bg-black text-white font-black text-[13px] rounded-[18px] active:scale-95 transition-all shadow-[0_8px_20px_rgba(0,0,0,0.3)] flex items-center justify-center gap-2 uppercase tracking-widest">
-                                        <Download size={16}/> INSTALL SEKARANG
+                                    <button onClick={async () => { 
+                                        initNotifAndAudio(); 
+                                        if (window.deferredInstallPrompt) {
+                                            window.deferredInstallPrompt.prompt();
+                                            const { outcome } = await window.deferredInstallPrompt.userChoice;
+                                            if (outcome === 'accepted') { setShowInstall(false); }
+                                            window.deferredInstallPrompt = null;
+                                        } else {
+                                            alert('Pemasangan otomatis belum siap di browser ini.\n\nCARA INSTALL MANUAL:\n1. Ketuk ikon Menu (titik tiga ⋮) atau Share (➚) di browser Anda.\n2. Pilih "Tambahkan ke Layar Utama" (Add to Home Screen).');
+                                            setShowInstall(false);
+                                        }
+                                    }} className="w-full py-4 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white font-black text-[13px] rounded-[18px] active:scale-95 transition-all shadow-[0_8px_20px_rgba(16,185,129,0.3)] flex items-center justify-center gap-2 uppercase tracking-widest">
+                                        INSTALL SEKARANG
                                     </button>
                                 </div>
                             </div>
