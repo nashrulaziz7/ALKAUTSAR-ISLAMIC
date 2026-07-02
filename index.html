@@ -325,6 +325,11 @@
             const [globalTrans, setGlobalTrans] = useState(true);
             const [globalFontSize, setGlobalFontSize] = useState(26);
 
+            // State untuk Wajib Install & Versi
+            const APP_VERSION = '18.0'; // Ganti angka ini jika ada update fitur baru agar pop-up muncul lagi 1x
+            const [showInstall, setShowInstall] = useState(false);
+            const [isStandalone, setIsStandalone] = useState(false);
+
             // Pengaturan Alarm & Adzan (Dinamic Per Waktu)
             const [notif10Min, setNotif10Min] = useState(true);
             const [adzanAlarms, setAdzanAlarms] = useState({ Imsak: false, Fajr: true, Dhuhr: true, Asr: true, Maghrib: true, Isha: true });
@@ -334,7 +339,6 @@
             const [customAdzanFiles, setCustomAdzanFiles] = useState({});
             const [customAdzanNames, setCustomAdzanNames] = useState({});
 
-            const [showInstall, setShowInstall] = useState(true);
             const [showSplash, setShowSplash] = useState(true); // State for Splash Screen
             const [userLoc, setUserLoc] = useState(window.AL_KAUTSAR_CACHE.loc);
             const [prayerTimes, setPrayerTimes] = useState(window.AL_KAUTSAR_CACHE.prayerTimes);
@@ -345,10 +349,17 @@
 
             useEffect(() => { adzanAudio.current = new Audio(); }, []);
             
-            // Splash Screen Timer
+            // Splash Screen Timer & Cek Versi Instalasi
             useEffect(() => {
                 const splashTimer = setTimeout(() => {
                     setShowSplash(false);
+                    // Cek status install dan versi setelah splash screen selesai
+                    const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+                    setIsStandalone(standalone);
+                    const savedVer = localStorage.getItem('alkautsar_ver');
+                    if (savedVer !== APP_VERSION) {
+                        setShowInstall(true); // Tampilkan pop-up jika versi baru/belum pernah klik
+                    }
                 }, 2500);
                 return () => clearTimeout(splashTimer);
             }, []);
@@ -496,9 +507,9 @@
             return (
                 <div className={`w-full max-w-[390px] h-[100dvh] bg-[#F8FAFC] flex flex-col relative overflow-hidden shadow-2xl ring-1 ring-white/50 mx-auto`}>
                     
-                    {/* Popup Premium Install (Wajib) */}
+                    {/* Popup Premium Install / Update Fitur Khusus 1x */}
                     {showInstall && (
-                        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-5 bg-slate-900/90 backdrop-blur-md animate-in fade-in zoom-in-95 duration-300">
+                        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-5 bg-slate-900/95 backdrop-blur-md animate-in fade-in zoom-in-95 duration-300">
                             <div className="bg-white w-full max-w-[340px] rounded-[32px] shadow-[0_20px_50px_rgba(0,0,0,0.3)] p-6 relative flex flex-col items-center overflow-hidden border-2 border-slate-100">
                                 <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-amber-400/20 to-transparent pointer-events-none"></div>
                                 
@@ -506,35 +517,47 @@
                                     <Sparkles size={36} className="animate-pulse" />
                                 </div>
                                 
-                                <h2 className="text-[24px] font-black text-slate-800 mb-2 relative z-10 tracking-tight text-center">Wajib Install! 🚀</h2>
+                                <h2 className="text-[24px] font-black text-slate-800 mb-2 relative z-10 tracking-tight text-center">
+                                    {isStandalone ? 'Fitur Baru! ✨' : 'Akses Premium! 🚀'}
+                                </h2>
                                 <p className="text-[11px] text-slate-500 font-bold mb-4 relative z-10 text-center px-1 leading-relaxed">
-                                    Rasakan pengalaman ibadah digital kelas dunia. Install aplikasi Al Kautsar Islamic sekarang untuk menikmati fitur premium:
+                                    {isStandalone 
+                                        ? `Selamat datang di versi ${APP_VERSION}. Nikmati update fitur tingkat dewa terbaru:` 
+                                        : 'Aplikasi Al Kautsar Islamic belum di-install di perangkat Anda. Install sekarang untuk mengaktifkan fitur tingkat dewa:'}
                                 </p>
                                 
                                 <div className="w-full bg-slate-50 rounded-[20px] p-4 mb-6 relative z-10 border border-slate-100">
                                     <ul className="text-[11px] font-bold text-slate-700 space-y-3 text-left">
-                                        <li className="flex items-center gap-3"><div className="bg-white p-1.5 rounded-lg shadow-sm text-green-500"><BookOpen size={14}/></div> Al-Qur'an Tajwid & Suara</li>
-                                        <li className="flex items-center gap-3"><div className="bg-white p-1.5 rounded-lg shadow-sm text-blue-500"><Clock size={14}/></div> Notifikasi Adzan Real-time</li>
-                                        <li className="flex items-center gap-3"><div className="bg-white p-1.5 rounded-lg shadow-sm text-amber-500"><RotateCcw size={14}/></div> Dzikir Alam Dinamis</li>
-                                        <li className="flex items-center gap-3"><div className="bg-white p-1.5 rounded-lg shadow-sm text-purple-500"><Compass size={14}/></div> Kompas Kiblat Presisi</li>
-                                        <li className="flex items-center gap-3"><div className="bg-white p-1.5 rounded-lg shadow-sm text-indigo-500"><MessageCircle size={14}/></div> AI Asisten Tarjih Pintar</li>
+                                        <li className="flex items-center gap-3"><div className="bg-white p-1.5 rounded-lg shadow-sm text-green-500"><BookOpen size={14}/></div> Al-Qur'an Tajwid & Suara Jernih</li>
+                                        <li className="flex items-center gap-3"><div className="bg-white p-1.5 rounded-lg shadow-sm text-blue-500"><Clock size={14}/></div> Notifikasi & Alarm Adzan Real-time</li>
+                                        <li className="flex items-center gap-3"><div className="bg-white p-1.5 rounded-lg shadow-sm text-amber-500"><RotateCcw size={14}/></div> Dzikir Alam Animasi Premium</li>
+                                        <li className="flex items-center gap-3"><div className="bg-white p-1.5 rounded-lg shadow-sm text-purple-500"><Compass size={14}/></div> Kompas Kiblat 4 Tema</li>
                                     </ul>
                                 </div>
                                 
                                 <div className="w-full relative z-10">
                                     <button onClick={async () => { 
+                                        localStorage.setItem('alkautsar_ver', APP_VERSION);
+                                        setShowInstall(false); 
                                         initNotifAndAudio(); 
-                                        if (window.deferredInstallPrompt) {
-                                            window.deferredInstallPrompt.prompt();
-                                            const { outcome } = await window.deferredInstallPrompt.userChoice;
-                                            if (outcome === 'accepted') { setShowInstall(false); }
-                                            window.deferredInstallPrompt = null;
-                                        } else {
-                                            alert('Pemasangan otomatis belum siap di browser ini.\n\nCARA INSTALL MANUAL:\n1. Ketuk ikon Menu (titik tiga ⋮) atau Share (➚) di browser Anda.\n2. Pilih "Tambahkan ke Layar Utama" (Add to Home Screen).');
-                                            setShowInstall(false);
+                                        
+                                        if (!isStandalone) {
+                                            if (window.deferredInstallPrompt) {
+                                                window.deferredInstallPrompt.prompt();
+                                                const { outcome } = await window.deferredInstallPrompt.userChoice;
+                                                window.deferredInstallPrompt = null;
+                                            } else {
+                                                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+                                                if(isIOS) {
+                                                    alert('Untuk Install di iPhone/iPad:\n1. Tap ikon Share (Kotak dengan panah ke atas) di menu bawah browser.\n2. Scroll ke bawah dan pilih "Add to Home Screen".');
+                                                } else {
+                                                    alert('Sistem PWA di browser ini butuh instalasi manual.\n\nCARA INSTALL:\n1. Ketuk ikon Menu (titik tiga ⋮) di pojok browser.\n2. Pilih "Tambahkan ke Layar Utama" atau "Install Aplikasi".');
+                                                }
+                                            }
                                         }
-                                    }} className="w-full py-4 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white font-black text-[13px] rounded-[18px] active:scale-95 transition-all shadow-[0_8px_20px_rgba(16,185,129,0.3)] flex items-center justify-center gap-2 uppercase tracking-widest">
-                                        INSTALL SEKARANG
+                                    }} className="w-full py-4 bg-slate-900 hover:bg-black text-white font-black text-[13px] rounded-[18px] active:scale-95 transition-all shadow-[0_8px_20px_rgba(0,0,0,0.3)] flex items-center justify-center gap-2 uppercase tracking-widest">
+                                        {isStandalone ? <Check size={16}/> : <Download size={16}/>}
+                                        {isStandalone ? 'LANJUTKAN' : 'INSTALL SEKARANG'}
                                     </button>
                                 </div>
                             </div>
