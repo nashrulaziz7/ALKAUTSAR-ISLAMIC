@@ -40,7 +40,7 @@
         @keyframes bounce-soft { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
         .animate-bounce-soft { animation: bounce-soft 2s ease-in-out infinite; }
         
-        /* Polkadot Raksasa & Sangat Fleksibel (Berlaku Global) */
+        /* Polkadot Raksasa Global */
         @keyframes float-polka {
             0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.15; }
             33% { transform: translate(150px, -200px) scale(2.2); opacity: 0.25; }
@@ -48,7 +48,14 @@
         }
         .polka-dot { position: absolute; border-radius: 50%; animation: float-polka 20s ease-in-out infinite; pointer-events: none; z-index: 0; }
 
-        /* Setup ketebalan Normal untuk font Arab agar tidak bertabrakan */
+        /* Polkadot Banner Surah (Mulus & Berkedip) */
+        @keyframes float-banner-polka {
+            0% { transform: translateY(0) scale(1); opacity: 0.1; }
+            50% { transform: translateY(-8px) scale(1.15); opacity: 0.3; }
+            100% { transform: translateY(0) scale(1); opacity: 0.1; }
+        }
+        .anim-banner-polka { animation: float-banner-polka 4s ease-in-out infinite; }
+
         .font-uthmani { font-family: 'KFGQPC_HAFS', 'Amiri Quran', 'Noto Naskh Arabic', serif !important; line-height: 2.0 !important; font-weight: normal !important; word-spacing: normal !important; }
         .font-kemenag { font-family: 'LPMQ', 'Lateef', 'Arial', serif !important; line-height: 2.0 !important; font-size: 1.15em !important; font-weight: normal !important; word-spacing: normal !important; }
         
@@ -77,20 +84,14 @@
         }
         .anim-ripple { animation: tap-ripple 0.6s ease-out forwards; }
 
-        /* Animasi Alam Realistis */
-        @keyframes float-clouds {
-            0% { transform: translateX(0) translateY(0); }
-            50% { transform: translateX(-20px) translateY(5px); }
-            100% { transform: translateX(0) translateY(0); }
-        }
+        /* Animasi Alam Realistis Dzikir */
         @keyframes wave-motion {
-            0% { transform: translateX(0) translateY(0) scaleY(1); }
-            50% { transform: translateX(-15px) translateY(3px) scaleY(1.05); }
-            100% { transform: translateX(0) translateY(0) scaleY(1); }
+            0% { transform: translateX(0%) translateY(0) scaleY(1); }
+            50% { transform: translateX(-5%) translateY(3px) scaleY(1.05); }
+            100% { transform: translateX(0%) translateY(0) scaleY(1); }
         }
-        .animate-clouds { animation: float-clouds 30s ease-in-out infinite; }
-        .animate-waves-1 { animation: wave-motion 5s ease-in-out infinite alternate; }
-        .animate-waves-2 { animation: wave-motion 7s ease-in-out infinite alternate-reverse; }
+        .animate-waves-1 { animation: wave-motion 6s ease-in-out infinite; }
+        .animate-waves-2 { animation: wave-motion 8s ease-in-out infinite reverse; }
     </style>
 </head>
 <body class="bg-slate-200 flex justify-center">
@@ -99,7 +100,7 @@
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
-        // GLOBAL MEMORY CACHE - Rahasia Loading Secepat Cahaya!
+        // GLOBAL MEMORY CACHE
         if (!window.AL_KAUTSAR_CACHE) {
             window.AL_KAUTSAR_CACHE = {
                 surahs: {},
@@ -142,7 +143,7 @@
             'Home', 'Book', 'Compass', 'Clock', 'MapPin', 'BookOpen', 'ArrowLeft', 'Play', 'Pause', 
             'Settings', 'Settings2', 'Copy', 'Search', 'Bookmark', 'Star', 'ChevronRight', 
             'Check', 'X', 'FileText', 'MessageCircle', 'Download', 'Info', 'RotateCcw', 
-            'Navigation', 'Send', 'Library', 'LayoutGrid', 'ChevronDown', 'ListMusic', 'Palette', 'Gamepad2'
+            'Navigation', 'Send', 'Library', 'LayoutGrid', 'ChevronDown', 'ListMusic', 'Palette', 'Gamepad2', 'Pin', 'Trash2', 'Sparkles', 'ScrollText'
         ];
         
         const Icons = {};
@@ -151,7 +152,7 @@
             Home, Book, Compass, Clock, MapPin, BookOpen, ArrowLeft, Play, Pause, 
             Settings, Settings2, Copy, Search, Bookmark, Star, ChevronRight, 
             Check, X, FileText, MessageCircle, Download, Info, RotateCcw, 
-            Navigation, Send, Library, LayoutGrid, ChevronDown, ListMusic, Palette, Gamepad2
+            Navigation, Send, Library, LayoutGrid, ChevronDown, ListMusic, Palette, Gamepad2, Pin, Trash2, Sparkles, ScrollText
         } = Icons;
 
         const THEMES = {
@@ -178,9 +179,9 @@
         ];
 
         const QARI_LIST = [
+            { id: 'alafasy', name: 'Mishary Rashid Alafasy' },
             { id: 'ayman', name: 'Syekh Ayman Suwaid (Tajwid)' },
             { id: 'husari', name: 'Mahmud Kholil Al-Husari (Tartil)' },
-            { id: 'alafasy', name: 'Mishary Rashid Alafasy' },
             { id: 'ghamdi', name: 'Saad Al-Ghamdi (Tenang)' },
             { id: 'shatri', name: 'Abu Bakr Ash-Shatri (Jiharkah)' },
             { id: 'qasim', name: 'Abdul Muhsin Al-Qasim (Tenang)' },
@@ -288,7 +289,7 @@
             const [navParams, setNavParams] = useState(null);
             
             const [appTheme, setAppTheme] = useState(THEMES.hijau); 
-            const [appQari, setAppQari] = useState('ayman'); 
+            const [appQari, setAppQari] = useState('alafasy'); 
             const [appFont, setAppFont] = useState('uthmani'); 
 
             // Loading 0 Detik dari Global Cache
@@ -373,7 +374,7 @@
                         {activeTab === 'bookmark' && <BookmarkView nav={navigate} theme={appTheme} />}
                         {activeTab === 'dzikir' && <DzikirView theme={appTheme} nav={navigate} />}
                         {activeTab === 'qibla' && <QiblaView theme={appTheme} nav={navigate} userLoc={userLoc} />}
-                        {activeTab === 'maktabah' && <MaktabahView nav={navigate} theme={appTheme} />}
+                        {activeTab === 'cerita' && <CeritaView nav={navigate} theme={appTheme} />}
                         {activeTab === 'settings' && <SettingsView nav={navigate} theme={appTheme} setTheme={setAppTheme} />}
                     </main>
                     
@@ -427,15 +428,15 @@
             const nextP = getNextPrayer();
 
             const MENU = [
-                { id: 'quran', label: 'Quran', icon: <Book size={20} />, act: () => nav('quran') },
-                { id: 'doa', label: 'Doa HPT', icon: <FileText size={20} />, act: () => nav('doa') },
-                { id: 'kiblat', label: 'Kiblat', icon: <Compass size={20} />, act: () => nav('qibla') },
-                { id: 'dzikir', label: 'Dzikir', icon: <RotateCcw size={20} />, act: () => nav('dzikir') },
-                { id: 'masjid', label: 'Masjid', icon: <MapPin size={20} />, act: () => nav('masjid') },
-                { id: 'maktabah', label: 'Kitab', icon: <Library size={20} />, act: () => nav('maktabah') },
-                { id: 'bookmark', label: 'Bookmark', icon: <Bookmark size={20} />, act: () => nav('bookmark') },
-                { id: 'chat', label: 'AI Chat', icon: <MessageCircle size={20} />, act: () => nav('chat') },
-                { id: 'settings', label: 'Pengaturan', icon: <Settings size={20} />, act: () => nav('settings') },
+                { id: 'quran', label: 'Quran', icon: <Book size={20} />, act: () => nav('quran'), color: '#14A895', bg: '#E6F4F1' },
+                { id: 'doa', label: 'Doa HPT', icon: <FileText size={20} />, act: () => nav('doa'), color: '#3B82F6', bg: '#EFF6FF' },
+                { id: 'kiblat', label: 'Kiblat', icon: <Compass size={20} />, act: () => nav('qibla'), color: '#F59E0B', bg: '#FFFBEB' },
+                { id: 'dzikir', label: 'Dzikir', icon: <RotateCcw size={20} />, act: () => nav('dzikir'), color: '#8B5CF6', bg: '#F3E8FF' },
+                { id: 'masjid', label: 'Masjid', icon: <MapPin size={20} />, act: () => nav('masjid'), color: '#EC4899', bg: '#FDF2F8' },
+                { id: 'cerita', label: 'Cerita Islami', icon: <ScrollText size={20} />, act: () => nav('cerita'), color: '#F97316', bg: '#FFF7ED' },
+                { id: 'bookmark', label: 'Bookmark', icon: <Bookmark size={20} />, act: () => nav('bookmark'), color: '#10B981', bg: '#ECFDF5' },
+                { id: 'chat', label: 'AI Chat', icon: <MessageCircle size={20} />, act: () => nav('chat'), color: '#6366F1', bg: '#EEF2FF' },
+                { id: 'settings', label: 'Pengaturan', icon: <Settings size={20} />, act: () => nav('settings'), color: '#64748B', bg: '#F8FAFC' },
             ];
 
             const dateM = time.toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
@@ -497,7 +498,7 @@
                         <div className="grid grid-cols-3 gap-3">
                             {MENU.map(m => (
                                 <button key={m.id} onClick={m.act} className="bg-white rounded-[18px] p-3 flex flex-col items-center shadow-sm active:scale-95 transition-transform hover:shadow-md border border-slate-50">
-                                    <div className={`w-10 h-10 rounded-[12px] flex items-center justify-center mb-1.5`} style={{ backgroundColor: theme.light, color: theme.hex }}>
+                                    <div className={`w-10 h-10 rounded-[12px] flex items-center justify-center mb-1.5 transition-colors`} style={{ backgroundColor: m.bg, color: m.color }}>
                                         {m.icon}
                                     </div>
                                     <span className="text-[10px] font-bold text-slate-600 text-center leading-tight">{m.label}</span>
@@ -647,7 +648,6 @@
                 setOpenedTafsir(null); setShowSwitcher(false); setShowSettings(false);
                 setIsPlayAll(false); setShowAsbabun(false); setActiveTajweed(null); setIsScrolled(false);
                 
-                // 1. CEK CACHE: BUKA INSTAN 0 DETIK
                 if (window.AL_KAUTSAR_CACHE.surahs[surah.n]) {
                     setSurahDetail(window.AL_KAUTSAR_CACHE.surahs[surah.n]);
                     setSurahDesc(window.AL_KAUTSAR_CACHE.surahs[surah.n].desc);
@@ -655,7 +655,6 @@
                     return;
                 }
 
-                // 2. CONCURRENT FETCH (Cepat!)
                 setSurahDetail(null);
                 setIsFetching(true);
                 
@@ -663,7 +662,6 @@
                     const pKemenag = fetch(`https://equran.id/api/v2/surat/${surah.n}`).then(r => r.json());
                     const pTajweed = fetch(`https://raw.githubusercontent.com/nashrulaziz7/quran-data/main/${surah.n}.json`).then(r => r.json()).catch(() => []);
 
-                    // Tunggu Data Arab & Tajwid Selesai Bersamaan
                     const [resKem, resTaj] = await Promise.all([pKemenag, pTajweed]);
 
                     const dG = Array.isArray(resTaj) ? resTaj : (resTaj.data || []);
@@ -683,15 +681,12 @@
                         };
                     });
 
-                    // Render Langsung ke Layar! (Tanpa nunggu tafsir)
                     setSurahDetail(ayahs);
                     setIsFetching(false);
 
-                    // Simpan ke Cache
                     window.AL_KAUTSAR_CACHE.surahs[surah.n] = ayahs;
                     window.AL_KAUTSAR_CACHE.surahs[surah.n].desc = desc;
 
-                    // 3. FETCH TAFSIR DI BACKGROUND (Siluman)
                     Promise.allSettled([
                         fetch(`https://equran.id/api/v2/tafsir/${surah.n}`),
                         fetch(`https://api.alquran.cloud/v1/surah/${surah.n}/id.jalalayn`)
@@ -709,7 +704,7 @@
                                 if (dTJ && dTJ.data && dTJ.data.ayahs && dTJ.data.ayahs[index]) tJal = dTJ.data.ayahs[index].text;
                                 return { ...a, tafsirKemenag: tKem, tafsirJalalayn: tJal };
                             });
-                            window.AL_KAUTSAR_CACHE.surahs[surah.n] = updated; // Update Cache dengan Tafsir
+                            window.AL_KAUTSAR_CACHE.surahs[surah.n] = updated; 
                             return updated;
                         });
                     });
@@ -726,7 +721,6 @@
                  setShowSwitcher(false);
             };
 
-            // Rendering Tajwid Aktif
             const renderArabicWithTajweed = (text, rules) => {
                 if (!showTajwid || !rules || rules.length === 0 || !text) return text;
                 let elements = []; let lastIndex = 0; const sortedRules = [...rules].sort((a, b) => a.start - b.start);
@@ -756,9 +750,12 @@
                                         <ArrowLeft size={20} />
                                     </button>
                                     
-                                    <div className="flex flex-col justify-center ml-1 overflow-hidden h-full">
+                                    {/* Nama Surah Klikabel untuk Buka Switcher Navigasi */}
+                                    <div className="flex flex-col justify-center ml-1 overflow-hidden h-full cursor-pointer group" onClick={() => setShowSwitcher(true)}>
                                         <div className={`transition-all duration-300 ease-out flex flex-col ${isScrolled ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'}`}>
-                                            <h2 className="font-black text-[13px] text-slate-800 tracking-tight leading-none truncate">{activeSurah.n}. {activeSurah.id}</h2>
+                                            <h2 className="font-black text-[13px] text-slate-800 tracking-tight leading-none truncate flex items-center gap-1 group-hover:text-slate-500 transition-colors">
+                                                {activeSurah.n}. {activeSurah.id} <ChevronDown size={12} className="opacity-40" />
+                                            </h2>
                                             <p className="text-[9px] font-bold text-slate-500 truncate mt-0.5">{activeSurah.type} • {activeSurah.ay} Ayat</p>
                                         </div>
                                     </div>
@@ -767,6 +764,10 @@
                                 <div className="flex items-center shrink-0 text-slate-600 gap-0.5">
                                     <button onClick={() => setIsPageMode(!isPageMode)} className={`p-2 rounded-xl transition-all hover:bg-slate-100 active:scale-95 ${isPageMode ? 'bg-slate-100 text-slate-900' : ''}`} title="Mode Halaman">
                                         {isPageMode ? <BookOpen size={18} /> : <LayoutGrid size={18} />}
+                                    </button>
+                                    {/* Tombol Bookmark Surah di Header */}
+                                    <button onClick={() => { setToastMsg(`Surah ${activeSurah.id} di-bookmark!`); setTimeout(() => setToastMsg(null), 2500); }} className="p-2 rounded-xl transition-all hover:bg-slate-100 active:scale-95" title="Bookmark Surah">
+                                        <Bookmark size={18} />
                                     </button>
                                     <button onClick={() => setShowAsbabun(true)} className="p-2 rounded-xl transition-all hover:bg-slate-100 active:scale-95" title="Asbabun Nuzul">
                                         <Info size={18} />
@@ -817,12 +818,12 @@
                             </div>
                         </div>
 
-                        {/* Banner Surah Minimalis (Ramping, Tidak Jumbo) */}
+                        {/* Banner Surah Minimalis */}
                         <div onClick={() => setShowSwitcher(true)} className="mx-6 mt-4 mb-4 rounded-[16px] py-4 px-4 text-center shadow-sm relative overflow-hidden cursor-pointer active:scale-95 transition-transform" style={{ backgroundColor: theme.hex }}>
-                            {/* Efek Polkadot Khusus Banner */}
-                            <div className="absolute w-20 h-20 rounded-full bg-white/15 top-[-10px] left-[-10px] blur-[1px]"></div>
-                            <div className="absolute w-24 h-24 rounded-full bg-white/10 bottom-[-20px] right-[-20px] blur-sm"></div>
-                            <div className="absolute w-8 h-8 rounded-full bg-white/20 top-[40%] right-[20%] blur-[2px]"></div>
+                            {/* Efek Polkadot Khusus Banner (Mulus & Bernapas) */}
+                            <div className="absolute w-20 h-20 rounded-full bg-white/20 top-[-10px] left-[-10px] blur-[1px] anim-banner-polka" style={{animationDelay: '0s'}}></div>
+                            <div className="absolute w-24 h-24 rounded-full bg-white/15 bottom-[-20px] right-[-20px] blur-sm anim-banner-polka" style={{animationDelay: '1s'}}></div>
+                            <div className="absolute w-8 h-8 rounded-full bg-white/20 top-[40%] right-[20%] blur-[2px] anim-banner-polka" style={{animationDelay: '2.5s'}}></div>
                             
                             <h2 className="text-[26px] font-uthmani font-normal text-white mb-0 drop-shadow-sm relative z-10 leading-none">{activeSurah.ar}</h2>
                             <h3 className="font-black text-white text-[13px] uppercase tracking-widest relative z-10 mt-1 mb-0.5">{activeSurah.id}</h3>
@@ -889,8 +890,8 @@
 
                         {/* Switcher Navigasi */}
                         {showSwitcher && (
-                            <div className="fixed inset-0 z-[60] flex flex-col justify-end bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200">
-                                <div className="bg-white w-full h-[75dvh] max-w-[390px] mx-auto rounded-t-[32px] shadow-2xl flex flex-col animate-in slide-in-from-bottom-8 duration-300">
+                            <div className="fixed inset-0 z-[60] flex flex-col justify-end bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setShowSwitcher(false)}>
+                                <div className="bg-white w-full h-[75dvh] max-w-[390px] mx-auto rounded-t-[32px] shadow-2xl flex flex-col animate-in slide-in-from-bottom-8 duration-300" onClick={e=>e.stopPropagation()}>
                                     <div className="flex items-center justify-between p-5 border-b border-slate-100">
                                         <div><h3 className="font-black text-slate-800 text-[16px]">Navigasi Cepat</h3><p className="text-[10px] font-bold text-slate-500">Lompat ke Surah atau Ayat</p></div>
                                         <button onClick={() => setShowSwitcher(false)} className="p-2 bg-slate-100 rounded-full text-slate-500 active:scale-95"><X size={16}/></button>
@@ -921,7 +922,7 @@
                             </div>
                         )}
 
-                        {/* Rendering Teks (Progressive & Instan) */}
+                        {/* Rendering Teks */}
                         <div className="space-y-3 px-3 pb-20">
                             {surahDetail && (
                                 isPageMode ? (
@@ -934,7 +935,6 @@
                                                 }}>
                                                     {renderArabicWithTajweed(ayah.text, ayah.tajweedRules)}
                                                     
-                                                    {/* Simbol Ayat Proporsional */}
                                                     <span className="inline-flex items-center justify-center relative mx-1.5 cursor-pointer select-none align-middle" style={{ width: '1.2em', height: '1.2em', verticalAlign: '-0.1em' }}>
                                                         <span className="absolute inset-0 flex items-center justify-center leading-none" style={{ color: '#D4AF37', fontFamily: 'Arial, sans-serif', fontSize: '1.2em' }}>۝</span>
                                                         <span className="absolute font-normal font-uthmani text-amber-900/90 leading-none pt-0.5" style={{ fontSize: '0.55em' }}>{toArabicNumeral(ayah.numberInSurah)}</span>
@@ -951,6 +951,12 @@
                                                     {ayah.numberInSurah}
                                                 </div>
                                                 <div className="flex gap-1.5">
+                                                    {/* Tombol Bookmark per Ayat */}
+                                                    <button className="p-1.5 text-slate-500 hover:bg-slate-50 border border-slate-100 rounded-[10px] transition-colors bg-white active:scale-95" onClick={() => {
+                                                        setToastMsg(`Ayat ${ayah.numberInSurah} di-bookmark!`);
+                                                        setTimeout(() => setToastMsg(null), 2500);
+                                                    }}><Bookmark size={13}/></button>
+
                                                     <button className="p-1.5 text-slate-500 hover:bg-slate-50 border border-slate-100 rounded-[10px] transition-colors bg-white active:scale-95" onClick={() => {
                                                         let copyContent = ayah.text;
                                                         if (showLatin && ayah.latin) { copyContent += `\n\n${cleanHtmlForCopy(ayah.latin)}`; }
@@ -975,7 +981,7 @@
                                                 </div>
                                             </div>
                                             
-                                            {/* Area Arab Ramping, Spasi Ideal */}
+                                            {/* Area Arab */}
                                             <div className={`text-right mb-1.5 text-slate-800 font-${fontType} font-normal transition-all duration-300`} style={{ fontSize: `${fontSize}px`, lineHeight: '2.0' }} dir="rtl">
                                                {renderArabicWithTajweed(ayah.text, ayah.tajweedRules)}
                                             </div>
@@ -1009,9 +1015,9 @@
                             )}
                         </div>
 
-                        {/* Toast Notifikasi Copas Pintar */}
+                        {/* Toast Notifikasi */}
                         {toastMsg && (
-                            <div className="fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white px-5 py-2.5 rounded-full shadow-2xl text-[11px] font-bold z-[100] animate-pop flex items-center gap-2 border border-slate-700">
+                            <div className="fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white px-5 py-2.5 rounded-full shadow-2xl text-[11px] font-bold z-[100] animate-pop flex items-center gap-2 border border-slate-700 whitespace-nowrap">
                                 <Check size={14} className="text-green-400" /> {toastMsg}
                             </div>
                         )}
@@ -1044,7 +1050,6 @@
             const [activeCat, setActiveCat] = useState(null);
             const [activeSub, setActiveSub] = useState('semua');
 
-            // TEMA KHUSUS SETIAP KATEGORI MENU
             const CAT_THEMES = { 
                 'shalat': { id: 'shalat', hex: '#14A895', light: '#E6F4F1', title: 'Bacaan Shalat', desc: 'Takbir, Ruku, Sujud', icon: <BookOpen size={24}/> },
                 'dzikir': { id: 'dzikir', hex: '#3B82F6', light: '#EFF6FF', title: 'Dzikir Ba\'da Shalat', desc: 'Sesuai Tuntunan', icon: <RotateCcw size={24}/> },
@@ -1143,7 +1148,7 @@
             const hour = new Date().getHours();
             const isNight = hour >= 18 || hour < 4;
             
-            // Konfigurasi Tema Premium Vector Landscape (Siang/Malam)
+            // Konfigurasi Tema Premium Vector Landscape
             const themeConfig = isNight ? {
                 bg: 'from-[#141E30] to-[#243B55]',
                 celestialObj: 'bg-slate-100',
@@ -1164,16 +1169,16 @@
                 water: ['#22d3ee', '#3b82f6'],
             };
 
-            // LOGIKA ANIMASI MELENGKUNG (PARABOLA) PRESISI
+            // LOGIKA ANIMASI MELENGKUNG (PARABOLA) REVISI
             const progress = count / target;
             let celestialStyle = {};
 
             if (activeDzikir === 0) { 
-                // Subhanallah: Terbit Kiri Bawah -> Tengah Atas
+                // Subhanallah: Mulai dari Kiri Bawah (Sudah Muncul) -> Tengah Atas
                 const scale = 0.4 + (progress * 0.6); 
-                const opacity = 0.2 + (progress * 0.8);
-                const x = -38 + (38 * progress); // Gerak dari -38vw ke 0vw
-                const y = 12 - (42 * progress);  // Start pas di horizon (12vh) naik ke -30vh
+                const opacity = 0.5 + (progress * 0.5);
+                const x = -35 + (35 * progress); // Gerak dari -35vw ke 0vw (Tidak memotong layar samping)
+                const y = 15 - (45 * progress);  // Start dari horizon (15vh) agar terlihat pada tap awal
                 celestialStyle = {
                     transform: `translate(${x}vw, ${y}vh) scale(${scale})`,
                     opacity: opacity,
@@ -1191,9 +1196,9 @@
             } else { 
                 // Allahu Akbar: Tengah Atas -> Terbenam Kanan Bawah
                 const scale = 1.0 - (progress * 0.6); 
-                const opacity = 1.0 - (progress * 0.8);
-                const x = 0 + (38 * progress); // Gerak dari 0vw ke 38vw
-                const y = -30 + (42 * progress); // Turun dari -30vh pas ke horizon (12vh)
+                const opacity = 1.0 - (progress * 0.5);
+                const x = 0 + (35 * progress); // 0vw ke 35vw (Tidak memotong layar)
+                const y = -30 + (45 * progress); // Turun dari -30vh ke horizon (15vh)
                 celestialStyle = {
                     transform: `translate(${x}vw, ${y}vh) scale(${scale})`,
                     opacity: opacity,
@@ -1252,8 +1257,8 @@
                         </div>
                     </div>
 
-                    {/* Vektor Landscape Premium (Tanpa Shape Jadul) */}
-                    <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute bottom-0 left-0 w-full h-[45vh] z-20 transition-all duration-1000 pointer-events-none">
+                    {/* Vektor Landscape Premium: Melebar -10% s.d 120% Agar Ombak Tidak Terpotong Tepi Layar */}
+                    <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute bottom-0 -left-[10%] w-[120%] h-[45vh] z-20 transition-all duration-1000 pointer-events-none">
                         <defs>
                             <linearGradient id="gradBack" x1="0%" y1="0%" x2="0%" y2="100%">
                                 <stop offset="0%" stopColor={themeConfig.mountBack[0]} />
@@ -1274,18 +1279,18 @@
                         </defs>
                         
                         {/* Gunung Belakang (Smooth) */}
-                        <path d="M0,100 L0,50 Q15,35 30,55 T65,45 T100,60 L100,100 Z" fill="url(#gradBack)" opacity="0.85"/>
+                        <path d="M-10,100 L-10,50 Q15,35 30,55 T65,45 T110,60 L110,100 Z" fill="url(#gradBack)" opacity="0.85"/>
                         {/* Bukit Tengah */}
-                        <path d="M0,100 L0,65 Q20,45 45,65 T95,45 L100,50 L100,100 Z" fill="url(#gradMid)" opacity="0.95"/>
+                        <path d="M-10,100 L-10,65 Q20,45 45,65 T95,45 L110,50 L110,100 Z" fill="url(#gradMid)" opacity="0.95"/>
                         {/* Daratan Hijau / Depan */}
-                        <path d="M-5,100 L-5,85 Q25,65 55,85 T110,75 L110,100 Z" fill="url(#gradFront)"/>
+                        <path d="M-10,100 L-10,85 Q25,65 55,85 T110,75 L110,100 Z" fill="url(#gradFront)"/>
                         
                         {/* Air & Ombak Realistis */}
                         <g className="animate-waves-1" style={{ opacity: 0.9 }}>
-                             <path d="M0,88 Q25,85 50,88 T100,85 L100,100 L0,100 Z" fill="url(#gradWater)" />
+                             <path d="M-10,88 Q25,85 50,88 T110,85 L110,100 L-10,100 Z" fill="url(#gradWater)" />
                         </g>
                         <g className="animate-waves-2" style={{ animationDelay: '-2s', opacity: 0.7 }}>
-                             <path d="M0,92 Q30,89 60,93 T120,90 L120,100 L0,100 Z" fill="url(#gradWater)" />
+                             <path d="M-10,92 Q30,89 60,93 T120,90 L120,100 L-10,100 Z" fill="url(#gradWater)" />
                         </g>
                     </svg>
 
@@ -1332,6 +1337,37 @@
                             </div>
                         </div>
 
+                    </div>
+                </div>
+            );
+        }
+
+        function CeritaView({ nav, theme }) {
+            const stories = [
+                { id: 1, title: 'Kisah Nabi Musa & Firaun', type: 'Kisah Nabi & Rasul', img: '🌊', color: 'bg-[#DBEAFE]', border: 'border-[#3B82F6]' },
+                { id: 2, title: 'Kesabaran Nabi Ayyub', type: 'Kisah Nabi & Rasul', img: '🤲', color: 'bg-[#FEF3C7]', border: 'border-[#F59E0B]' },
+                { id: 3, title: 'Mukjizat Nabi Isa', type: 'Kisah Nabi & Rasul', img: '✨', color: 'bg-[#D1FAE5]', border: 'border-[#10B981]' },
+                { id: 4, title: 'Kisah Pemuda Ashabul Kahfi', type: 'Kisah Al-Quran', img: '⛺', color: 'bg-[#F3E8FF]', border: 'border-[#8B5CF6]' },
+                { id: 5, title: 'Burung Ababil & Pasukan Gajah', type: 'Sejarah Islam', img: '🐘', color: 'bg-[#FCE7F3]', border: 'border-[#EC4899]' },
+                { id: 6, title: 'Perjalanan Isra Miraj', type: 'Sejarah Islam', img: '🌌', color: 'bg-[#E0E7FF]', border: 'border-[#6366F1]' },
+            ];
+
+            return (
+                <div className="animate-in fade-in h-[100dvh] flex flex-col bg-transparent relative z-10 pb-20">
+                    <div className="bg-white/90 backdrop-blur-md px-5 py-4 flex items-center shadow-sm z-30 sticky top-0">
+                        <button onClick={() => nav('home')} className="p-2 rounded-[14px] bg-slate-100 mr-3 hover:bg-slate-200 transition-colors active:scale-95"><ArrowLeft size={18} className="text-slate-600" /></button>
+                        <div><h1 className="text-[15px] font-black text-slate-800">Cerita Islami</h1><p className="text-[10px] font-bold" style={{ color: theme.hex }}>Untuk Anak & Remaja</p></div>
+                    </div>
+                    
+                    <div className="p-5 grid grid-cols-2 gap-4 relative z-10">
+                        {stories.map((story) => (
+                            <button key={story.id} className={`p-4 rounded-2xl border-[3px] shadow-[4px_4px_0_0_#1e293b] flex flex-col active:translate-y-1 active:shadow-[0px_0px_0_0_#1e293b] transition-all text-left overflow-hidden relative ${story.color} ${story.border}`}>
+                                <div className="absolute top-[-10px] right-[-10px] text-6xl opacity-20 pointer-events-none">{story.img}</div>
+                                <div className="text-3xl mb-3 drop-shadow-md relative z-10">{story.img}</div>
+                                <h3 className="font-black text-slate-800 text-[13px] leading-tight mb-2 relative z-10">{story.title}</h3>
+                                <p className="font-bold text-[8px] text-slate-600 uppercase tracking-widest relative z-10 mt-auto bg-white/50 inline-block px-2 py-1 rounded-md">{story.type}</p>
+                            </button>
+                        ))}
                     </div>
                 </div>
             );
@@ -1501,20 +1537,47 @@
         }
 
         function BookmarkView({ nav, theme }) {
-            const bookmarks = [ { surahId: 36, name: 'Ya Sin', desc: 'Jantung Al-Quran' }, { surahId: 114, name: 'An-Nas', desc: 'Sering dibaca' } ];
+            // Simulasi State Bookmark dengan Pin
+            const [bookmarks, setBookmarks] = useState([
+                { id: 1, surahId: 36, name: 'Ya Sin', desc: 'Jantung Al-Quran', isPinned: true }, 
+                { id: 2, surahId: 114, name: 'An-Nas', desc: 'Sering dibaca', isPinned: false },
+                { id: 3, surahId: 18, name: 'Al-Kahf', desc: 'Sunnah Jumat', isPinned: false }
+            ]);
+            
+            const togglePin = (id) => {
+                setBookmarks(prev => {
+                    const next = prev.map(b => b.id === id ? { ...b, isPinned: !b.isPinned } : b);
+                    return next.sort((a, b) => (a.isPinned === b.isPinned) ? 0 : a.isPinned ? -1 : 1);
+                });
+            };
+
+            const deleteBookmark = (id) => {
+                setBookmarks(prev => prev.filter(b => b.id !== id));
+            };
+
             return (
                 <div className="pb-10 animate-in slide-in-from-right-4 h-[100dvh] bg-transparent relative z-10">
-                    <div className="bg-white/90 backdrop-blur-md px-5 py-4 flex items-center shadow-sm z-30 sticky top-0"><button onClick={() => nav('home')} className="p-2 rounded-[14px] bg-slate-100 mr-3"><ArrowLeft size={18} className="text-slate-600" /></button><h1 className="text-[15px] font-black text-slate-800">Bookmark Saya</h1></div>
+                    <div className="bg-white/90 backdrop-blur-md px-5 py-4 flex items-center shadow-sm z-30 sticky top-0"><button onClick={() => nav('home')} className="p-2 rounded-[14px] bg-slate-100 mr-3 active:scale-95 transition-transform"><ArrowLeft size={18} className="text-slate-600" /></button><h1 className="text-[15px] font-black text-slate-800">Bookmark Saya</h1></div>
                     <div className="p-4 space-y-3 relative z-10">
-                        {bookmarks.map((b, i) => (
-                            <div key={i} onClick={() => nav('quran', { surahId: b.surahId })} className="bg-white p-4 rounded-[20px] shadow-sm flex justify-between items-center cursor-pointer active:scale-95 border border-slate-50 hover:border-slate-200">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-[14px] flex items-center justify-center" style={{ backgroundColor: theme.light, color: theme.hex }}><Bookmark size={18} /></div>
-                                    <div><h3 className="font-bold text-[13px] text-slate-800">Surah {b.name}</h3><p className="text-[10px] text-slate-500 font-medium">{b.desc}</p></div>
+                        {bookmarks.length === 0 ? (
+                            <div className="text-center p-10 opacity-50"><Bookmark size={40} className="mx-auto mb-3"/><p className="text-xs font-bold uppercase tracking-widest">Kosong</p></div>
+                        ) : (
+                            bookmarks.map((b) => (
+                                <div key={b.id} onClick={() => nav('quran', { surahId: b.surahId })} className={`bg-white p-4 rounded-[20px] shadow-sm flex flex-col gap-3 cursor-pointer active:scale-95 border hover:border-slate-300 transition-all ${b.isPinned ? 'border-amber-300' : 'border-slate-100'}`}>
+                                    <div className="flex justify-between items-center w-full">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-[14px] flex items-center justify-center" style={{ backgroundColor: theme.light, color: theme.hex }}><Bookmark size={18} /></div>
+                                            <div><h3 className="font-bold text-[13px] text-slate-800 flex items-center gap-1">Surah {b.name} {b.isPinned && <Pin size={10} className="text-amber-500 fill-amber-500" />}</h3><p className="text-[10px] text-slate-500 font-medium">{b.desc}</p></div>
+                                        </div>
+                                        <div className="text-[9px] font-bold text-blue-500 flex items-center gap-1 bg-blue-50 px-2.5 py-1.5 rounded-[10px]">Buka <ChevronRight size={12}/></div>
+                                    </div>
+                                    <div className="flex gap-2 w-full justify-end border-t border-slate-50 pt-3">
+                                        <button onClick={(e) => { e.stopPropagation(); togglePin(b.id); }} className={`px-4 py-1.5 rounded-[10px] flex items-center gap-1.5 font-bold text-[10px] transition-all border ${b.isPinned ? 'bg-amber-50 text-amber-600 border-amber-200' : 'bg-slate-50 text-slate-500 border-slate-100'}`}><Pin size={12} className={b.isPinned ? 'fill-amber-500' : ''} /> {b.isPinned ? 'Unpin' : 'Pin'}</button>
+                                        <button onClick={(e) => { e.stopPropagation(); deleteBookmark(b.id); }} className="px-4 py-1.5 rounded-[10px] flex items-center gap-1.5 font-bold text-[10px] transition-all border bg-slate-50 text-red-500 hover:bg-red-50 border-slate-100"><Trash2 size={12} /> Hapus</button>
+                                    </div>
                                 </div>
-                                <div className="text-[9px] font-bold text-blue-500 flex items-center gap-1 bg-blue-50 px-2.5 py-1.5 rounded-[10px]">Buka <ChevronRight size={12}/></div>
-                            </div>
-                        ))}
+                            ))
+                        )}
                     </div>
                 </div>
             );
@@ -1569,7 +1632,7 @@
                             <div className="p-3 text-center">
                                 <div className="w-12 h-12 rounded-[16px] mx-auto flex items-center justify-center mb-2 shadow-sm" style={{ backgroundColor: theme.light, color: theme.hex }}><BookOpen size={24} /></div>
                                 <h4 className="font-black text-slate-800 text-sm">Al Kautsar Islamic</h4>
-                                <p className="text-[9px] text-slate-400 font-bold mb-3">Versi 16.0 (Clean Architecture)</p>
+                                <p className="text-[9px] text-slate-400 font-bold mb-3">Versi 17.0 (Premium UI/UX)</p>
                                 <p className="text-[10px] text-slate-500 leading-relaxed font-medium mb-4 text-justify">Aplikasi resmi SDIT Muhammadiyah Al Kautsar. Dilengkapi teknologi Memory Cache Instan, Al-Quran digital tajwid cerdas bersuara, Dzikir Dinamis, Arah Kiblat Real-time, dan Doa HPT komplit bebas error.</p>
                             </div>
                         </Section>
