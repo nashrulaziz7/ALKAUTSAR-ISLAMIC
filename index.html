@@ -18,17 +18,13 @@
             font-family: 'KFGQPC_HAFS';
             src: url('https://cdn.jsdelivr.net/gh/fawazahmed0/quran-fonts@master/kfgqpc_hafs_uthmanic_script.woff2') format('woff2'),
                  url('https://cdn.jsdelivr.net/gh/fawazahmed0/quran-fonts@master/kfgqpc_hafs_uthmanic_script.ttf') format('truetype');
-            font-weight: normal;
-            font-style: normal;
-            font-display: swap;
+            font-weight: normal; font-style: normal; font-display: swap;
         }
 
         @font-face {
             font-family: 'LPMQ';
             src: url('https://cdn.jsdelivr.net/gh/lpmq-font/lpmq-font@master/lpmq.woff2') format('woff2');
-            font-weight: normal;
-            font-style: normal;
-            font-display: swap;
+            font-weight: normal; font-style: normal; font-display: swap;
         }
 
         body { font-family: 'Inter', sans-serif; background-color: #e2e8f0; margin: 0; }
@@ -40,7 +36,6 @@
         @keyframes bounce-soft { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
         .animate-bounce-soft { animation: bounce-soft 2s ease-in-out infinite; }
         
-        /* Polkadot Raksasa Global */
         @keyframes float-polka {
             0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.15; }
             33% { transform: translate(150px, -200px) scale(2.2); opacity: 0.25; }
@@ -48,7 +43,6 @@
         }
         .polka-dot { position: absolute; border-radius: 50%; animation: float-polka 20s ease-in-out infinite; pointer-events: none; z-index: 0; }
 
-        /* Polkadot Banner Surah (Mulus & Berkedip) */
         @keyframes float-banner-polka {
             0% { transform: translateY(0) scale(1); opacity: 0.1; }
             50% { transform: translateY(-8px) scale(1.15); opacity: 0.3; }
@@ -84,7 +78,6 @@
         }
         .anim-ripple { animation: tap-ripple 0.6s ease-out forwards; }
 
-        /* Animasi Alam Realistis Dzikir */
         @keyframes wave-motion {
             0% { transform: translateX(0%) translateY(0) scaleY(1); }
             50% { transform: translateX(-5%) translateY(3px) scaleY(1.05); }
@@ -100,7 +93,6 @@
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
-        // GLOBAL MEMORY CACHE
         if (!window.AL_KAUTSAR_CACHE) {
             window.AL_KAUTSAR_CACHE = {
                 surahs: {},
@@ -114,10 +106,7 @@
         }
         
         const fetchWithTimeout = (url, options = {}, timeout = 5000) => {
-            return Promise.race([
-                fetch(url, options),
-                new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), timeout))
-            ]);
+            return Promise.race([ fetch(url, options), new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), timeout)) ]);
         };
 
         const toArabicNumeral = (num) => {
@@ -143,17 +132,10 @@
             'Home', 'Book', 'Compass', 'Clock', 'MapPin', 'BookOpen', 'ArrowLeft', 'Play', 'Pause', 
             'Settings', 'Settings2', 'Copy', 'Search', 'Bookmark', 'Star', 'ChevronRight', 
             'Check', 'X', 'FileText', 'MessageCircle', 'Download', 'Info', 'RotateCcw', 
-            'Navigation', 'Send', 'Library', 'LayoutGrid', 'ChevronDown', 'ListMusic', 'Palette', 'Gamepad2', 'Pin', 'Trash2', 'Sparkles', 'ScrollText'
+            'Navigation', 'Send', 'Library', 'LayoutGrid', 'ChevronDown', 'ListMusic', 'Palette', 'Gamepad2', 'Pin', 'Trash2', 'Sparkles', 'ScrollText', 'RefreshCw'
         ];
-        
-        const Icons = {};
-        iconNames.forEach(n => Icons[n] = (p) => <IconWrapper name={n} {...p} />);
-        const { 
-            Home, Book, Compass, Clock, MapPin, BookOpen, ArrowLeft, Play, Pause, 
-            Settings, Settings2, Copy, Search, Bookmark, Star, ChevronRight, 
-            Check, X, FileText, MessageCircle, Download, Info, RotateCcw, 
-            Navigation, Send, Library, LayoutGrid, ChevronDown, ListMusic, Palette, Gamepad2, Pin, Trash2, Sparkles, ScrollText
-        } = Icons;
+        const Icons = {}; iconNames.forEach(n => Icons[n] = (p) => <IconWrapper name={n} {...p} />);
+        const { Home, Book, Compass, Clock, MapPin, BookOpen, ArrowLeft, Play, Pause, Settings, Settings2, Copy, Search, Bookmark, Star, ChevronRight, Check, X, FileText, MessageCircle, Download, Info, RotateCcw, Navigation, Send, Library, LayoutGrid, ChevronDown, ListMusic, Palette, Gamepad2, Pin, Trash2, Sparkles, ScrollText, RefreshCw } = Icons;
 
         const THEMES = {
             hijau: { id: 'hijau', hex: '#14A895', light: '#E6F4F1', grad: 'from-[#1EBAA5] to-[#0F8A7A]', shadow: 'shadow-teal-500/20' },
@@ -212,7 +194,7 @@
                 case 'shatri': return `https://everyayah.com/data/Abu_Bakr_Ash-Shaatree_128kbps/${file}`;
                 case 'qasim': return `https://everyayah.com/data/Muhsin_Al_Qasim_192kbps/${file}`;
                 case 'rifai': return `https://everyayah.com/data/Hani_Rifai_192kbps/${file}`;
-                default: return `https://everyayah.com/data/Ayman_Sowaid_64kbps/${file}`;
+                default: return `https://everyayah.com/data/Alafasy_128kbps/${file}`;
             }
         };
 
@@ -234,21 +216,21 @@
         };
 
         const DOA_HPT = [
-            // BACAAN SHALAT HPT MUHAMMADIYAH KOMPLIT
+            // BACAAN SHALAT
             { category: 'shalat', id: 101, title: 'Doa Iftitah', ar: 'اللَّهُمَّ بَاعِدْ بَيْنِي وَبَيْنَ خَطَايَايَ، كَمَا بَاعَدْتَ بَيْنَ المَشْرِقِ وَالمَغْرِبِ، اللَّهُمَّ نَقِّنِي مِنَ الْخَطَايَا كَمَا يُنَقَّى الثَّوْبُ الْأَبْيَضُ مِنَ الدَّنَسِ، اللَّهُمَّ اغْسِلْ خَطَايَايَ بِالْمَاءِ وَالثَّلْجِ وَالْبَرَدِ', tr: 'Ya Allah, jauhkanlah antara aku dan kesalahan-kesalahanku, sebagaimana Engkau menjauhkan antara timur dan barat. Ya Allah, bersihkanlah aku dari kesalahan sebagaimana pakaian putih dibersihkan dari kotoran. Ya Allah, cucilah kesalahan-kesalahanku dengan air, salju, dan embun.' },
             { category: 'shalat', id: 102, title: 'Doa Ruku\'', ar: 'سُبْحَانَكَ اللَّهُمَّ رَبَّنَا وَبِحَمْدِكَ اللَّهُمَّ اغْفِرْ لِي', tr: 'Maha Suci Engkau Ya Allah, Tuhan kami, dan dengan memuji-Mu. Ya Allah, ampunilah aku.' },
-            { category: 'shalat', id: 103, title: 'Doa I\'tidal (Bangkit dari Ruku\')', ar: 'سَمِعَ اللَّهُ لِمَنْ حَمِدَهُ رَبَّنَا وَلَكَ الْحَمْدُ، حَمْدًا كَثِيرًا طَيِّبًا مُبَارَكًا فِيهِ', tr: 'Allah Maha Mendengar pujian orang yang memuji-Nya. Wahai Tuhan kami, bagi-Mu segala puji, aku memuji-Mu dengan pujian yang banyak, yang baik dan penuh berkah.' },
+            { category: 'shalat', id: 103, title: 'Doa I\'tidal', ar: 'سَمِعَ اللَّهُ لِمَنْ حَمِدَهُ رَبَّنَا وَلَكَ الْحَمْدُ، حَمْدًا كَثِيرًا طَيِّبًا مُبَارَكًا فِيهِ', tr: 'Allah Maha Mendengar pujian orang yang memuji-Nya. Wahai Tuhan kami, bagi-Mu segala puji, aku memuji-Mu dengan pujian yang banyak, yang baik dan penuh berkah.' },
             { category: 'shalat', id: 104, title: 'Doa Sujud', ar: 'سُبْحَانَكَ اللَّهُمَّ رَبَّنَا وَبِحَمْدِكَ اللَّهُمَّ اغْفِرْ لِي', tr: 'Maha Suci Engkau Ya Allah, Tuhan kami, dan dengan memuji-Mu. Ya Allah, ampunilah aku.' },
             { category: 'shalat', id: 105, title: 'Duduk Di Antara 2 Sujud', ar: 'اللَّهُمَّ اغْفِرْ لِي، وَارْحَمْنِي، وَاجْبُرْنِي، وَاهْدِنِي، وَارْزُقْنِي', tr: 'Ya Allah ampunilah aku, rahmatilah aku, cukupilah kekuranganku, berilah aku petunjuk, dan berilah aku rezeki.' },
-            { category: 'shalat', id: 106, title: 'Tasyahud (Tahiyat)', ar: 'التَّحِيَّاتُ لِلَّهِ، وَالصَّلَوَاتُ، وَالطَّيِّبَاتُ، السَّلَامُ عَلَيْكَ أَيُّهَا النَّبِيُّ وَرَحْمَةُ اللَّهِ وَبَرَكَاتُهُ، السَّلَامُ عَلَيْنَا وَعَلَى عِبَادِ اللَّهِ الصَّالِحِينَ، أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا اللَّهُ، وَأَشْهَدُ أَنَّ مُحَمَّدًا عَبْدُهُ وَرَسُولُهُ', tr: 'Segala kehormatan, kebahagiaan, dan kebagusan adalah kepunyaan Allah. Semoga keselamatan bagi Engkau, ya Nabi Muhammad, beserta rahmat dan kebahagiaan Allah. Mudah-mudahan keselamatan juga bagi kita sekalian dan hamba-hamba Allah yang baik-baik. Aku bersaksi bahwa tiada Tuhan melainkan Allah dan aku bersaksi bahwa Muhammad itu hamba Allah dan utusan-Nya.' },
+            { category: 'shalat', id: 106, title: 'Tasyahud', ar: 'التَّحِيَّاتُ لِلَّهِ، وَالصَّلَوَاتُ، وَالطَّيِّبَاتُ، السَّلَامُ عَلَيْكَ أَيُّهَا النَّبِيُّ وَرَحْمَةُ اللَّهِ وَبَرَكَاتُهُ، السَّلَامُ عَلَيْنَا وَعَلَى عِبَادِ اللَّهِ الصَّالِحِينَ، أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا اللَّهُ، وَأَشْهَدُ أَنَّ مُحَمَّدًا عَبْدُهُ وَرَسُولُهُ', tr: 'Segala kehormatan, kebahagiaan, dan kebagusan adalah kepunyaan Allah. Semoga keselamatan bagi Engkau, ya Nabi Muhammad, beserta rahmat dan kebahagiaan Allah. Mudah-mudahan keselamatan juga bagi kita sekalian dan hamba-hamba Allah yang baik-baik. Aku bersaksi bahwa tiada Tuhan melainkan Allah dan aku bersaksi bahwa Muhammad itu hamba Allah dan utusan-Nya.' },
             { category: 'shalat', id: 107, title: 'Shalawat Nabi', ar: 'اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ، وَعَلَى آلِ مُحَمَّدٍ، كَمَا صَلَّيْتَ عَلَى إِبْرَاهِيمَ، وَعَلَى آلِ إِبْرَاهِيمَ، وَبَارِكْ عَلَى مُحَمَّدٍ، وَعَلَى آلِ مُحَمَّدٍ، كَمَا بَارَكْتَ عَلَى إِبْرَاهِيمَ، وَعَلَى آلِ إِبْرَاهِيمَ، إِنَّكَ حَمِيدٌ مَجِيدٌ', tr: 'Ya Allah, limpahkanlah kemurahan-Mu kepada Muhammad dan keluarganya, sebagaimana Engkau telah melimpahkan kepada Ibrahim dan keluarganya. Ya Allah, limpahkanlah berkat-Mu kepada Muhammad dan keluarganya, sebagaimana Engkau telah melimpahkan kepada Ibrahim dan keluarganya. Sesungguhnya Engkau Maha Terpuji dan Maha Mulia.' },
             { category: 'shalat', id: 108, title: 'Doa Sebelum Salam', ar: 'اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنْ عَذَابِ جَهَنَّمَ، وَمِنْ عَذَابِ الْقَبْرِ، وَمِنْ فِتْنَةِ الْمَحْيَا وَالْمَمَاتِ، وَمِنْ شَرِّ فِتْنَةِ الْمَسِيحِ الدَّجَّالِ', tr: 'Ya Allah, aku berlindung kepada-Mu dari siksa neraka Jahanam, siksa kubur, fitnah hidup dan mati, serta dari keburukan fitnah Dajal.' },
             { category: 'shalat', id: 109, title: 'Salam', ar: 'السَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللَّهِ', tr: 'Semoga keselamatan dan rahmat Allah dilimpahkan kepadamu.' },
             
-            // DZIKIR BA'DA SHALAT HPT MUHAMMADIYAH KOMPLIT
+            // DZIKIR BA'DA SHALAT
             { category: 'dzikir', id: 201, title: '1. Istighfar (3x)', ar: 'أَسْتَغْفِرُ اللَّهَ', tr: 'Aku memohon ampun kepada Allah.' },
             { category: 'dzikir', id: 202, title: '2. Doa Keselamatan', ar: 'اللَّهُمَّ أَنْتَ السَّلَامُ، وَمِنْكَ السَّلَامُ، تَبَارَكْتَ يَا ذَا الْجَلَالِ وَالْإِكْرَامِ', tr: 'Ya Allah, Engkau Mahasejahtera, dan dari-Mu kesejahteraan, Mahasuci Engkau, wahai Tuhan Pemilik keagungan dan kemuliaan.' },
-            { category: 'dzikir', id: 203, title: '3. Ketauhidan & Kepasrahan', ar: 'لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ. اللَّهُمَّ لَا مَانِعَ لِمَا أَعْطَيْتَ، وَلَا مُعْطِيَ لِمَا مَنَعْتَ، وَلَا يَنْفَعُ ذَا الْجَدِّ مِنْكَ الْجَدِّ', tr: 'Tiada tuhan selain Allah Yang Maha Esa, tiada sekutu bagi-Nya. Bagi-Nya kerajaan dan bagi-Nya segala puji. Dia Mahakuasa atas segala sesuatu. Ya Allah, tidak ada yang dapat mencegah apa yang Engkau berikan, tidak ada yang dapat memberikan apa yang Engkau cegah, dan tidak bermanfaat kekayaan bagi orang yang memilikinya (kecuali amal ketaatannya), hanya dari-Mu lah segala kekayaan.' },
+            { category: 'dzikir', id: 203, title: '3. Ketauhidan', ar: 'لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ. اللَّهُمَّ لَا مَانِعَ لِمَا أَعْطَيْتَ، وَلَا مُعْطِيَ لِمَا مَنَعْتَ، وَلَا يَنْفَعُ ذَا الْجَدِّ مِنْكَ الْجَدِّ', tr: 'Tiada tuhan selain Allah Yang Maha Esa, tiada sekutu bagi-Nya. Bagi-Nya kerajaan dan bagi-Nya segala puji. Dia Mahakuasa atas segala sesuatu. Ya Allah, tidak ada yang dapat mencegah apa yang Engkau berikan, tidak ada yang dapat memberikan apa yang Engkau cegah, dan tidak bermanfaat kekayaan bagi orang yang memilikinya (kecuali amal ketaatannya), hanya dari-Mu lah segala kekayaan.' },
             { category: 'dzikir', id: 204, title: '4. Tasbih (33x)', ar: 'سُبْحَانَ اللَّهِ', tr: 'Maha Suci Allah.' },
             { category: 'dzikir', id: 205, title: '5. Tahmid (33x)', ar: 'الْحَمْدُ لِلَّهِ', tr: 'Segala puji bagi Allah.' },
             { category: 'dzikir', id: 206, title: '6. Takbir (33x)', ar: 'اللَّهُ أَكْبَرُ', tr: 'Allah Maha Besar.' },
@@ -258,7 +240,7 @@
             { category: 'dzikir', id: 210, title: '10. Surah Al-Falaq', ar: 'قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ. مِنْ شَرِّ مَا خَلَقَ. وَمِنْ شَرِّ غَاسِقٍ إِذَا وَقَبَ. وَمِنْ شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ. وَمِنْ شَرِّ حَاسِدٍ إِذَا حَسَدَ', tr: 'Katakanlah, "Aku berlindung kepada Tuhan yang menguasai subuh (fajar), dari kejahatan (makhluk yang) Dia ciptakan, dan dari kejahatan malam apabila telah gelap gulita, dan dari kejahatan (perempuan-perempuan) penyihir yang meniup pada buhul-buhul (talinya), dan dari kejahatan orang yang dengki apabila dia dengki."' },
             { category: 'dzikir', id: 211, title: '11. Surah An-Nas', ar: 'قُلْ أَعُوذُ بِرَبِّ النَّاسِ. مَلِكِ النَّاسِ. إِلَهِ النَّاسِ. مِنْ شَرِّ الْوَسْوَاسِ الْخَنَّاسِ. الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ. مِنَ الْجِنَّةِ وَالنَّاسِ', tr: 'Katakanlah, "Aku berlindung kepada Tuhannya manusia, Raja manusia, sembahan manusia, dari kejahatan (bisikan) setan yang bersembunyi, yang membisikkan (kejahatan) ke dalam dada manusia, dari (golongan) jin dan manusia."' },
             
-            // DOA HARIAN LENGKAP (STANDAR PENDIDIKAN SD MUHAMMADIYAH)
+            // DOA HARIAN
             { category: 'harian', id: 301, title: 'Doa Sebelum Belajar', ar: 'رَضِيتُ بِاللَّهِ رَبًّا، وَبِالْإِسْلَامِ دِينًا، وَبِمُحَمَّدٍ نَبِيًّا وَرَسُولًا. رَبِّ زِدْنِي عِلْمًا وَارْزُقْنِي فَهْمًا', tr: 'Aku rida Allah sebagai Tuhanku, Islam sebagai agamaku, dan Muhammad sebagai nabi dan rasulku. Ya Tuhanku, tambahkanlah kepadaku ilmu dan berikanlah aku karunia untuk memahaminya.' },
             { category: 'harian', id: 302, title: 'Doa untuk Kedua Orang Tua', ar: 'رَبِّ اغْفِرْ لِي وَلِوَالِدَيَّ وَارْحَمْهُمَا كَمَا رَبَّيَانِي صَغِيرًا', tr: 'Ya Tuhanku, ampunilah aku dan kedua orang tuaku, dan sayangilah keduanya sebagaimana mereka menyayangiku di waktu kecil.' },
             { category: 'harian', id: 303, title: 'Doa Sebelum Makan', ar: 'اللَّهُمَّ بَارِكْ لَنَا فِيمَا رَزَقْتَنَا وَقِنَا عَذَابَ النَّارِ', tr: 'Ya Allah, berkahilah kami dalam rezeki yang telah Engkau berikan kepada kami dan peliharalah kami dari siksa api neraka.' },
@@ -271,7 +253,7 @@
             { category: 'harian', id: 310, title: 'Doa Naik Kendaraan', ar: 'سُبْحَانَ الَّذِي سَخَّرَ لَنَا هَذَا وَمَا كُنَّا لَهُ مُقْرِنِينَ، وَإِنَّا إِلَى رَبِّنَا لَمُنْقَلِبُونَ', tr: 'Maha Suci Allah yang telah menundukkan kendaraan ini bagi kami, padahal kami sebelumnya tidak mampu menguasainya. Dan sesungguhnya kepada Tuhan kami lah kami akan kembali.' },
             { category: 'harian', id: 311, title: 'Doa Kebaikan Dunia Akhirat (Sapu Jagat)', ar: 'رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ', tr: 'Ya Tuhan kami, berilah kami kebaikan di dunia dan kebaikan di akhirat, dan peliharalah kami dari siksa api neraka.' },
             
-            // AMALAN SUNNAH (DENGAN SUB-KATEGORI)
+            // AMALAN SUNNAH
             { category: 'sunnah', subCat: 'pagi_petang', id: 401, title: 'Sayyidul Istighfar', ar: 'اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ، أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ، أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَيَّ، وَأَبُوءُ بِذَنْبِي فَاغْفِرْ لِي فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ', tr: 'Ya Allah, Engkau adalah Tuhanku, tidak ada Tuhan yang berhak disembah selain Engkau. Engkau telah menciptakanku dan aku adalah hamba-Mu. Aku senantiasa berada dalam perjanjian dan janji-Mu semampuku. Aku berlindung kepada-Mu dari keburukan perbuatanku. Aku mengakui nikmat-Mu kepadaku dan aku mengakui dosaku, maka ampunilah aku. Sesungguhnya tidak ada yang dapat mengampuni dosa kecuali Engkau.' },
             { category: 'sunnah', subCat: 'puasa', id: 402, title: 'Doa Berbuka Puasa', ar: 'ذَهَبَ الظَّمَأُ، وَابْتَلَّتِ الْعُرُوقُ، وَثَبَتَ الْأَجْرُ إِنْ شَاءَ اللَّهُ', tr: 'Telah hilang rasa haus, telah basah urat-urat, dan telah ditetapkan pahala, insya Allah.' },
             { category: 'sunnah', subCat: 'shalat', id: 403, title: 'Dzikir Setelah Witir', ar: 'سُبْحَانَ الْمَلِكِ الْقُدُّوسِ', tr: 'Maha Suci Allah, Raja Yang Maha Suci. (Dibaca 3x, yang ketiga dipanjangkan dan dikeraskan suaranya)' },
@@ -288,13 +270,104 @@
             const [activeTab, setActiveTab] = useState('home');
             const [navParams, setNavParams] = useState(null);
             
+            // Pengaturan Global
             const [appTheme, setAppTheme] = useState(THEMES.hijau); 
             const [appQari, setAppQari] = useState('alafasy'); 
             const [appFont, setAppFont] = useState('uthmani'); 
+            const [globalTajwid, setGlobalTajwid] = useState(true);
+            const [globalLatin, setGlobalLatin] = useState(false);
+            const [globalTrans, setGlobalTrans] = useState(true);
+            const [globalFontSize, setGlobalFontSize] = useState(26);
+            
+            // PENGATURAN ALARM & NOTIFIKASI
+            const [notif10Min, setNotif10Min] = useState(true);
+            const [adzanAlarms, setAdzanAlarms] = useState({ Imsak: false, Fajr: true, Dhuhr: true, Asr: true, Maghrib: true, Isha: true });
+            const [adzanSoundUrl, setAdzanSoundUrl] = useState('https://www.islamcan.com/audio/adhan/azan2.mp3');
+
+            // State Wajib Install
+            const [showInstall, setShowInstall] = useState(true);
 
             // Loading 0 Detik dari Global Cache
             const [userLoc, setUserLoc] = useState(window.AL_KAUTSAR_CACHE.loc);
             const [prayerTimes, setPrayerTimes] = useState(window.AL_KAUTSAR_CACHE.prayerTimes);
+
+            // --- SISTEM ALARM ADZAN & NOTIFIKASI ---
+            const [ringingAdzan, setRingingAdzan] = useState(null);
+            const adzanAudio = useRef(null);
+            const notifiedPrayers = useRef({});
+
+            useEffect(() => {
+                if (!adzanAudio.current) {
+                    adzanAudio.current = new Audio(adzanSoundUrl);
+                } else {
+                    adzanAudio.current.src = adzanSoundUrl;
+                    adzanAudio.current.load();
+                }
+            }, [adzanSoundUrl]);
+
+            const initNotifAndAudio = () => {
+                // Minta izin Notifikasi Pop-up HP
+                if ('Notification' in window) Notification.requestPermission();
+                
+                // Trik Bypass Autoplay Browser (Mainkan dan jeda sekejap)
+                if (adzanAudio.current) {
+                    adzanAudio.current.play().then(() => {
+                        adzanAudio.current.pause();
+                        adzanAudio.current.currentTime = 0;
+                    }).catch(e => {});
+                }
+            };
+
+            useEffect(() => {
+                const checker = setInterval(() => {
+                    if (!prayerTimes || prayerTimes.length === 0) return;
+                    
+                    const now = new Date();
+                    const dateStr = now.toLocaleDateString('id-ID');
+                    const currentHHMM = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+
+                    prayerTimes.forEach(p => {
+                        const [h, m] = p.time.split(':').map(Number);
+                        
+                        // Hitung waktu 10 menit sebelum
+                        let pTimeDate = new Date();
+                        pTimeDate.setHours(h, m, 0, 0);
+                        let before10m = new Date(pTimeDate.getTime() - 10 * 60000);
+                        let beforeHHMM = before10m.getHours().toString().padStart(2, '0') + ':' + before10m.getMinutes().toString().padStart(2, '0');
+
+                        const key10m = `${dateStr}_${p.id}_10m`;
+                        const keyExact = `${dateStr}_${p.id}_exact`;
+
+                        // 1. Notifikasi 10 Menit Sebelum Shalat
+                        if (notif10Min && adzanAlarms[p.id] && currentHHMM === beforeHHMM && !notifiedPrayers.current[key10m]) {
+                            notifiedPrayers.current[key10m] = true;
+                            if ('Notification' in window && Notification.permission === 'granted') {
+                                new Notification(`Persiapan Shalat ${p.label}`, { body: `Waktu shalat kurang 10 menit lagi (${p.time}). Yuk siap-siap ambil wudhu!` });
+                            }
+                        }
+
+                        // 2. Alarm & Notifikasi Tepat Waktu Shalat
+                        if (adzanAlarms[p.id] && currentHHMM === p.time && !notifiedPrayers.current[keyExact]) {
+                            notifiedPrayers.current[keyExact] = true;
+                            
+                            // Munculkan Push Notif
+                            if ('Notification' in window && Notification.permission === 'granted') {
+                                new Notification(`Waktu ${p.label} Tiba`, { body: `Telah masuk waktu ${p.label} untuk wilayah ${userLoc.name} dan sekitarnya.` });
+                            }
+                            
+                            // Putar Audio Adzan & Munculkan Layar
+                            setRingingAdzan(p);
+                            if (p.id !== 'Imsak') {
+                                if (adzanAudio.current) {
+                                    adzanAudio.current.currentTime = 0;
+                                    adzanAudio.current.play().catch(e => console.log('Autoplay ditahan browser'));
+                                }
+                            }
+                        }
+                    });
+                }, 10000); // Cek setiap 10 detik
+                return () => clearInterval(checker);
+            }, [prayerTimes, userLoc.name, notif10Min, adzanAlarms]);
 
             // Fetch Background Senyap untuk GPS yang Akurat
             useEffect(() => {
@@ -314,7 +387,7 @@
                                  locName = (dataNom.address && dataNom.address.city) || (dataNom.address && dataNom.address.county) || (dataNom.address && dataNom.address.state) || 'Lokasi Anda';
                              } else throw new Error('API Nom error');
                         } catch (err) {
-                             locName = 'Lokasi Anda (Offline)';
+                             locName = 'Lokasi Anda (Mode Luring)';
                         }
                     }
                     
@@ -338,9 +411,7 @@
                                 window.AL_KAUTSAR_CACHE.prayerTimes = newTimes;
                             }
                         }
-                    } catch (e) {
-                         // Biarkan pakai data cache jika offline/timeout
-                    }
+                    } catch (e) { }
                 };
 
                 if (navigator.geolocation) {
@@ -358,16 +429,69 @@
             return (
                 <div className={`w-full max-w-[390px] h-[100dvh] bg-[#F8FAFC] flex flex-col relative overflow-hidden shadow-2xl ring-1 ring-white/50`}>
                     
-                    {/* Polkadot Global Raksasa & Fleksibel (Semua Halaman) */}
+                    {/* Popup Premium Install (Wajib) */}
+                    {showInstall && (
+                        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-5 bg-slate-900/90 backdrop-blur-md animate-in fade-in zoom-in-95 duration-300">
+                            <div className="bg-white w-full max-w-[340px] rounded-[32px] shadow-[0_20px_50px_rgba(0,0,0,0.3)] p-6 relative flex flex-col items-center overflow-hidden border-2 border-slate-100">
+                                <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-amber-400/20 to-transparent pointer-events-none"></div>
+                                
+                                <div className="w-20 h-20 bg-gradient-to-br from-amber-400 to-orange-500 rounded-[24px] flex items-center justify-center text-white mb-4 relative z-10 shadow-[0_10px_20px_rgba(245,158,11,0.3)] rotate-3">
+                                    <Sparkles size={36} className="animate-pulse" />
+                                </div>
+                                
+                                <h2 className="text-[24px] font-black text-slate-800 mb-2 relative z-10 tracking-tight text-center">Wajib Install! 🚀</h2>
+                                <p className="text-[11px] text-slate-500 font-bold mb-4 relative z-10 text-center px-1 leading-relaxed">
+                                    Rasakan pengalaman ibadah digital kelas dunia. Install aplikasi Al Kautsar Islamic sekarang untuk menikmati fitur premium:
+                                </p>
+                                
+                                <div className="w-full bg-slate-50 rounded-[20px] p-4 mb-6 relative z-10 border border-slate-100">
+                                    <ul className="text-[11px] font-bold text-slate-700 space-y-3 text-left">
+                                        <li className="flex items-center gap-3"><div className="bg-white p-1.5 rounded-lg shadow-sm text-green-500"><BookOpen size={14}/></div> Al-Qur'an Tajwid & Suara</li>
+                                        <li className="flex items-center gap-3"><div className="bg-white p-1.5 rounded-lg shadow-sm text-blue-500"><Clock size={14}/></div> Notifikasi Adzan Real-time</li>
+                                        <li className="flex items-center gap-3"><div className="bg-white p-1.5 rounded-lg shadow-sm text-amber-500"><RotateCcw size={14}/></div> Dzikir Alam Dinamis</li>
+                                        <li className="flex items-center gap-3"><div className="bg-white p-1.5 rounded-lg shadow-sm text-purple-500"><Compass size={14}/></div> Kompas Kiblat Presisi</li>
+                                        <li className="flex items-center gap-3"><div className="bg-white p-1.5 rounded-lg shadow-sm text-indigo-500"><MessageCircle size={14}/></div> AI Asisten Tarjih Pintar</li>
+                                    </ul>
+                                </div>
+                                
+                                <div className="w-full relative z-10">
+                                    <button onClick={() => { alert('Mengunduh dan Menginstall aplikasi...'); setShowInstall(false); initNotifAndAudio(); }} className="w-full py-4 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white font-black text-[13px] rounded-[18px] active:scale-95 transition-all shadow-[0_8px_20px_rgba(16,185,129,0.3)] flex items-center justify-center gap-2 uppercase tracking-widest">
+                                        INSTALL SEKARANG
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Pop-up Adzan Berbunyi */}
+                    {ringingAdzan && (
+                        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-5 bg-slate-900/90 backdrop-blur-xl animate-in fade-in">
+                            <div className="bg-white w-full max-w-[320px] rounded-[32px] shadow-2xl p-8 relative flex flex-col items-center overflow-hidden border border-slate-100 text-center">
+                                <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-emerald-400/20 to-transparent pointer-events-none"></div>
+                                <div className="w-24 h-24 bg-emerald-50 rounded-full flex items-center justify-center mb-4 relative z-10 animate-pulse ring-8 ring-emerald-50/50">
+                                    <span className="text-5xl drop-shadow-md">{ringingAdzan.icon}</span>
+                                </div>
+                                <h2 className="text-[24px] font-black text-slate-800 mb-1 relative z-10 tracking-tight">Waktu {ringingAdzan.label}</h2>
+                                <p className="text-[12px] text-slate-500 font-bold mb-6 relative z-10">{userLoc.name} • {ringingAdzan.time}</p>
+                                <div className="text-2xl font-uthmani text-emerald-600 mb-8 drop-shadow-sm font-normal">حَيَّ عَلَى الصَّلَاةِ</div>
+                                
+                                <button onClick={() => { setRingingAdzan(null); if(adzanAudio.current) adzanAudio.current.pause(); }} className="w-full py-4 bg-slate-900 hover:bg-slate-800 text-white font-black text-[13px] rounded-[18px] active:scale-95 transition-all shadow-lg flex items-center justify-center gap-2 uppercase tracking-widest relative z-10">
+                                    Matikan Adzan
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Polkadot Global */}
                     <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden mix-blend-multiply opacity-20">
                         <div className="polka-dot w-[45rem] h-[45rem] top-[-25%] left-[-30%]" style={{ animationDelay: '0s', backgroundColor: appTheme.hex }}></div>
                         <div className="polka-dot w-[35rem] h-[35rem] top-[40%] right-[-20%]" style={{ animationDelay: '5s', backgroundColor: appTheme.hex }}></div>
                         <div className="polka-dot w-[28rem] h-[28rem] bottom-[-15%] left-[-15%]" style={{ animationDelay: '10s', backgroundColor: appTheme.hex }}></div>
                     </div>
 
-                    <main id="main-scroll-container" className="flex-1 overflow-y-auto pb-24 scroll-smooth relative z-10">
+                    <main id="main-scroll-container" className="flex-1 overflow-y-auto pb-20 scroll-smooth relative z-10">
                         {activeTab === 'home' && <HomeView nav={navigate} theme={appTheme} userLoc={userLoc} prayerTimes={prayerTimes} />}
-                        {activeTab === 'quran' && <QuranView nav={navigate} navParams={navParams} theme={appTheme} qari={appQari} setQari={setAppQari} fontType={appFont} setFontType={setAppFont} />}
+                        {activeTab === 'quran' && <QuranView nav={navigate} navParams={navParams} theme={appTheme} qari={appQari} setQari={setAppQari} fontType={appFont} setFontType={setAppFont} globalTajwid={globalTajwid} globalLatin={globalLatin} globalTrans={globalTrans} globalFontSize={globalFontSize} />}
                         {activeTab === 'doa' && <DoaView nav={navigate} theme={appTheme} />}
                         {activeTab === 'masjid' && <MasjidView nav={navigate} theme={appTheme} userLoc={userLoc} />}
                         {activeTab === 'chat' && <ChatView nav={navigate} theme={appTheme} />}
@@ -375,10 +499,10 @@
                         {activeTab === 'dzikir' && <DzikirView theme={appTheme} nav={navigate} />}
                         {activeTab === 'qibla' && <QiblaView theme={appTheme} nav={navigate} userLoc={userLoc} />}
                         {activeTab === 'cerita' && <CeritaView nav={navigate} theme={appTheme} />}
-                        {activeTab === 'settings' && <SettingsView nav={navigate} theme={appTheme} setTheme={setAppTheme} />}
+                        {activeTab === 'settings' && <SettingsView nav={navigate} theme={appTheme} setTheme={setAppTheme} globalTajwid={globalTajwid} setGlobalTajwid={setGlobalTajwid} globalLatin={globalLatin} setGlobalLatin={setGlobalLatin} globalTrans={globalTrans} setGlobalTrans={setGlobalTrans} globalFontSize={globalFontSize} setGlobalFontSize={setGlobalFontSize} appQari={appQari} setAppQari={setAppQari} appFont={appFont} setAppFont={setAppFont} notif10Min={notif10Min} setNotif10Min={setNotif10Min} adzanAlarms={adzanAlarms} setAdzanAlarms={setAdzanAlarms} adzanSoundUrl={adzanSoundUrl} setAdzanSoundUrl={setAdzanSoundUrl} prayerTimes={prayerTimes} />}
                     </main>
                     
-                    {/* Navigasi Bawah Super Simetris Glassmorphism */}
+                    {/* Navigasi Bawah */}
                     <nav className="absolute bottom-0 w-full bg-[#F8FAFC]/95 backdrop-blur-xl border-t border-slate-200/60 pb-safe shadow-[0_-8px_30px_rgba(0,0,0,0.05)] z-50">
                         <div className="flex justify-evenly items-center h-[70px]">
                             <NavItem icon={<Home />} label="Beranda" active={activeTab==='home'} onClick={()=>navigate('home')} theme={appTheme} />
@@ -510,7 +634,7 @@
             );
         }
 
-        function QuranView({ nav, navParams, theme, qari, setQari, fontType, setFontType }) {
+        function QuranView({ nav, navParams, theme, qari, setQari, fontType, setFontType, globalTajwid, globalLatin, globalTrans, globalFontSize }) {
             const [search, setSearch] = useState('');
             const [activeSurah, setActiveSurah] = useState(null);
             
@@ -523,10 +647,10 @@
             const [isPlayAll, setIsPlayAll] = useState(false);
 
             const [surahDesc, setSurahDesc] = useState('');
-            const [showTajwid, setShowTajwid] = useState(true);
-            const [showTrans, setShowTrans] = useState(true);
-            const [showLatin, setShowLatin] = useState(false);
-            const [fontSize, setFontSize] = useState(26);
+            const [showTajwid, setShowTajwid] = useState(globalTajwid);
+            const [showTrans, setShowTrans] = useState(globalTrans);
+            const [showLatin, setShowLatin] = useState(globalLatin);
+            const [fontSize, setFontSize] = useState(globalFontSize);
             
             const [openedTafsir, setOpenedTafsir] = useState(null);
             const [activeTafsirTab, setActiveTafsirTab] = useState('kemenag'); 
@@ -552,7 +676,10 @@
             useEffect(() => { isPlayAllRef.current = isPlayAll; }, [isPlayAll]);
             useEffect(() => { activeSurahRef.current = activeSurah; }, [activeSurah]);
 
-            // Deteksi Scroll untuk Judul
+            useEffect(() => {
+                setShowTajwid(globalTajwid); setShowLatin(globalLatin); setShowTrans(globalTrans); setFontSize(globalFontSize);
+            }, [globalTajwid, globalLatin, globalTrans, globalFontSize]);
+
             useEffect(() => {
                 const scrollContainer = document.getElementById('main-scroll-container');
                 const handleScroll = () => {
@@ -572,7 +699,6 @@
                 }
             }, [navParams]);
 
-            // Audio Anti-Error Logic
             const playAyahSequence = (ayahNum) => {
                 if (!surahDetailRef.current) return;
                 const targetAyah = surahDetailRef.current.find(a => a.numberInSurah === ayahNum);
@@ -642,7 +768,6 @@
                 return () => { if (audioEl) { audioEl.removeEventListener('ended', handleAudioEnded); audioEl.pause(); } };
             }, [qari]);
 
-            // OPEN SURAH (SPEED EDITION)
             const openSurah = async (surah) => {
                 setActiveSurah(surah); 
                 setOpenedTafsir(null); setShowSwitcher(false); setShowSettings(false);
@@ -675,7 +800,7 @@
                             text: g.aya_text || a.teksArab,
                             latin: a.teksLatin,
                             trans: a.teksIndonesia,
-                            tajweedRules: g.tajweed || g.tajwid || [], // Tajwid langsung masuk!
+                            tajweedRules: g.tajweed || g.tajwid || [], 
                             tafsirKemenag: "Memuat tafsir...",
                             tafsirJalalayn: "Memuat tafsir..."
                         };
@@ -740,9 +865,9 @@
 
             if (activeSurah) {
                 return (
-                    <div className="pb-20 min-h-full relative bg-transparent">
+                    <div className="pb-4 min-h-full relative bg-transparent flex flex-col">
                         
-                        {/* Header Dinamis (Muncul Saat Discroll) */}
+                        {/* Header Dinamis */}
                         <div className="sticky top-0 z-40 w-full bg-white shadow-sm border-b border-slate-100">
                             <div className="flex items-center justify-between px-3 py-3 h-[52px] relative z-20">
                                 <div className="flex items-center gap-1 flex-1 min-w-0">
@@ -750,7 +875,6 @@
                                         <ArrowLeft size={20} />
                                     </button>
                                     
-                                    {/* Nama Surah Klikabel untuk Buka Switcher Navigasi */}
                                     <div className="flex flex-col justify-center ml-1 overflow-hidden h-full cursor-pointer group" onClick={() => setShowSwitcher(true)}>
                                         <div className={`transition-all duration-300 ease-out flex flex-col ${isScrolled ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'}`}>
                                             <h2 className="font-black text-[13px] text-slate-800 tracking-tight leading-none truncate flex items-center gap-1 group-hover:text-slate-500 transition-colors">
@@ -765,7 +889,6 @@
                                     <button onClick={() => setIsPageMode(!isPageMode)} className={`p-2 rounded-xl transition-all hover:bg-slate-100 active:scale-95 ${isPageMode ? 'bg-slate-100 text-slate-900' : ''}`} title="Mode Halaman">
                                         {isPageMode ? <BookOpen size={18} /> : <LayoutGrid size={18} />}
                                     </button>
-                                    {/* Tombol Bookmark Surah di Header */}
                                     <button onClick={() => { setToastMsg(`Surah ${activeSurah.id} di-bookmark!`); setTimeout(() => setToastMsg(null), 2500); }} className="p-2 rounded-xl transition-all hover:bg-slate-100 active:scale-95" title="Bookmark Surah">
                                         <Bookmark size={18} />
                                     </button>
@@ -820,7 +943,6 @@
 
                         {/* Banner Surah Minimalis */}
                         <div onClick={() => setShowSwitcher(true)} className="mx-6 mt-4 mb-4 rounded-[16px] py-4 px-4 text-center shadow-sm relative overflow-hidden cursor-pointer active:scale-95 transition-transform" style={{ backgroundColor: theme.hex }}>
-                            {/* Efek Polkadot Khusus Banner (Mulus & Bernapas) */}
                             <div className="absolute w-20 h-20 rounded-full bg-white/20 top-[-10px] left-[-10px] blur-[1px] anim-banner-polka" style={{animationDelay: '0s'}}></div>
                             <div className="absolute w-24 h-24 rounded-full bg-white/15 bottom-[-20px] right-[-20px] blur-sm anim-banner-polka" style={{animationDelay: '1s'}}></div>
                             <div className="absolute w-8 h-8 rounded-full bg-white/20 top-[40%] right-[20%] blur-[2px] anim-banner-polka" style={{animationDelay: '2.5s'}}></div>
@@ -854,7 +976,7 @@
                             </div>
                         )}
 
-                        {/* Pop-Up Tajwid Eksklusif */}
+                        {/* Pop-Up Tajwid */}
                         {activeTajweed && TAJWEED_INFO[activeTajweed.ruleClass] && (
                             <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm animate-in fade-in" onClick={() => setActiveTajweed(null)}>
                                 <div className="bg-[#1E293B] w-full max-w-[340px] rounded-[24px] shadow-2xl p-6 relative text-white border border-slate-700" onClick={(e) => e.stopPropagation()}>
@@ -923,7 +1045,7 @@
                         )}
 
                         {/* Rendering Teks */}
-                        <div className="space-y-3 px-3 pb-20">
+                        <div className="space-y-3 px-3 pb-4">
                             {surahDetail && (
                                 isPageMode ? (
                                     <div className="bg-white p-5 rounded-[20px] shadow-sm border border-slate-100 mx-1 mb-8">
@@ -951,7 +1073,6 @@
                                                     {ayah.numberInSurah}
                                                 </div>
                                                 <div className="flex gap-1.5">
-                                                    {/* Tombol Bookmark per Ayat */}
                                                     <button className="p-1.5 text-slate-500 hover:bg-slate-50 border border-slate-100 rounded-[10px] transition-colors bg-white active:scale-95" onClick={() => {
                                                         setToastMsg(`Ayat ${ayah.numberInSurah} di-bookmark!`);
                                                         setTimeout(() => setToastMsg(null), 2500);
@@ -981,16 +1102,13 @@
                                                 </div>
                                             </div>
                                             
-                                            {/* Area Arab */}
                                             <div className={`text-right mb-1.5 text-slate-800 font-${fontType} font-normal transition-all duration-300`} style={{ fontSize: `${fontSize}px`, lineHeight: '2.0' }} dir="rtl">
                                                {renderArabicWithTajweed(ayah.text, ayah.tajweedRules)}
                                             </div>
                                             
-                                            {/* Latin & Terjemahan Padat */}
                                             {showLatin && <div className="text-[11px] leading-relaxed font-semibold mb-0.5 italic" style={{ color: theme.hex }} dangerouslySetInnerHTML={{__html: ayah.latin}}></div>}
                                             {showTrans && <div className="text-[11px] text-slate-600 leading-snug font-medium">{ayah.trans}</div>}
                                             
-                                            {/* Panel Tafsir */}
                                             {openedTafsir === ayah.numberInSurah && (
                                                 <div className="mt-3 pt-3 border-t border-dashed border-slate-200 animate-in slide-in-from-top-2 duration-300">
                                                     <div className="flex bg-slate-50 p-1 rounded-xl mb-2">
@@ -1014,6 +1132,25 @@
                                 )
                             )}
                         </div>
+
+                        {/* Navigasi Antar Surah (Tombol Bawah) */}
+                        {surahDetail && !isFetching && (
+                            <div className="flex justify-between gap-3 px-3 pb-6 mt-4 relative z-10">
+                                {activeSurah.n > 1 ? (
+                                    <button onClick={() => { const prev = SURAHS_DB.find(s => s.n === activeSurah.n - 1); if (prev) openSurah(prev); }} className="flex-1 flex flex-col items-start p-4 bg-white rounded-[20px] shadow-sm border border-slate-100 active:scale-95 transition-all hover:border-slate-300">
+                                        <span className="text-[9px] font-bold text-slate-400 mb-1 flex items-center gap-1"><ArrowLeft size={10}/> Sebelumnya</span>
+                                        <span className="text-[12px] font-black text-slate-800 truncate w-full text-left">{activeSurah.n - 1}. {SURAHS_DB.find(s => s.n === activeSurah.n - 1).id}</span>
+                                    </button>
+                                ) : <div className="flex-1"></div>}
+                                
+                                {activeSurah.n < 114 ? (
+                                    <button onClick={() => { const next = SURAHS_DB.find(s => s.n === activeSurah.n + 1); if (next) openSurah(next); }} className="flex-1 flex flex-col items-end p-4 bg-white rounded-[20px] shadow-sm border border-slate-100 active:scale-95 transition-all hover:border-slate-300">
+                                        <span className="text-[9px] font-bold text-slate-400 mb-1 flex items-center gap-1">Selanjutnya <ChevronRight size={10}/></span>
+                                        <span className="text-[12px] font-black text-slate-800 truncate w-full text-right">{activeSurah.n + 1}. {SURAHS_DB.find(s => s.n === activeSurah.n + 1).id}</span>
+                                    </button>
+                                ) : <div className="flex-1"></div>}
+                            </div>
+                        )}
 
                         {/* Toast Notifikasi */}
                         {toastMsg && (
@@ -1075,7 +1212,7 @@
                 ];
 
                 return (
-                    <div className="pb-32 animate-in slide-in-from-right-4 min-h-full bg-transparent relative z-10">
+                    <div className="pb-10 animate-in slide-in-from-right-4 min-h-full bg-transparent relative z-10">
                         <div className="sticky top-0 bg-white/90 backdrop-blur-md z-30 shadow-sm border-b border-slate-100 transition-colors duration-300">
                             <div className={`px-5 pt-6 flex items-center ${activeCat === 'sunnah' ? 'pb-2' : 'pb-4'}`}>
                                 <button onClick={() => { setActiveCat(null); setActiveSub('semua'); }} className="p-2 rounded-xl mr-4 active:scale-95 transition-colors" style={{ backgroundColor: activeTheme.light, color: activeTheme.hex }}><ArrowLeft size={18} /></button>
@@ -1113,7 +1250,7 @@
             }
 
             return (
-                <div className="p-5 pb-28 animate-in fade-in min-h-full bg-transparent relative z-10">
+                <div className="p-5 pb-20 animate-in fade-in min-h-full bg-transparent relative z-10">
                      <div className="flex items-center gap-3 mb-6 pt-2">
                         <button onClick={() => nav('home')} className="p-2 rounded-[14px] bg-white shadow-sm mr-2 active:scale-95 transition-colors"><ArrowLeft size={18} className="text-slate-600" /></button>
                         <div><h1 className="text-2xl font-black text-slate-800 tracking-tight">Doa Pilihan</h1><p className="text-[11px] font-bold transition-colors" style={{ color: theme.hex }}>Sesuai HPT Muhammadiyah</p></div>
@@ -1148,7 +1285,6 @@
             const hour = new Date().getHours();
             const isNight = hour >= 18 || hour < 4;
             
-            // Konfigurasi Tema Premium Vector Landscape
             const themeConfig = isNight ? {
                 bg: 'from-[#141E30] to-[#243B55]',
                 celestialObj: 'bg-slate-100',
@@ -1169,23 +1305,20 @@
                 water: ['#22d3ee', '#3b82f6'],
             };
 
-            // LOGIKA ANIMASI MELENGKUNG (PARABOLA) REVISI
             const progress = count / target;
             let celestialStyle = {};
 
             if (activeDzikir === 0) { 
-                // Subhanallah: Mulai dari Kiri Bawah (Sudah Muncul) -> Tengah Atas
                 const scale = 0.4 + (progress * 0.6); 
                 const opacity = 0.5 + (progress * 0.5);
-                const x = -35 + (35 * progress); // Gerak dari -35vw ke 0vw (Tidak memotong layar samping)
-                const y = 15 - (45 * progress);  // Start dari horizon (15vh) agar terlihat pada tap awal
+                const x = -35 + (35 * progress); 
+                const y = 15 - (45 * progress);  
                 celestialStyle = {
                     transform: `translate(${x}vw, ${y}vh) scale(${scale})`,
                     opacity: opacity,
                     boxShadow: `0 0 ${20 + (progress*30)}px ${themeConfig.celestialShadow}`
                 };
             } else if (activeDzikir === 1) { 
-                // Alhamdulillah: Diam di Puncak, Membesar & Berdenyut Terang
                 const pulseScale = 1.0 + (progress * 0.5); 
                 const shadowIntensity = 50 + (progress * 80); 
                 celestialStyle = {
@@ -1194,11 +1327,10 @@
                     boxShadow: `0 0 ${shadowIntensity}px ${themeConfig.celestialShadow}`
                 };
             } else { 
-                // Allahu Akbar: Tengah Atas -> Terbenam Kanan Bawah
                 const scale = 1.0 - (progress * 0.6); 
                 const opacity = 1.0 - (progress * 0.5);
-                const x = 0 + (35 * progress); // 0vw ke 35vw (Tidak memotong layar)
-                const y = -30 + (45 * progress); // Turun dari -30vh ke horizon (15vh)
+                const x = 0 + (35 * progress); 
+                const y = -30 + (45 * progress); 
                 celestialStyle = {
                     transform: `translate(${x}vw, ${y}vh) scale(${scale})`,
                     opacity: opacity,
@@ -1233,7 +1365,6 @@
             return (
                 <div className={`animate-in fade-in h-[100dvh] w-full flex flex-col relative overflow-hidden select-none bg-gradient-to-b ${themeConfig.bg} transition-colors duration-1000 z-10`} onClick={handleScreenTap}>
                     
-                    {/* Bintang Malam Hari */}
                     {isNight && (
                         <div className="absolute inset-0 z-0 opacity-80 pointer-events-none">
                             <div className="absolute top-12 left-10 w-1 h-1 bg-white rounded-full shadow-[0_0_5px_white]"></div>
@@ -1243,21 +1374,18 @@
                         </div>
                     )}
 
-                    {/* Ripple Tap Layar */}
                     <div className="absolute inset-0 pointer-events-none overflow-hidden z-10">
                         {ripples.map(p => (
                             <div key={p.id} className="absolute rounded-full anim-ripple border border-white/80 bg-white/10 shadow-[0_0_15px_rgba(255,255,255,0.5)]" style={{ left: p.x, top: p.y, width: 40, height: 40 }}></div>
                         ))}
                     </div>
 
-                    {/* Benda Langit (Matahari / Bulan) */}
                     <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none flex justify-center items-center w-full h-full">
                         <div className={`w-[80px] h-[80px] rounded-full ${themeConfig.celestialObj} transition-all duration-[600ms] ease-out relative`} style={celestialStyle}>
                             {themeConfig.isMoon && <div className="absolute w-[95%] h-[95%] bg-slate-900 rounded-full right-[10%] bottom-[10%] opacity-90"></div>}
                         </div>
                     </div>
 
-                    {/* Vektor Landscape Premium: Melebar -10% s.d 120% Agar Ombak Tidak Terpotong Tepi Layar */}
                     <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute bottom-0 -left-[10%] w-[120%] h-[45vh] z-20 transition-all duration-1000 pointer-events-none">
                         <defs>
                             <linearGradient id="gradBack" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -1278,14 +1406,10 @@
                             </linearGradient>
                         </defs>
                         
-                        {/* Gunung Belakang (Smooth) */}
                         <path d="M-10,100 L-10,50 Q15,35 30,55 T65,45 T110,60 L110,100 Z" fill="url(#gradBack)" opacity="0.85"/>
-                        {/* Bukit Tengah */}
                         <path d="M-10,100 L-10,65 Q20,45 45,65 T95,45 L110,50 L110,100 Z" fill="url(#gradMid)" opacity="0.95"/>
-                        {/* Daratan Hijau / Depan */}
                         <path d="M-10,100 L-10,85 Q25,65 55,85 T110,75 L110,100 Z" fill="url(#gradFront)"/>
                         
-                        {/* Air & Ombak Realistis */}
                         <g className="animate-waves-1" style={{ opacity: 0.9 }}>
                              <path d="M-10,88 Q25,85 50,88 T110,85 L110,100 L-10,100 Z" fill="url(#gradWater)" />
                         </g>
@@ -1294,15 +1418,12 @@
                         </g>
                     </svg>
 
-                    {/* UI LAYER (Glassmorphism Elegan) */}
                     <div className="relative z-30 flex flex-col h-full px-5 pt-8 pb-10">
-                        
                         <div className="flex items-center gap-3 mb-6">
                             <button onClick={(e)=>{ e.stopPropagation(); nav('home'); }} className="p-2.5 rounded-[14px] bg-white/10 backdrop-blur-md shadow-sm active:scale-95 text-white border border-white/20 hover:bg-white/20 transition-all"><ArrowLeft size={20} /></button>
-                            <h1 className="text-[20px] font-black text-white tracking-tight drop-shadow-md">Dzikir Pilihan</h1>
+                            <h1 className="text-[20px] font-black text-white tracking-tight drop-shadow-md">Dzikir</h1>
                         </div>
 
-                        {/* Kapsul Pilihan Dzikir */}
                         <div className="flex bg-black/20 backdrop-blur-md p-1.5 rounded-[20px] border border-white/10 shadow-inner">
                             {list.map((d, i) => (
                                 <button key={i} onClick={(e) => { e.stopPropagation(); setActiveDzikir(i); setCount(0); }} className="flex-1 py-2.5 rounded-[16px] font-bold text-[11px] whitespace-nowrap transition-all duration-300" style={activeDzikir === i ? { backgroundColor: 'white', color: d.color, boxShadow: `0 4px 15px rgba(0,0,0,0.2)` } : { backgroundColor: 'transparent', color: 'rgba(255,255,255,0.6)' }}>
@@ -1311,17 +1432,14 @@
                             ))}
                         </div>
 
-                        {/* Area Teks & Angka */}
                         <div className="flex-1 flex flex-col items-center justify-center mt-2 pointer-events-none">
                             <h2 className="text-[48px] font-uthmani font-normal text-white mb-1 leading-normal drop-shadow-xl text-center w-full" dir="rtl">{currentDzikir.ar}</h2>
                             <p className="text-[12px] font-black tracking-widest uppercase mb-10 text-white drop-shadow-md opacity-90">{currentDzikir.label}</p>
                             
-                            {/* Lingkaran Angka */}
                             <div className="relative w-36 h-36 flex justify-center items-center bg-white/10 backdrop-blur-xl border border-white/20 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.1)] ring-[6px] ring-white/5 transition-all duration-300">
                                 <div className="text-[64px] font-black text-white tracking-tighter leading-none drop-shadow-lg">{count}</div>
                             </div>
 
-                            {/* Tombol Reset */}
                             <div className="mt-8 pointer-events-auto">
                                 <button onClick={(e) => { e.stopPropagation(); setCount(0); }} className="px-5 py-2.5 bg-white/10 backdrop-blur-md border border-white/20 rounded-full shadow-sm text-[10px] font-bold text-white flex items-center gap-2 active:scale-95 tracking-widest hover:bg-white/20 transition-all">
                                     <RotateCcw size={14}/> RESET
@@ -1329,8 +1447,7 @@
                             </div>
                         </div>
 
-                        {/* Petunjuk Tap */}
-                        <div className="mt-auto flex flex-col items-center pointer-events-none pb-4">
+                        <div className="mt-auto flex flex-col items-center pointer-events-none pb-[50px]">
                             <div className="opacity-80 flex flex-col items-center animate-bounce-soft">
                                 <div className="w-9 h-9 rounded-full border border-dashed border-white/50 flex items-center justify-center mb-2 bg-black/10 backdrop-blur-sm shadow-sm"><span className="text-sm drop-shadow-md">👆</span></div>
                                 <span className="text-[9px] font-black text-white uppercase tracking-widest drop-shadow-md">Tap Sembarang Tempat</span>
@@ -1344,27 +1461,29 @@
 
         function CeritaView({ nav, theme }) {
             const stories = [
-                { id: 1, title: 'Kisah Nabi Musa & Firaun', type: 'Kisah Nabi & Rasul', img: '🌊', color: 'bg-[#DBEAFE]', border: 'border-[#3B82F6]' },
-                { id: 2, title: 'Kesabaran Nabi Ayyub', type: 'Kisah Nabi & Rasul', img: '🤲', color: 'bg-[#FEF3C7]', border: 'border-[#F59E0B]' },
-                { id: 3, title: 'Mukjizat Nabi Isa', type: 'Kisah Nabi & Rasul', img: '✨', color: 'bg-[#D1FAE5]', border: 'border-[#10B981]' },
-                { id: 4, title: 'Kisah Pemuda Ashabul Kahfi', type: 'Kisah Al-Quran', img: '⛺', color: 'bg-[#F3E8FF]', border: 'border-[#8B5CF6]' },
-                { id: 5, title: 'Burung Ababil & Pasukan Gajah', type: 'Sejarah Islam', img: '🐘', color: 'bg-[#FCE7F3]', border: 'border-[#EC4899]' },
-                { id: 6, title: 'Perjalanan Isra Miraj', type: 'Sejarah Islam', img: '🌌', color: 'bg-[#E0E7FF]', border: 'border-[#6366F1]' },
+                { id: 1, title: 'Kisah Nabi Musa & Firaun', type: 'Kisah Nabi', img: '🌊', color: 'bg-[#DBEAFE]', border: 'border-[#3B82F6]' },
+                { id: 2, title: 'Kesabaran Nabi Ayyub', type: 'Kisah Nabi', img: '🤲', color: 'bg-[#FEF3C7]', border: 'border-[#F59E0B]' },
+                { id: 3, title: 'Mukjizat Nabi Isa', type: 'Kisah Nabi', img: '✨', color: 'bg-[#D1FAE5]', border: 'border-[#10B981]' },
+                { id: 4, title: 'Kisah Nabi Nuh & Bahtera', type: 'Kisah Nabi', img: '🚢', color: 'bg-[#E0F2FE]', border: 'border-[#0EA5E9]' },
+                { id: 5, title: 'Nabi Sulaiman & Ratu Balqis', type: 'Kisah Nabi', img: '👑', color: 'bg-[#FEF08A]', border: 'border-[#EAB308]' },
+                { id: 6, title: 'Pemuda Ashabul Kahfi', type: 'Kisah Al-Quran', img: '⛺', color: 'bg-[#F3E8FF]', border: 'border-[#8B5CF6]' },
+                { id: 7, title: 'Burung Ababil & Pasukan Gajah', type: 'Sejarah', img: '🐘', color: 'bg-[#FCE7F3]', border: 'border-[#EC4899]' },
+                { id: 8, title: 'Perjalanan Isra Miraj', type: 'Sejarah', img: '🌌', color: 'bg-[#E0E7FF]', border: 'border-[#6366F1]' },
             ];
 
             return (
-                <div className="animate-in fade-in h-[100dvh] flex flex-col bg-transparent relative z-10 pb-20">
-                    <div className="bg-white/90 backdrop-blur-md px-5 py-4 flex items-center shadow-sm z-30 sticky top-0">
+                <div className="animate-in fade-in h-[100dvh] flex flex-col bg-[#F8FAFC] relative z-10 overflow-hidden">
+                    <div className="bg-white/90 backdrop-blur-md px-5 py-4 flex items-center shadow-sm z-30 relative">
                         <button onClick={() => nav('home')} className="p-2 rounded-[14px] bg-slate-100 mr-3 hover:bg-slate-200 transition-colors active:scale-95"><ArrowLeft size={18} className="text-slate-600" /></button>
-                        <div><h1 className="text-[15px] font-black text-slate-800">Cerita Islami</h1><p className="text-[10px] font-bold" style={{ color: theme.hex }}>Untuk Anak & Remaja</p></div>
+                        <div><h1 className="text-[15px] font-black text-slate-800">Cerita Islami</h1><p className="text-[10px] font-bold" style={{ color: theme.hex }}>Komik Edukatif</p></div>
                     </div>
                     
-                    <div className="p-5 grid grid-cols-2 gap-4 relative z-10">
+                    <div className="flex-1 overflow-y-auto p-5 pb-[100px] grid grid-cols-2 gap-4 content-start">
                         {stories.map((story) => (
                             <button key={story.id} className={`p-4 rounded-2xl border-[3px] shadow-[4px_4px_0_0_#1e293b] flex flex-col active:translate-y-1 active:shadow-[0px_0px_0_0_#1e293b] transition-all text-left overflow-hidden relative ${story.color} ${story.border}`}>
                                 <div className="absolute top-[-10px] right-[-10px] text-6xl opacity-20 pointer-events-none">{story.img}</div>
                                 <div className="text-3xl mb-3 drop-shadow-md relative z-10">{story.img}</div>
-                                <h3 className="font-black text-slate-800 text-[13px] leading-tight mb-2 relative z-10">{story.title}</h3>
+                                <h3 className="font-black text-slate-800 text-[12px] leading-tight mb-2 relative z-10">{story.title}</h3>
                                 <p className="font-bold text-[8px] text-slate-600 uppercase tracking-widest relative z-10 mt-auto bg-white/50 inline-block px-2 py-1 rounded-md">{story.type}</p>
                             </button>
                         ))}
@@ -1393,25 +1512,25 @@
                             return { name: e.tags.name || 'Masjid Terdekat', dist: dist.toFixed(1) + ' km', raw: dist, lat: e.lat, lon: e.lon };
                         }).filter(e => e.name !== 'Masjid Terdekat').sort((a, b) => a.raw - b.raw).slice(0, 5);
                         
-                        setMasjids(results.length > 0 ? results : [{name: 'Masjid Agung (Offline Mode)', dist: '1.5 km', lat: userLoc.lat, lon: userLoc.lon}]);
-                    } catch(e) { setMasjids([{name: 'Masjid Agung (Offline Mode)', dist: '1.5 km', lat: userLoc.lat, lon: userLoc.lon}]); }
+                        setMasjids(results.length > 0 ? results : [{name: 'Masjid Agung', dist: '1.5 km', lat: userLoc.lat, lon: userLoc.lon}]);
+                    } catch(e) { setMasjids([{name: 'Masjid Agung', dist: '1.5 km', lat: userLoc.lat, lon: userLoc.lon}]); }
                     setLoading(false);
                 }
                 getMasjids();
             }, [userLoc]);
 
             return (
-                <div className="animate-in fade-in h-[100dvh] flex flex-col bg-transparent relative z-10">
+                <div className="animate-in fade-in h-[100dvh] flex flex-col bg-transparent relative z-10 overflow-hidden">
                     <div className="bg-white/90 backdrop-blur-md px-5 py-4 flex items-center shadow-sm z-30">
                         <button onClick={() => nav('home')} className="p-2 rounded-[14px] bg-slate-100 mr-3 hover:bg-slate-200 transition-colors"><ArrowLeft size={18} className="text-slate-600" /></button>
                         <h1 className="text-[15px] font-black text-slate-800">Masjid Terdekat</h1>
                     </div>
-                    <div className="flex-1 relative">
-                        <div className="absolute top-1/4 left-1/2 transform -translate-x-1/2 text-center w-full">
+                    <div className="flex-1 relative flex flex-col justify-end">
+                        <div className="absolute top-[15%] left-1/2 transform -translate-x-1/2 text-center w-full">
                              <Navigation size={56} className="mx-auto text-slate-300 mb-3 drop-shadow-sm animate-pulse" />
                              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest bg-white/80 px-4 py-1.5 rounded-full inline-block shadow-sm">Radius 3 KM (GPS)</p>
                         </div>
-                        <div className="absolute bottom-6 left-4 right-4 space-y-3 z-10 pb-20">
+                        <div className="px-4 pb-[90px] space-y-3 z-10">
                             {loading ? (
                                 <div className="text-center p-4 bg-white rounded-[20px] shadow-sm border border-slate-100"><p className="text-xs font-bold text-slate-500 animate-pulse">Mencari di sekitar Anda...</p></div>
                             ) : (
@@ -1435,6 +1554,15 @@
             const [heading, setHeading] = useState(0);
             const [qiblaInfo, setQiblaInfo] = useState({ dir: 294.6, dist: 8376 });
 
+            const compassThemes = [
+                { id: 'modern', label: 'Modern', bg: 'bg-[#F8FAFC]', border: 'border-slate-200', textN: 'text-slate-800', textOther: 'text-slate-400', needleColor: 'bg-emerald-500', isDark: false },
+                { id: 'dark', label: 'Gelap', bg: 'bg-slate-900', border: 'border-slate-700', textN: 'text-white', textOther: 'text-slate-500', needleColor: 'bg-amber-500', isDark: true },
+                { id: 'zamrud', label: 'Zamrud', bg: 'bg-[#0f4d38]', border: 'border-[#1b7355]', textN: 'text-amber-400', textOther: 'text-[#449176]', needleColor: 'bg-red-500', isDark: true },
+                { id: 'gold', label: 'Emas', bg: 'bg-gradient-to-br from-amber-100 to-amber-300', border: 'border-amber-400', textN: 'text-amber-900', textOther: 'text-amber-700', needleColor: 'bg-slate-800', isDark: false }
+            ];
+            const [activeCompass, setActiveCompass] = useState(0);
+            const ct = compassThemes[activeCompass];
+
             useEffect(() => {
                 const handler = (e) => setHeading(e.webkitCompassHeading || Math.abs(e.alpha - 360) || 0); 
                 window.addEventListener('deviceorientation', handler, true); 
@@ -1455,34 +1583,104 @@
             }, [userLoc]);
 
             return (
-                <div className="px-5 pt-8 pb-10 animate-in fade-in h-[100dvh] bg-transparent relative z-10">
-                    <div className="flex items-center gap-3 mb-6">
-                        <button onClick={()=>nav('home')} className="p-2.5 rounded-[14px] bg-white shadow-sm hover:shadow-md transition-shadow active:scale-95"><ArrowLeft size={20} className="text-slate-600" /></button>
-                        <h1 className="text-2xl font-black text-slate-800 tracking-tight">Arah Kiblat</h1>
+                <div className="animate-in fade-in h-[100dvh] flex flex-col bg-transparent relative z-10 overflow-hidden">
+                    <div className="bg-white/90 backdrop-blur-md px-5 py-4 flex items-center gap-3 shadow-sm z-30">
+                        <button onClick={()=>nav('home')} className="p-2.5 rounded-[14px] bg-white shadow-sm hover:shadow-md transition-shadow active:scale-95 border border-slate-100"><ArrowLeft size={20} className="text-slate-600" /></button>
+                        <h1 className="text-xl font-black text-slate-800 tracking-tight">Kiblat</h1>
                     </div>
                     
-                    <div className="relative flex justify-center items-center w-64 h-64 mx-auto mb-10 mt-10">
-                        <div className="absolute inset-0 rounded-full border-[8px] border-white shadow-xl flex items-center justify-center transition-transform duration-100 bg-[#F8FAFC]" style={{ transform: `rotate(${-heading}deg)` }}>
-                            <span className="absolute top-4 font-bold text-slate-400 text-sm">S</span><span className="absolute bottom-4 font-black text-sm" style={{ color: theme.hex }}>N</span><span className="absolute right-4 font-bold text-slate-400 text-sm">W</span><span className="absolute left-4 font-bold text-slate-400 text-sm">E</span>
-                            <div className="absolute inset-2 rounded-full border border-dashed border-slate-300"></div>
-                        </div>
-                        <div className="w-4 h-4 bg-amber-500 rounded-full z-10 shadow-md ring-2 ring-white"></div>
-                        <div className="absolute inset-0 transition-transform duration-100 z-10 flex justify-center" style={{ transform: `rotate(${qiblaInfo.dir - heading}deg)` }}>
-                            <div className="mt-8">
-                                <div className="w-12 h-12 rounded-full flex items-center justify-center shadow-lg" style={{ backgroundColor: theme.light }}>
-                                    <div className="w-6 h-7 bg-slate-900 rounded-[2px] border border-amber-400 flex items-center"><div className="w-full h-[2px] bg-amber-400 mt-1"></div></div>
+                    <div className="flex-1 flex flex-col relative pb-20 pt-6">
+                        <div className="relative flex justify-center items-center w-64 h-64 mx-auto mt-4 mb-8">
+                            <div className={`absolute inset-0 rounded-full border-[8px] shadow-xl flex items-center justify-center transition-all duration-300 ${ct.bg} ${ct.border}`} style={{ transform: `rotate(${-heading}deg)` }}>
+                                <span className={`absolute top-4 font-bold text-sm ${ct.textOther}`}>S</span>
+                                <span className={`absolute bottom-4 font-black text-sm ${ct.textN}`}>N</span>
+                                <span className={`absolute right-4 font-bold text-sm ${ct.textOther}`}>W</span>
+                                <span className={`absolute left-4 font-bold text-sm ${ct.textOther}`}>E</span>
+                                <div className={`absolute inset-2 rounded-full border border-dashed ${ct.isDark ? 'border-white/20' : 'border-black/10'}`}></div>
+                                {ct.id === 'zamrud' && (
+                                    <div className="absolute inset-8 rounded-full border-2 border-[#449176] opacity-30"></div>
+                                )}
+                            </div>
+                            
+                            <div className="w-5 h-5 bg-white rounded-full z-10 shadow-md ring-4 ring-slate-200"></div>
+                            
+                            <div className="absolute inset-0 transition-transform duration-100 z-10 flex justify-center" style={{ transform: `rotate(${qiblaInfo.dir - heading}deg)` }}>
+                                <div className="mt-6">
+                                    <div className="w-12 h-12 rounded-full flex items-center justify-center shadow-lg bg-white/80 backdrop-blur-md border border-slate-100">
+                                        <div className={`w-6 h-7 rounded-sm flex items-center justify-center overflow-hidden ${ct.needleColor}`}>
+                                            <div className="w-[2px] h-full bg-black/20"></div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div className="grid grid-cols-2 gap-3 mt-20">
-                        <div className="col-span-2 bg-white p-4 rounded-[20px] shadow-sm border border-slate-100">
-                            <p className="text-[10px] font-bold mb-1 flex items-center gap-1" style={{ color: theme.hex }}><MapPin size={12}/> Lokasi Anda</p>
-                            <p className="text-sm font-bold text-slate-800">{userLoc.name}</p>
+                        <div className="mx-auto flex gap-3 p-2 bg-white/80 backdrop-blur-md rounded-full shadow-sm border border-slate-100 mb-8">
+                            {compassThemes.map((t, i) => (
+                                <button key={i} onClick={() => setActiveCompass(i)} className={`w-10 h-10 rounded-full border-2 transition-all ${activeCompass === i ? 'border-blue-500 scale-110 shadow-md' : 'border-transparent opacity-70'} ${t.bg}`}></button>
+                            ))}
                         </div>
-                        <div className="bg-white p-4 rounded-[20px] shadow-sm border border-slate-100"><p className="text-[10px] font-bold mb-1" style={{ color: theme.hex }}>Arah Kiblat</p><p className="text-lg font-black text-slate-800">{qiblaInfo.dir.toFixed(1)}°</p></div>
-                        <div className="bg-white p-4 rounded-[20px] shadow-sm border border-slate-100"><p className="text-[10px] font-bold text-amber-500 mb-1">Jarak Ka'bah</p><p className="text-lg font-black text-slate-800">{qiblaInfo.dist.toFixed(1)} km</p></div>
+
+                        <div className="px-5 grid grid-cols-2 gap-3 mt-auto mb-4">
+                            <div className="col-span-2 bg-white p-4 rounded-[20px] shadow-sm border border-slate-100 flex items-center justify-between">
+                                <div>
+                                    <p className="text-[10px] font-bold mb-1 flex items-center gap-1" style={{ color: theme.hex }}><MapPin size={12}/> Lokasi Anda</p>
+                                    <p className="text-sm font-bold text-slate-800">{userLoc.name}</p>
+                                </div>
+                                <button onClick={() => window.location.reload()} className="p-2 bg-slate-50 text-slate-400 rounded-full active:scale-95"><RefreshCw size={14}/></button>
+                            </div>
+                            <div className="bg-white p-4 rounded-[20px] shadow-sm border border-slate-100"><p className="text-[10px] font-bold mb-1" style={{ color: theme.hex }}>Arah Kiblat</p><p className="text-lg font-black text-slate-800">{qiblaInfo.dir.toFixed(1)}°</p></div>
+                            <div className="bg-white p-4 rounded-[20px] shadow-sm border border-slate-100"><p className="text-[10px] font-bold text-amber-500 mb-1">Jarak Ka'bah</p><p className="text-lg font-black text-slate-800">{qiblaInfo.dist.toFixed(1)} km</p></div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        function BookmarkView({ nav, theme }) {
+            const [bookmarks, setBookmarks] = useState([
+                { id: 1, surahId: 36, name: 'Ya Sin', desc: 'Jantung Al-Quran', isPinned: true }, 
+                { id: 2, surahId: 114, name: 'An-Nas', desc: 'Sering dibaca', isPinned: false },
+                { id: 3, surahId: 18, name: 'Al-Kahf', desc: 'Sunnah Jumat', isPinned: false }
+            ]);
+            
+            const togglePin = (id) => {
+                setBookmarks(prev => {
+                    const next = prev.map(b => b.id === id ? { ...b, isPinned: !b.isPinned } : b);
+                    return next.sort((a, b) => (a.isPinned === b.isPinned) ? 0 : a.isPinned ? -1 : 1);
+                });
+            };
+
+            const deleteBookmark = (id) => {
+                setBookmarks(prev => prev.filter(b => b.id !== id));
+            };
+
+            return (
+                <div className="animate-in slide-in-from-right-4 h-[100dvh] flex flex-col bg-transparent relative z-10 overflow-hidden">
+                    <div className="bg-white/90 backdrop-blur-md px-5 py-4 flex items-center shadow-sm z-30">
+                        <button onClick={() => nav('home')} className="p-2 rounded-[14px] bg-slate-100 mr-3 active:scale-95 transition-transform"><ArrowLeft size={18} className="text-slate-600" /></button>
+                        <h1 className="text-[15px] font-black text-slate-800">Bookmark Saya</h1>
+                    </div>
+                    <div className="flex-1 overflow-y-auto p-4 space-y-3 pb-[100px]">
+                        {bookmarks.length === 0 ? (
+                            <div className="text-center p-10 opacity-50"><Bookmark size={40} className="mx-auto mb-3 text-slate-400"/><p className="text-xs font-bold uppercase tracking-widest">Kosong</p></div>
+                        ) : (
+                            bookmarks.map((b) => (
+                                <div key={b.id} onClick={() => nav('quran', { surahId: b.surahId })} className={`bg-white p-4 rounded-[20px] shadow-sm flex flex-col gap-3 cursor-pointer active:scale-95 border hover:border-slate-300 transition-all ${b.isPinned ? 'border-amber-300' : 'border-slate-100'}`}>
+                                    <div className="flex justify-between items-center w-full">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-[14px] flex items-center justify-center" style={{ backgroundColor: theme.light, color: theme.hex }}><Bookmark size={18} /></div>
+                                            <div><h3 className="font-bold text-[13px] text-slate-800 flex items-center gap-1">Surah {b.name} {b.isPinned && <Pin size={10} className="text-amber-500 fill-amber-500" />}</h3><p className="text-[10px] text-slate-500 font-medium">{b.desc}</p></div>
+                                        </div>
+                                        <div className="text-[9px] font-bold text-blue-500 flex items-center gap-1 bg-blue-50 px-2.5 py-1.5 rounded-[10px]">Buka <ChevronRight size={12}/></div>
+                                    </div>
+                                    <div className="flex gap-2 w-full justify-end border-t border-slate-50 pt-3">
+                                        <button onClick={(e) => { e.stopPropagation(); togglePin(b.id); }} className={`px-4 py-1.5 rounded-[10px] flex items-center gap-1.5 font-bold text-[10px] transition-all border ${b.isPinned ? 'bg-amber-50 text-amber-600 border-amber-200' : 'bg-slate-50 text-slate-500 border-slate-100'}`}><Pin size={12} className={b.isPinned ? 'fill-amber-500' : ''} /> {b.isPinned ? 'Unpin' : 'Pin'}</button>
+                                        <button onClick={(e) => { e.stopPropagation(); deleteBookmark(b.id); }} className="px-4 py-1.5 rounded-[10px] flex items-center gap-1.5 font-bold text-[10px] transition-all border bg-slate-50 text-red-500 hover:bg-red-50 border-slate-100"><Trash2 size={12} /> Hapus</button>
+                                    </div>
+                                </div>
+                            ))
+                        )}
                     </div>
                 </div>
             );
@@ -1536,88 +1734,33 @@
             );
         }
 
-        function BookmarkView({ nav, theme }) {
-            // Simulasi State Bookmark dengan Pin
-            const [bookmarks, setBookmarks] = useState([
-                { id: 1, surahId: 36, name: 'Ya Sin', desc: 'Jantung Al-Quran', isPinned: true }, 
-                { id: 2, surahId: 114, name: 'An-Nas', desc: 'Sering dibaca', isPinned: false },
-                { id: 3, surahId: 18, name: 'Al-Kahf', desc: 'Sunnah Jumat', isPinned: false }
-            ]);
-            
-            const togglePin = (id) => {
-                setBookmarks(prev => {
-                    const next = prev.map(b => b.id === id ? { ...b, isPinned: !b.isPinned } : b);
-                    return next.sort((a, b) => (a.isPinned === b.isPinned) ? 0 : a.isPinned ? -1 : 1);
-                });
-            };
-
-            const deleteBookmark = (id) => {
-                setBookmarks(prev => prev.filter(b => b.id !== id));
-            };
-
-            return (
-                <div className="pb-10 animate-in slide-in-from-right-4 h-[100dvh] bg-transparent relative z-10">
-                    <div className="bg-white/90 backdrop-blur-md px-5 py-4 flex items-center shadow-sm z-30 sticky top-0"><button onClick={() => nav('home')} className="p-2 rounded-[14px] bg-slate-100 mr-3 active:scale-95 transition-transform"><ArrowLeft size={18} className="text-slate-600" /></button><h1 className="text-[15px] font-black text-slate-800">Bookmark Saya</h1></div>
-                    <div className="p-4 space-y-3 relative z-10">
-                        {bookmarks.length === 0 ? (
-                            <div className="text-center p-10 opacity-50"><Bookmark size={40} className="mx-auto mb-3"/><p className="text-xs font-bold uppercase tracking-widest">Kosong</p></div>
-                        ) : (
-                            bookmarks.map((b) => (
-                                <div key={b.id} onClick={() => nav('quran', { surahId: b.surahId })} className={`bg-white p-4 rounded-[20px] shadow-sm flex flex-col gap-3 cursor-pointer active:scale-95 border hover:border-slate-300 transition-all ${b.isPinned ? 'border-amber-300' : 'border-slate-100'}`}>
-                                    <div className="flex justify-between items-center w-full">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-[14px] flex items-center justify-center" style={{ backgroundColor: theme.light, color: theme.hex }}><Bookmark size={18} /></div>
-                                            <div><h3 className="font-bold text-[13px] text-slate-800 flex items-center gap-1">Surah {b.name} {b.isPinned && <Pin size={10} className="text-amber-500 fill-amber-500" />}</h3><p className="text-[10px] text-slate-500 font-medium">{b.desc}</p></div>
-                                        </div>
-                                        <div className="text-[9px] font-bold text-blue-500 flex items-center gap-1 bg-blue-50 px-2.5 py-1.5 rounded-[10px]">Buka <ChevronRight size={12}/></div>
-                                    </div>
-                                    <div className="flex gap-2 w-full justify-end border-t border-slate-50 pt-3">
-                                        <button onClick={(e) => { e.stopPropagation(); togglePin(b.id); }} className={`px-4 py-1.5 rounded-[10px] flex items-center gap-1.5 font-bold text-[10px] transition-all border ${b.isPinned ? 'bg-amber-50 text-amber-600 border-amber-200' : 'bg-slate-50 text-slate-500 border-slate-100'}`}><Pin size={12} className={b.isPinned ? 'fill-amber-500' : ''} /> {b.isPinned ? 'Unpin' : 'Pin'}</button>
-                                        <button onClick={(e) => { e.stopPropagation(); deleteBookmark(b.id); }} className="px-4 py-1.5 rounded-[10px] flex items-center gap-1.5 font-bold text-[10px] transition-all border bg-slate-50 text-red-500 hover:bg-red-50 border-slate-100"><Trash2 size={12} /> Hapus</button>
-                                    </div>
-                                </div>
-                            ))
-                        )}
-                    </div>
-                </div>
-            );
-        }
-
-        function MaktabahView({ nav, theme }) {
-            const pdfUrl = "https://raw.githubusercontent.com/nashrulaziz7/quran-data/main/Terjemah%20Tafsir%20Jalalain%2030%20Juz.pdf";
-            const viewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(pdfUrl)}&embedded=true`;
-            return (
-                <div className="animate-in fade-in h-[100dvh] flex flex-col bg-transparent relative z-10">
-                    <div className="bg-white/90 backdrop-blur-md px-5 py-4 flex items-center justify-between shadow-sm z-30">
-                        <div className="flex items-center">
-                            <button onClick={() => nav('home')} className="p-2 rounded-[14px] bg-slate-100 mr-3 active:scale-95 transition-transform hover:bg-slate-200"><ArrowLeft size={18} className="text-slate-600" /></button>
-                            <div><h1 className="text-[15px] font-black text-slate-800 tracking-tight">Maktabah</h1><p className="text-[10px] font-bold" style={{ color: theme.hex }}>Tafsir Jalalain 30 Juz</p></div>
-                        </div>
-                        <a href={pdfUrl} target="_blank" rel="noreferrer" className="p-2 bg-slate-100 rounded-[14px] text-slate-600 active:scale-95 transition-transform hover:bg-slate-200 shadow-sm"><Download size={18} /></a>
-                    </div>
-                    <div className="flex-1 w-full bg-slate-200 relative z-10"><iframe src={viewerUrl} className="w-full h-full border-none" title="Tafsir Jalalain PDF Reader" /></div>
-                </div>
-            );
-        }
-
-        function SettingsView({ nav, theme, setTheme }) {
+        function SettingsView({ nav, theme, setTheme, globalTajwid, setGlobalTajwid, globalLatin, setGlobalLatin, globalTrans, setGlobalTrans, globalFontSize, setGlobalFontSize, appQari, setAppQari, appFont, setAppFont, notif10Min, setNotif10Min, adzanAlarms, setAdzanAlarms, adzanSoundUrl, setAdzanSoundUrl, prayerTimes }) {
             const Section = ({ title, icon, children }) => (
                 <div className="mb-6 relative z-10">
                     <h3 className="text-[13px] font-bold text-slate-700 flex items-center gap-2 mb-3 px-1"><span style={{ color: theme.hex }}>{icon}</span> {title}</h3>
-                    <div className="bg-white rounded-[20px] p-2 shadow-sm border border-slate-100">{children}</div>
+                    <div className="bg-white rounded-[20px] p-4 shadow-sm border border-slate-100">{children}</div>
                 </div>
             );
+
+            const ADZAN_SOUNDS = [
+                { id: 'makkah', name: 'Adzan Makkah', url: 'https://www.islamcan.com/audio/adhan/azan2.mp3' },
+                { id: 'madinah', name: 'Adzan Madinah', url: 'https://www.islamcan.com/audio/adhan/azan1.mp3' },
+                { id: 'alaqsa', name: 'Adzan Al-Aqsa', url: 'https://www.islamcan.com/audio/adhan/azan3.mp3' },
+                { id: 'mesir', name: 'Adzan Mesir', url: 'https://www.islamcan.com/audio/adhan/azan4.mp3' },
+                { id: 'custom', name: 'Custom (URL Sendiri)...', url: 'custom' }
+            ];
+            const isCustomAudio = !ADZAN_SOUNDS.some(s => s.url === adzanSoundUrl && s.id !== 'custom');
 
             return (
                 <div className="pb-10 animate-in slide-in-from-right-4 bg-transparent relative z-10">
                     <div className="sticky top-0 bg-white/90 backdrop-blur-md px-5 pt-8 pb-4 flex items-center z-30 shadow-sm border-b border-slate-100">
                         <button onClick={() => nav('home')} className="p-2 rounded-[14px] bg-slate-800 text-white mr-4 active:scale-95 hover:bg-slate-900 transition-colors"><ArrowLeft size={18} /></button>
-                        <h1 className="text-[18px] font-black text-slate-800 tracking-tight flex items-center gap-2"><Settings size={22} style={{ color: theme.hex }} /> Pengaturan</h1>
+                        <h1 className="text-[18px] font-black text-slate-800 tracking-tight flex items-center gap-2"><Settings size={22} style={{ color: theme.hex }} /> Pengaturan Global</h1>
                     </div>
                     <div className="p-5 relative z-10">
+                        
                         <Section title="Tampilan & Tema Warna" icon={<Palette size={18}/>}>
-                            <p className="text-[10px] font-bold text-slate-400 mb-2 px-2 uppercase mt-2">Warna Aplikasi</p>
-                            <div className="flex justify-between px-2 pb-2">
+                            <div className="flex justify-between pb-2 mt-2">
                                 {Object.values(THEMES).map(t => (
                                     <button key={t.id} onClick={() => setTheme(t)} className="flex flex-col items-center gap-1 group">
                                         <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${theme.id === t.id ? 'ring-2 ring-offset-2 scale-110 shadow-md' : 'border border-slate-200 group-hover:scale-105'}`} style={{ backgroundColor: t.hex, ringColor: t.hex }}>
@@ -1628,12 +1771,95 @@
                                 ))}
                             </div>
                         </Section>
+
+                        <Section title="Notifikasi & Alarm Adzan" icon={<Clock size={18}/>}>
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-[12px] font-bold text-slate-700 w-2/3">Notifikasi Peringatan 10 Menit Sebelum Shalat</span>
+                                    <button onClick={() => setNotif10Min(!notif10Min)} className={`w-12 h-6 rounded-full flex items-center p-1 transition-all ${notif10Min ? 'bg-green-500 justify-end' : 'bg-slate-300 justify-start'}`}><div className="w-4 h-4 bg-white rounded-full shadow-sm"></div></button>
+                                </div>
+                                
+                                <div className="border-t border-slate-100 pt-4 mt-2">
+                                    <span className="text-[12px] font-bold text-slate-700 block mb-3">On/Off Alarm per Waktu Shalat</span>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        {prayerTimes && prayerTimes.map(p => (
+                                            <div key={p.id} className="flex items-center justify-between bg-slate-50 p-2 rounded-[12px] border border-slate-100">
+                                                <span className="text-[11px] font-bold text-slate-600 flex items-center gap-1.5">{p.icon} {p.label}</span>
+                                                <button onClick={() => setAdzanAlarms({...adzanAlarms, [p.id]: !adzanAlarms[p.id]})} className={`w-10 h-5 rounded-full flex items-center p-1 transition-all ${adzanAlarms[p.id] ? 'bg-green-500 justify-end' : 'bg-slate-300 justify-start'}`}><div className="w-3 h-3 bg-white rounded-full shadow-sm"></div></button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="border-t border-slate-100 pt-4 mt-2">
+                                    <span className="text-[12px] font-bold text-slate-700 block mb-2">Suara Adzan</span>
+                                    <div className="relative bg-slate-50 rounded-[14px] shadow-inner overflow-hidden flex items-center border border-slate-200 mb-2">
+                                        <select 
+                                            value={isCustomAudio ? 'custom' : adzanSoundUrl} 
+                                            onChange={e => {
+                                                if(e.target.value === 'custom') { setAdzanSoundUrl(''); } 
+                                                else { setAdzanSoundUrl(e.target.value); }
+                                            }} 
+                                            className="w-full bg-transparent px-3 py-3 text-[12px] font-bold text-slate-700 outline-none truncate border-0 appearance-none cursor-pointer relative z-10"
+                                        >
+                                            {ADZAN_SOUNDS.map(s => <option key={s.id} value={s.url}>{s.name}</option>)}
+                                        </select>
+                                        <ChevronDown size={14} className="absolute right-4 text-slate-400 pointer-events-none" />
+                                    </div>
+                                    {isCustomAudio && (
+                                        <input type="text" placeholder="Masukkan URL audio mp3 adzan..." value={adzanSoundUrl} onChange={e => setAdzanSoundUrl(e.target.value)} className="w-full bg-white border border-slate-200 px-3 py-2.5 rounded-[12px] text-[11px] font-medium focus:outline-none focus:ring-1 focus:ring-blue-500 mb-2" />
+                                    )}
+                                    <button onClick={() => { const testAudio = new Audio(adzanSoundUrl); testAudio.play(); setTimeout(()=>testAudio.pause(), 7000); }} className="px-3 py-1.5 bg-slate-100 rounded-[10px] text-[10px] text-blue-600 font-bold flex items-center gap-1.5 active:scale-95"><Play size={12}/> Test Suara</button>
+                                </div>
+                            </div>
+                        </Section>
+                        
+                        <Section title="Pengaturan Al-Quran" icon={<BookOpen size={18}/>}>
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-[12px] font-bold text-slate-700">Warna Tajwid</span>
+                                    <button onClick={() => setGlobalTajwid(!globalTajwid)} className={`w-12 h-6 rounded-full flex items-center p-1 transition-all ${globalTajwid ? 'bg-green-500 justify-end' : 'bg-slate-300 justify-start'}`}><div className="w-4 h-4 bg-white rounded-full shadow-sm"></div></button>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-[12px] font-bold text-slate-700">Teks Latin</span>
+                                    <button onClick={() => setGlobalLatin(!globalLatin)} className={`w-12 h-6 rounded-full flex items-center p-1 transition-all ${globalLatin ? 'bg-green-500 justify-end' : 'bg-slate-300 justify-start'}`}><div className="w-4 h-4 bg-white rounded-full shadow-sm"></div></button>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-[12px] font-bold text-slate-700">Terjemahan</span>
+                                    <button onClick={() => setGlobalTrans(!globalTrans)} className={`w-12 h-6 rounded-full flex items-center p-1 transition-all ${globalTrans ? 'bg-green-500 justify-end' : 'bg-slate-300 justify-start'}`}><div className="w-4 h-4 bg-white rounded-full shadow-sm"></div></button>
+                                </div>
+                                
+                                <div className="border-t border-slate-100 pt-4 mt-2">
+                                    <span className="text-[12px] font-bold text-slate-700 block mb-2">Ukuran Font Arab: {globalFontSize}px</span>
+                                    <input type="range" min="20" max="48" value={globalFontSize} onChange={(e) => setGlobalFontSize(Number(e.target.value))} className="w-full accent-green-500" />
+                                </div>
+                                
+                                <div className="border-t border-slate-100 pt-4 mt-2">
+                                    <span className="text-[12px] font-bold text-slate-700 block mb-2">Khat / Font Arab</span>
+                                    <div className="flex gap-2">
+                                        <button onClick={() => setAppFont('uthmani')} className={`flex-1 py-2 rounded-xl text-[11px] font-bold transition-all border ${appFont === 'uthmani' ? 'bg-slate-800 text-white border-slate-800' : 'bg-slate-50 text-slate-600 border-slate-200'}`}>Madinah</button>
+                                        <button onClick={() => setAppFont('kemenag')} className={`flex-1 py-2 rounded-xl text-[11px] font-bold transition-all border ${appFont === 'kemenag' ? 'bg-slate-800 text-white border-slate-800' : 'bg-slate-50 text-slate-600 border-slate-200'}`}>Kemenag</button>
+                                    </div>
+                                </div>
+                                
+                                <div className="border-t border-slate-100 pt-4 mt-2">
+                                    <span className="text-[12px] font-bold text-slate-700 block mb-2">Suara Qari Default</span>
+                                    <div className="relative bg-slate-50 rounded-[14px] shadow-inner overflow-hidden flex items-center border border-slate-200">
+                                        <select value={appQari} onChange={e => setAppQari(e.target.value)} className="w-full bg-transparent px-3 py-3 text-[12px] font-bold text-slate-700 outline-none truncate border-0 appearance-none cursor-pointer relative z-10">
+                                            {QARI_LIST.map(q => <option key={q.id} value={q.id}>{q.name}</option>)}
+                                        </select>
+                                        <ChevronDown size={14} className="absolute right-4 text-slate-400 pointer-events-none" />
+                                    </div>
+                                </div>
+                            </div>
+                        </Section>
+
                         <Section title="Tentang" icon={<Info size={18}/>}>
-                            <div className="p-3 text-center">
+                            <div className="p-1 text-center">
                                 <div className="w-12 h-12 rounded-[16px] mx-auto flex items-center justify-center mb-2 shadow-sm" style={{ backgroundColor: theme.light, color: theme.hex }}><BookOpen size={24} /></div>
                                 <h4 className="font-black text-slate-800 text-sm">Al Kautsar Islamic</h4>
-                                <p className="text-[9px] text-slate-400 font-bold mb-3">Versi 17.0 (Premium UI/UX)</p>
-                                <p className="text-[10px] text-slate-500 leading-relaxed font-medium mb-4 text-justify">Aplikasi resmi SDIT Muhammadiyah Al Kautsar. Dilengkapi teknologi Memory Cache Instan, Al-Quran digital tajwid cerdas bersuara, Dzikir Dinamis, Arah Kiblat Real-time, dan Doa HPT komplit bebas error.</p>
+                                <p className="text-[9px] text-slate-400 font-bold mb-3">Versi 19.0 (Masterpiece Edition)</p>
+                                <p className="text-[10px] text-slate-500 leading-relaxed font-medium text-justify">Aplikasi resmi SDIT Muhammadiyah Al Kautsar. Dilengkapi teknologi Memory Cache Instan, Al-Quran digital tajwid cerdas bersuara, Dzikir Dinamis Parabola, Arah Kiblat Real-time tanpa scroll, Alarm Adzan, dan Doa HPT komplit.</p>
                             </div>
                         </Section>
                     </div>
