@@ -70,6 +70,27 @@
         .tajweed-madd-lazim-harfi { color: #7C3AED !important; font-weight: normal !important; } 
         .tajweed-madd-wajib { color: #6D28D9 !important; font-weight: normal !important; } 
         .tajweed-qalqalah { color: #EF4444 !important; font-weight: normal !important; } 
+        
+        @keyframes tap-ripple { 
+            0% { transform: translate(-50%, -50%) scale(0.2); opacity: 0.6; } 
+            100% { transform: translate(-50%, -50%) scale(4); opacity: 0; } 
+        }
+        .anim-ripple { animation: tap-ripple 0.6s ease-out forwards; }
+
+        /* Animasi Alam Realistis */
+        @keyframes float-clouds {
+            0% { transform: translateX(0) translateY(0); }
+            50% { transform: translateX(-20px) translateY(5px); }
+            100% { transform: translateX(0) translateY(0); }
+        }
+        @keyframes wave-motion {
+            0% { transform: translateX(0) translateY(0) scaleY(1); }
+            50% { transform: translateX(-15px) translateY(3px) scaleY(1.05); }
+            100% { transform: translateX(0) translateY(0) scaleY(1); }
+        }
+        .animate-clouds { animation: float-clouds 30s ease-in-out infinite; }
+        .animate-waves-1 { animation: wave-motion 5s ease-in-out infinite alternate; }
+        .animate-waves-2 { animation: wave-motion 7s ease-in-out infinite alternate-reverse; }
     </style>
 </head>
 <body class="bg-slate-200 flex justify-center">
@@ -157,13 +178,13 @@
         ];
 
         const QARI_LIST = [
+            { id: 'ayman', name: 'Syekh Ayman Suwaid (Tajwid)' },
+            { id: 'husari', name: 'Mahmud Kholil Al-Husari (Tartil)' },
             { id: 'alafasy', name: 'Mishary Rashid Alafasy' },
             { id: 'ghamdi', name: 'Saad Al-Ghamdi (Tenang)' },
             { id: 'shatri', name: 'Abu Bakr Ash-Shatri (Jiharkah)' },
             { id: 'qasim', name: 'Abdul Muhsin Al-Qasim (Tenang)' },
-            { id: 'rifai', name: 'Hani Ar-Rifai (Syahdu)' },
-            { id: 'husary', name: 'Mahmud Kholil Al-Husari (Tartil)' },
-            { id: 'ayman', name: 'Syekh Ayman Suwaid (Tajwid)' }
+            { id: 'rifai', name: 'Hani Ar-Rifai (Syahdu)' }
         ];
 
         const handleCopyText = (text) => {
@@ -173,18 +194,24 @@
             try { document.execCommand('copy'); } catch (err) {} document.body.removeChild(textArea);
         };
 
+        const cleanHtmlForCopy = (htmlString) => {
+            if (!htmlString) return '';
+            const tmp = document.createElement("div"); tmp.innerHTML = htmlString;
+            return tmp.textContent || tmp.innerText || "";
+        };
+
         const getAudioUrl = (qariId, surahNum, ayahNum) => {
             const pad = (n) => String(n).padStart(3, '0');
             const file = `${pad(surahNum)}${pad(ayahNum)}.mp3`;
             switch(qariId) {
+                case 'ayman': return `https://everyayah.com/data/Ayman_Sowaid_64kbps/${file}`;
+                case 'husari': return `https://everyayah.com/data/Husary_128kbps/${file}`;
                 case 'alafasy': return `https://everyayah.com/data/Alafasy_128kbps/${file}`;
                 case 'ghamdi': return `https://everyayah.com/data/Ghamadi_40kbps/${file}`; 
                 case 'shatri': return `https://everyayah.com/data/Abu_Bakr_Ash-Shaatree_128kbps/${file}`;
                 case 'qasim': return `https://everyayah.com/data/Muhsin_Al_Qasim_192kbps/${file}`;
                 case 'rifai': return `https://everyayah.com/data/Hani_Rifai_192kbps/${file}`;
-                case 'husary': return `https://everyayah.com/data/Husary_128kbps/${file}`;
-                case 'ayman': return `https://everyayah.com/data/Ayman_Sowaid_64kbps/${file}`;
-                default: return `https://everyayah.com/data/Alafasy_128kbps/${file}`;
+                default: return `https://everyayah.com/data/Ayman_Sowaid_64kbps/${file}`;
             }
         };
 
@@ -206,13 +233,54 @@
         };
 
         const DOA_HPT = [
-            { category: 'shalat', id: 1, title: 'Doa Iftitah', ar: 'اللَّهُمَّ بَاعِدْ بَيْنِي وَبَيْنَ خَطَايَايَ، كَمَا بَاعَدْتَ بَيْنَ المَشْرِقِ وَالمَغْرِبِ...', tr: 'Ya Allah, jauhkanlah antara aku dan kesalahan-kesalahanku, sebagaimana Engkau menjauhkan timur dan barat...' },
-            { category: 'shalat', id: 2, title: 'Doa Ruku', ar: 'سُبْحَانَكَ اللَّهُمَّ رَبَّنَا وَبِحَمْدِكَ اللَّهُمَّ اغْفِرْ لِي', tr: 'Maha Suci Engkau Ya Allah, Tuhan kami, dan dengan memuji-Mu. Ya Allah, ampunilah aku.' },
-            { category: 'shalat', id: 3, title: 'Doa Sujud', ar: 'سُبْحَانَكَ اللَّهُمَّ رَبَّنَا وَبِحَمْدِكَ اللَّهُمَّ اغْفِرْ لِي', tr: 'Maha Suci Engkau Ya Allah, Tuhan kami, dan dengan memuji-Mu. Ya Allah, ampunilah aku.' },
-            { category: 'shalat', id: 4, title: 'Duduk Antara 2 Sujud', ar: 'اللَّهُمَّ اغْفِرْ لِي وَارْحَمْنِي وَاجْبُرْنِي وَاهْدِنِي وَارْزُقْنِي', tr: 'Ya Allah ampunilah aku, rahmatilah aku, cukupilah kekuranganku, berilah aku petunjuk, dan berilah aku rezeki.' },
-            { category: 'dzikir', id: 5, title: 'Dzikir Istighfar', ar: 'أَسْتَغْفِرُ اللَّهَ، أَسْتَغْفِرُ اللَّهَ، أَسْتَغْفِرُ اللَّهَ', tr: 'Aku memohon ampun kepada Allah (3x).' },
-            { category: 'harian', id: 6, title: 'Doa Keluar Rumah', ar: 'بِسْمِ اللَّهِ تَوَكَّلْتُ عَلَى اللَّهِ، لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ', tr: 'Dengan nama Allah, aku bertawakkal kepada-Nya, tidak ada daya dan kekuatan kecuali dengan-Nya.' },
-            { category: 'sunnah', id: 7, title: 'Doa Menjenguk Sakit', ar: 'لَا بَأْسَ طَهُورٌ إِنْ شَاءَ اللَّهُ', tr: 'Tidak mengapa, semoga sakitmu ini membersihkan dosamu, Insya Allah.' }
+            // BACAAN SHALAT HPT MUHAMMADIYAH KOMPLIT
+            { category: 'shalat', id: 101, title: 'Doa Iftitah', ar: 'اللَّهُمَّ بَاعِدْ بَيْنِي وَبَيْنَ خَطَايَايَ، كَمَا بَاعَدْتَ بَيْنَ المَشْرِقِ وَالمَغْرِبِ، اللَّهُمَّ نَقِّنِي مِنَ الْخَطَايَا كَمَا يُنَقَّى الثَّوْبُ الْأَبْيَضُ مِنَ الدَّنَسِ، اللَّهُمَّ اغْسِلْ خَطَايَايَ بِالْمَاءِ وَالثَّلْجِ وَالْبَرَدِ', tr: 'Ya Allah, jauhkanlah antara aku dan kesalahan-kesalahanku, sebagaimana Engkau menjauhkan antara timur dan barat. Ya Allah, bersihkanlah aku dari kesalahan sebagaimana pakaian putih dibersihkan dari kotoran. Ya Allah, cucilah kesalahan-kesalahanku dengan air, salju, dan embun.' },
+            { category: 'shalat', id: 102, title: 'Doa Ruku\'', ar: 'سُبْحَانَكَ اللَّهُمَّ رَبَّنَا وَبِحَمْدِكَ اللَّهُمَّ اغْفِرْ لِي', tr: 'Maha Suci Engkau Ya Allah, Tuhan kami, dan dengan memuji-Mu. Ya Allah, ampunilah aku.' },
+            { category: 'shalat', id: 103, title: 'Doa I\'tidal (Bangkit dari Ruku\')', ar: 'سَمِعَ اللَّهُ لِمَنْ حَمِدَهُ رَبَّنَا وَلَكَ الْحَمْدُ، حَمْدًا كَثِيرًا طَيِّبًا مُبَارَكًا فِيهِ', tr: 'Allah Maha Mendengar pujian orang yang memuji-Nya. Wahai Tuhan kami, bagi-Mu segala puji, aku memuji-Mu dengan pujian yang banyak, yang baik dan penuh berkah.' },
+            { category: 'shalat', id: 104, title: 'Doa Sujud', ar: 'سُبْحَانَكَ اللَّهُمَّ رَبَّنَا وَبِحَمْدِكَ اللَّهُمَّ اغْفِرْ لِي', tr: 'Maha Suci Engkau Ya Allah, Tuhan kami, dan dengan memuji-Mu. Ya Allah, ampunilah aku.' },
+            { category: 'shalat', id: 105, title: 'Duduk Di Antara 2 Sujud', ar: 'اللَّهُمَّ اغْفِرْ لِي، وَارْحَمْنِي، وَاجْبُرْنِي، وَاهْدِنِي، وَارْزُقْنِي', tr: 'Ya Allah ampunilah aku, rahmatilah aku, cukupilah kekuranganku, berilah aku petunjuk, dan berilah aku rezeki.' },
+            { category: 'shalat', id: 106, title: 'Tasyahud (Tahiyat)', ar: 'التَّحِيَّاتُ لِلَّهِ، وَالصَّلَوَاتُ، وَالطَّيِّبَاتُ، السَّلَامُ عَلَيْكَ أَيُّهَا النَّبِيُّ وَرَحْمَةُ اللَّهِ وَبَرَكَاتُهُ، السَّلَامُ عَلَيْنَا وَعَلَى عِبَادِ اللَّهِ الصَّالِحِينَ، أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا اللَّهُ، وَأَشْهَدُ أَنَّ مُحَمَّدًا عَبْدُهُ وَرَسُولُهُ', tr: 'Segala kehormatan, kebahagiaan, dan kebagusan adalah kepunyaan Allah. Semoga keselamatan bagi Engkau, ya Nabi Muhammad, beserta rahmat dan kebahagiaan Allah. Mudah-mudahan keselamatan juga bagi kita sekalian dan hamba-hamba Allah yang baik-baik. Aku bersaksi bahwa tiada Tuhan melainkan Allah dan aku bersaksi bahwa Muhammad itu hamba Allah dan utusan-Nya.' },
+            { category: 'shalat', id: 107, title: 'Shalawat Nabi', ar: 'اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ، وَعَلَى آلِ مُحَمَّدٍ، كَمَا صَلَّيْتَ عَلَى إِبْرَاهِيمَ، وَعَلَى آلِ إِبْرَاهِيمَ، وَبَارِكْ عَلَى مُحَمَّدٍ، وَعَلَى آلِ مُحَمَّدٍ، كَمَا بَارَكْتَ عَلَى إِبْرَاهِيمَ، وَعَلَى آلِ إِبْرَاهِيمَ، إِنَّكَ حَمِيدٌ مَجِيدٌ', tr: 'Ya Allah, limpahkanlah kemurahan-Mu kepada Muhammad dan keluarganya, sebagaimana Engkau telah melimpahkan kepada Ibrahim dan keluarganya. Ya Allah, limpahkanlah berkat-Mu kepada Muhammad dan keluarganya, sebagaimana Engkau telah melimpahkan kepada Ibrahim dan keluarganya. Sesungguhnya Engkau Maha Terpuji dan Maha Mulia.' },
+            { category: 'shalat', id: 108, title: 'Doa Sebelum Salam', ar: 'اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنْ عَذَابِ جَهَنَّمَ، وَمِنْ عَذَابِ الْقَبْرِ، وَمِنْ فِتْنَةِ الْمَحْيَا وَالْمَمَاتِ، وَمِنْ شَرِّ فِتْنَةِ الْمَسِيحِ الدَّجَّالِ', tr: 'Ya Allah, aku berlindung kepada-Mu dari siksa neraka Jahanam, siksa kubur, fitnah hidup dan mati, serta dari keburukan fitnah Dajal.' },
+            { category: 'shalat', id: 109, title: 'Salam', ar: 'السَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللَّهِ', tr: 'Semoga keselamatan dan rahmat Allah dilimpahkan kepadamu.' },
+            
+            // DZIKIR BA'DA SHALAT HPT MUHAMMADIYAH KOMPLIT
+            { category: 'dzikir', id: 201, title: '1. Istighfar (3x)', ar: 'أَسْتَغْفِرُ اللَّهَ', tr: 'Aku memohon ampun kepada Allah.' },
+            { category: 'dzikir', id: 202, title: '2. Doa Keselamatan', ar: 'اللَّهُمَّ أَنْتَ السَّلَامُ، وَمِنْكَ السَّلَامُ، تَبَارَكْتَ يَا ذَا الْجَلَالِ وَالْإِكْرَامِ', tr: 'Ya Allah, Engkau Mahasejahtera, dan dari-Mu kesejahteraan, Mahasuci Engkau, wahai Tuhan Pemilik keagungan dan kemuliaan.' },
+            { category: 'dzikir', id: 203, title: '3. Ketauhidan & Kepasrahan', ar: 'لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ. اللَّهُمَّ لَا مَانِعَ لِمَا أَعْطَيْتَ، وَلَا مُعْطِيَ لِمَا مَنَعْتَ، وَلَا يَنْفَعُ ذَا الْجَدِّ مِنْكَ الْجَدِّ', tr: 'Tiada tuhan selain Allah Yang Maha Esa, tiada sekutu bagi-Nya. Bagi-Nya kerajaan dan bagi-Nya segala puji. Dia Mahakuasa atas segala sesuatu. Ya Allah, tidak ada yang dapat mencegah apa yang Engkau berikan, tidak ada yang dapat memberikan apa yang Engkau cegah, dan tidak bermanfaat kekayaan bagi orang yang memilikinya (kecuali amal ketaatannya), hanya dari-Mu lah segala kekayaan.' },
+            { category: 'dzikir', id: 204, title: '4. Tasbih (33x)', ar: 'سُبْحَانَ اللَّهِ', tr: 'Maha Suci Allah.' },
+            { category: 'dzikir', id: 205, title: '5. Tahmid (33x)', ar: 'الْحَمْدُ لِلَّهِ', tr: 'Segala puji bagi Allah.' },
+            { category: 'dzikir', id: 206, title: '6. Takbir (33x)', ar: 'اللَّهُ أَكْبَرُ', tr: 'Allah Maha Besar.' },
+            { category: 'dzikir', id: 207, title: '7. Pelengkap ke-100', ar: 'لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ', tr: 'Tidak ada tuhan yang berhak disembah selain Allah semata, tidak ada sekutu bagi-Nya. Milik-Nya segala kerajaan dan milik-Nya segala pujian. Dan Dia Mahakuasa atas segala sesuatu.' },
+            { category: 'dzikir', id: 208, title: '8. Ayat Kursi & Ayat 256', ar: 'اللَّهُ لَا إِلَهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ ۚ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ ۚ لَّهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ ۗ مَنْ ذَا الَّذِي يَشْفَعُ عِنْدَهُ إِلَّا بِإِذْنِهِ ۚ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ ۖ وَلَا يُحِيطُونَ بِشَيْءٍ مِنْ عِلْمِهِ إِلَّا بِمَا شَاءَ ۚ وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ ۖ وَلَا يَئُودُهُ حِفْظُهُمَا ۚ وَهُوَ الْعَلِيُّ الْعَظِيمُ ۝٢٥٥ لَا إِكْرَاهَ فِي الدِّينِ ۖ قَدْ تَبَيَّنَ الرُّشْدُ مِنَ الْغَيِّ ۚ فَمَنْ يَكْفُرْ بِالطَّاغُوتِ وَيُؤْمِنْ بِاللَّهِ فَقَدِ اسْتَمْسَكَ بِالْعُرْوَةِ الْوُثْقَىٰ لَا انْفِصَامَ لَهَا ۗ وَاللَّهُ سَمِيعٌ عَلِيمٌ ۝٢٥٦', tr: 'Allah, tidak ada tuhan selain Dia. Yang Mahahidup, Yang terus menerus mengurus (makhluk-Nya), tidak mengantuk dan tidak tidur. Milik-Nya apa yang ada di langit dan apa yang ada di bumi. Tidak ada yang dapat memberi syafaat di sisi-Nya tanpa izin-Nya. Dia mengetahui apa yang di hadapan mereka dan apa yang di belakang mereka, dan mereka tidak mengetahui sesuatu apa pun tentang ilmu-Nya melainkan apa yang Dia kehendaki. Kursi-Nya meliputi langit dan bumi. Dan Dia tidak merasa berat memelihara keduanya, dan Dia Mahatinggi, Mahabesar. (255) Tidak ada paksaan dalam (menganut) agama (Islam), sesungguhnya telah jelas (perbedaan) antara jalan yang benar dengan jalan yang sesat. Barang siapa ingkar kepada Tagut dan beriman kepada Allah, maka sungguh, dia telah berpegang (teguh) pada tali yang sangat kuat yang tidak akan putus. Allah Maha Mendengar, Maha Mengetahui. (256)' },
+            { category: 'dzikir', id: 209, title: '9. Surah Al-Ikhlas', ar: 'قُلْ هُوَ اللَّهُ أَحَدٌ. اللَّهُ الصَّمَدُ. لَمْ يَلِدْ وَلَمْ يُولَدْ. وَلَمْ يَكُنْ لَهُ كُفُوًا أَحَدٌ', tr: 'Katakanlah (Muhammad), "Dialah Allah, Yang Maha Esa. Allah tempat meminta segala sesuatu. (Allah) tidak beranak dan tidak pula diperanakkan. Dan tidak ada sesuatu yang setara dengan Dia."' },
+            { category: 'dzikir', id: 210, title: '10. Surah Al-Falaq', ar: 'قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ. مِنْ شَرِّ مَا خَلَقَ. وَمِنْ شَرِّ غَاسِقٍ إِذَا وَقَبَ. وَمِنْ شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ. وَمِنْ شَرِّ حَاسِدٍ إِذَا حَسَدَ', tr: 'Katakanlah, "Aku berlindung kepada Tuhan yang menguasai subuh (fajar), dari kejahatan (makhluk yang) Dia ciptakan, dan dari kejahatan malam apabila telah gelap gulita, dan dari kejahatan (perempuan-perempuan) penyihir yang meniup pada buhul-buhul (talinya), dan dari kejahatan orang yang dengki apabila dia dengki."' },
+            { category: 'dzikir', id: 211, title: '11. Surah An-Nas', ar: 'قُلْ أَعُوذُ بِرَبِّ النَّاسِ. مَلِكِ النَّاسِ. إِلَهِ النَّاسِ. مِنْ شَرِّ الْوَسْوَاسِ الْخَنَّاسِ. الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ. مِنَ الْجِنَّةِ وَالنَّاسِ', tr: 'Katakanlah, "Aku berlindung kepada Tuhannya manusia, Raja manusia, sembahan manusia, dari kejahatan (bisikan) setan yang bersembunyi, yang membisikkan (kejahatan) ke dalam dada manusia, dari (golongan) jin dan manusia."' },
+            
+            // DOA HARIAN LENGKAP (STANDAR PENDIDIKAN SD MUHAMMADIYAH)
+            { category: 'harian', id: 301, title: 'Doa Sebelum Belajar', ar: 'رَضِيتُ بِاللَّهِ رَبًّا، وَبِالْإِسْلَامِ دِينًا، وَبِمُحَمَّدٍ نَبِيًّا وَرَسُولًا. رَبِّ زِدْنِي عِلْمًا وَارْزُقْنِي فَهْمًا', tr: 'Aku rida Allah sebagai Tuhanku, Islam sebagai agamaku, dan Muhammad sebagai nabi dan rasulku. Ya Tuhanku, tambahkanlah kepadaku ilmu dan berikanlah aku karunia untuk memahaminya.' },
+            { category: 'harian', id: 302, title: 'Doa untuk Kedua Orang Tua', ar: 'رَبِّ اغْفِرْ لِي وَلِوَالِدَيَّ وَارْحَمْهُمَا كَمَا رَبَّيَانِي صَغِيرًا', tr: 'Ya Tuhanku, ampunilah aku dan kedua orang tuaku, dan sayangilah keduanya sebagaimana mereka menyayangiku di waktu kecil.' },
+            { category: 'harian', id: 303, title: 'Doa Sebelum Makan', ar: 'اللَّهُمَّ بَارِكْ لَنَا فِيمَا رَزَقْتَنَا وَقِنَا عَذَابَ النَّارِ', tr: 'Ya Allah, berkahilah kami dalam rezeki yang telah Engkau berikan kepada kami dan peliharalah kami dari siksa api neraka.' },
+            { category: 'harian', id: 304, title: 'Doa Setelah Makan', ar: 'الْحَمْدُ لِلَّهِ الَّذِي أَطْعَمَنَا وَسَقَانَا وَجَعَلَنَا مُسْلِمِينَ', tr: 'Segala puji bagi Allah yang telah memberi kami makan dan minum, serta menjadikan kami termasuk golongan orang-orang muslim.' },
+            { category: 'harian', id: 305, title: 'Doa Sebelum Tidur', ar: 'بِاسْمِكَ اللَّهُمَّ أَمُوتُ وَأَحْيَا', tr: 'Dengan nama-Mu ya Allah, aku mati dan aku hidup.' },
+            { category: 'harian', id: 306, title: 'Doa Bangun Tidur', ar: 'الْحَمْدُ لِلَّهِ الَّذِي أَحْيَانَا بَعْدَ مَا أَمَاتَنَا وَإِلَيْهِ النُّشُورُ', tr: 'Segala puji bagi Allah yang telah menghidupkan kami setelah mematikan kami, dan kepada-Nya lah kami dibangkitkan.' },
+            { category: 'harian', id: 307, title: 'Doa Masuk Kamar Mandi', ar: 'اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْخُبُثِ وَالْخَبَائِثِ', tr: 'Ya Allah, sesungguhnya aku berlindung kepada-Mu dari godaan setan laki-laki dan setan perempuan.' },
+            { category: 'harian', id: 308, title: 'Doa Keluar Kamar Mandi', ar: 'غُفْرَانَكَ', tr: 'Aku memohon ampunan-Mu.' },
+            { category: 'harian', id: 309, title: 'Doa Keluar Rumah', ar: 'بِسْمِ اللَّهِ تَوَكَّلْتُ عَلَى اللَّهِ، لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ', tr: 'Dengan nama Allah, aku bertawakkal kepada-Nya, tidak ada daya dan kekuatan kecuali dengan pertolongan Allah.' },
+            { category: 'harian', id: 310, title: 'Doa Naik Kendaraan', ar: 'سُبْحَانَ الَّذِي سَخَّرَ لَنَا هَذَا وَمَا كُنَّا لَهُ مُقْرِنِينَ، وَإِنَّا إِلَى رَبِّنَا لَمُنْقَلِبُونَ', tr: 'Maha Suci Allah yang telah menundukkan kendaraan ini bagi kami, padahal kami sebelumnya tidak mampu menguasainya. Dan sesungguhnya kepada Tuhan kami lah kami akan kembali.' },
+            { category: 'harian', id: 311, title: 'Doa Kebaikan Dunia Akhirat (Sapu Jagat)', ar: 'رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ', tr: 'Ya Tuhan kami, berilah kami kebaikan di dunia dan kebaikan di akhirat, dan peliharalah kami dari siksa api neraka.' },
+            
+            // AMALAN SUNNAH (DENGAN SUB-KATEGORI)
+            { category: 'sunnah', subCat: 'pagi_petang', id: 401, title: 'Sayyidul Istighfar', ar: 'اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ، أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ، أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَيَّ، وَأَبُوءُ بِذَنْبِي فَاغْفِرْ لِي فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ', tr: 'Ya Allah, Engkau adalah Tuhanku, tidak ada Tuhan yang berhak disembah selain Engkau. Engkau telah menciptakanku dan aku adalah hamba-Mu. Aku senantiasa berada dalam perjanjian dan janji-Mu semampuku. Aku berlindung kepada-Mu dari keburukan perbuatanku. Aku mengakui nikmat-Mu kepadaku dan aku mengakui dosaku, maka ampunilah aku. Sesungguhnya tidak ada yang dapat mengampuni dosa kecuali Engkau.' },
+            { category: 'sunnah', subCat: 'puasa', id: 402, title: 'Doa Berbuka Puasa', ar: 'ذَهَبَ الظَّمَأُ، وَابْتَلَّتِ الْعُرُوقُ، وَثَبَتَ الْأَجْرُ إِنْ شَاءَ اللَّهُ', tr: 'Telah hilang rasa haus, telah basah urat-urat, dan telah ditetapkan pahala, insya Allah.' },
+            { category: 'sunnah', subCat: 'shalat', id: 403, title: 'Dzikir Setelah Witir', ar: 'سُبْحَانَ الْمَلِكِ الْقُدُّوسِ', tr: 'Maha Suci Allah, Raja Yang Maha Suci. (Dibaca 3x, yang ketiga dipanjangkan dan dikeraskan suaranya)' },
+            { category: 'sunnah', subCat: 'shalat', id: 404, title: 'Doa Sujud Tilawah', ar: 'سَجَدَ وَجْهِي لِلَّذِي خَلَقَهُ، وَشَقَّ سَمْعَهُ وَبَصَرَهُ، بِحَوْلِهِ وَقُوَّتِهِ', tr: 'Telah sujud wajahku kepada Dzat yang menciptakannya, yang membukakan pendengaran dan penglihatannya dengan daya dan kekuatan-Nya.' },
+            { category: 'sunnah', subCat: 'sosial', id: 405, title: 'Doa Turun Hujan', ar: 'اللَّهُمَّ صَيِّبًا نَافِعًا', tr: 'Ya Allah, turunkanlah hujan yang bermanfaat.' },
+            { category: 'sunnah', subCat: 'sosial', id: 406, title: 'Doa Hujan Reda', ar: 'مُطِرْنَا بِفَضْلِ اللَّهِ وَرَحْمَتِهِ', tr: 'Kita diberi hujan karena karunia dan rahmat Allah.' },
+            { category: 'sunnah', subCat: 'sosial', id: 407, title: 'Doa Mendengar Petir', ar: 'سُبْحَانَ الَّذِي يُسَبِّحُ الرَّعْدُ بِحَمْدِهِ وَالْمَلَائِكَةُ مِنْ خِيفَتِهِ', tr: 'Maha Suci Allah yang petir bertasbih dengan memuji-Nya, begitu juga para malaikat karena takut kepada-Nya.' },
+            { category: 'sunnah', subCat: 'sosial', id: 408, title: 'Doa Menjenguk Sakit', ar: 'لَا بَأْسَ طَهُورٌ إِنْ شَاءَ اللَّهُ', tr: 'Tidak mengapa, semoga sakitmu ini membersihkan dosamu, Insya Allah.' },
+            { category: 'sunnah', subCat: 'sosial', id: 409, title: 'Ketika Bersin (Bagi yang bersin)', ar: 'الْحَمْدُ لِلَّهِ', tr: 'Segala puji bagi Allah.' },
+            { category: 'sunnah', subCat: 'sosial', id: 410, title: 'Menjawab Orang Bersin', ar: 'يَرْحَمُكَ اللَّهُ', tr: 'Semoga Allah merahmatimu. (Dijawab kembali oleh yang bersin: Yahdikumullahu wa yushlihu baalakum)' }
         ];
 
         function App() {
@@ -220,7 +288,7 @@
             const [navParams, setNavParams] = useState(null);
             
             const [appTheme, setAppTheme] = useState(THEMES.hijau); 
-            const [appQari, setAppQari] = useState('alafasy'); 
+            const [appQari, setAppQari] = useState('ayman'); 
             const [appFont, setAppFont] = useState('uthmani'); 
 
             // Loading 0 Detik dari Global Cache
@@ -233,18 +301,20 @@
                     let locName = 'Surakarta, Jawa Tengah';
                     try {
                         const resLoc = await fetchWithTimeout(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=id`, {}, 5000);
-                        if(resLoc.ok) {
+                        if(resLoc && resLoc.ok) {
                             const dataLoc = await resLoc.json();
                             locName = dataLoc.locality || dataLoc.city || dataLoc.principalSubdivision || 'Lokasi Anda';
-                        } else throw new Error();
+                        } else throw new Error('API BDC error');
                     } catch (e) { 
                         try {
                              const resNom = await fetchWithTimeout(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10`, { headers: { 'Accept-Language': 'id' } }, 5000);
-                             if(resNom.ok) {
+                             if(resNom && resNom.ok) {
                                  const dataNom = await resNom.json();
                                  locName = (dataNom.address && dataNom.address.city) || (dataNom.address && dataNom.address.county) || (dataNom.address && dataNom.address.state) || 'Lokasi Anda';
-                             }
-                        } catch (err) {}
+                             } else throw new Error('API Nom error');
+                        } catch (err) {
+                             locName = 'Lokasi Anda (Offline)';
+                        }
                     }
                     
                     const newLoc = { lat, lon, name: locName };
@@ -254,7 +324,7 @@
                     try {
                         const t = Math.floor(Date.now() / 1000);
                         const resP = await fetchWithTimeout(`https://api.aladhan.com/v1/timings/${t}?latitude=${lat}&longitude=${lon}&method=20`, {}, 5000);
-                        if (resP.ok) {
+                        if (resP && resP.ok) {
                             const dataP = await resP.json();
                             if (dataP && dataP.data && dataP.data.timings) {
                                 const pt = dataP.data.timings;
@@ -267,13 +337,15 @@
                                 window.AL_KAUTSAR_CACHE.prayerTimes = newTimes;
                             }
                         }
-                    } catch (e) {}
+                    } catch (e) {
+                         // Biarkan pakai data cache jika offline/timeout
+                    }
                 };
 
                 if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(
                         (pos) => fetchLocationData(pos.coords.latitude, pos.coords.longitude),
-                        () => fetchLocationData(-7.5666, 110.8166)
+                        () => fetchLocationData(-7.5666, 110.8166) // Default Solo
                     );
                 } else {
                     fetchLocationData(-7.5666, 110.8166);
@@ -285,7 +357,7 @@
             return (
                 <div className={`w-full max-w-[390px] h-[100dvh] bg-[#F8FAFC] flex flex-col relative overflow-hidden shadow-2xl ring-1 ring-white/50`}>
                     
-                    {/* Polkadot Global Raksasa & Fleksibel */}
+                    {/* Polkadot Global Raksasa & Fleksibel (Semua Halaman) */}
                     <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden mix-blend-multiply opacity-20">
                         <div className="polka-dot w-[45rem] h-[45rem] top-[-25%] left-[-30%]" style={{ animationDelay: '0s', backgroundColor: appTheme.hex }}></div>
                         <div className="polka-dot w-[35rem] h-[35rem] top-[40%] right-[-20%]" style={{ animationDelay: '5s', backgroundColor: appTheme.hex }}></div>
@@ -569,12 +641,13 @@
                 return () => { if (audioEl) { audioEl.removeEventListener('ended', handleAudioEnded); audioEl.pause(); } };
             }, [qari]);
 
+            // OPEN SURAH (SPEED EDITION)
             const openSurah = async (surah) => {
                 setActiveSurah(surah); 
                 setOpenedTafsir(null); setShowSwitcher(false); setShowSettings(false);
                 setIsPlayAll(false); setShowAsbabun(false); setActiveTajweed(null); setIsScrolled(false);
                 
-                // JIKA ADA DI CACHE: TAMPILKAN INSTAN 0 DETIK
+                // 1. CEK CACHE: BUKA INSTAN 0 DETIK
                 if (window.AL_KAUTSAR_CACHE.surahs[surah.n]) {
                     setSurahDetail(window.AL_KAUTSAR_CACHE.surahs[surah.n]);
                     setSurahDesc(window.AL_KAUTSAR_CACHE.surahs[surah.n].desc);
@@ -582,15 +655,15 @@
                     return;
                 }
 
-                // JIKA BELUM ADA DI CACHE: FETCH BERSAMAAN (CONCURRENT)
+                // 2. CONCURRENT FETCH (Cepat!)
                 setSurahDetail(null);
                 setIsFetching(true);
                 
                 try {
-                    const pKemenag = fetchWithTimeout(`https://equran.id/api/v2/surat/${surah.n}`).then(r => r.json());
-                    const pTajweed = fetchWithTimeout(`https://raw.githubusercontent.com/nashrulaziz7/quran-data/main/${surah.n}.json`).then(r => r.json()).catch(() => []);
+                    const pKemenag = fetch(`https://equran.id/api/v2/surat/${surah.n}`).then(r => r.json());
+                    const pTajweed = fetch(`https://raw.githubusercontent.com/nashrulaziz7/quran-data/main/${surah.n}.json`).then(r => r.json()).catch(() => []);
 
-                    // Tunggu Keduanya Selesai (Sangat Cepat karena barengan)
+                    // Tunggu Data Arab & Tajwid Selesai Bersamaan
                     const [resKem, resTaj] = await Promise.all([pKemenag, pTajweed]);
 
                     const dG = Array.isArray(resTaj) ? resTaj : (resTaj.data || []);
@@ -604,23 +677,24 @@
                             text: g.aya_text || a.teksArab,
                             latin: a.teksLatin,
                             trans: a.teksIndonesia,
-                            tajweedRules: g.tajweed || g.tajwid || [], // TAJWID LANGSUNG MASUK!
+                            tajweedRules: g.tajweed || g.tajwid || [], // Tajwid langsung masuk!
                             tafsirKemenag: "Memuat tafsir...",
                             tafsirJalalayn: "Memuat tafsir..."
                         };
                     });
 
+                    // Render Langsung ke Layar! (Tanpa nunggu tafsir)
                     setSurahDetail(ayahs);
                     setIsFetching(false);
 
-                    // SIMPAN KE CACHE GLOBAL
+                    // Simpan ke Cache
                     window.AL_KAUTSAR_CACHE.surahs[surah.n] = ayahs;
                     window.AL_KAUTSAR_CACHE.surahs[surah.n].desc = desc;
 
-                    // Fetch Tafsir di Latar Belakang & Update Cache Diam-diam
+                    // 3. FETCH TAFSIR DI BACKGROUND (Siluman)
                     Promise.allSettled([
-                        fetchWithTimeout(`https://equran.id/api/v2/tafsir/${surah.n}`),
-                        fetchWithTimeout(`https://api.alquran.cloud/v1/surah/${surah.n}/id.jalalayn`)
+                        fetch(`https://equran.id/api/v2/tafsir/${surah.n}`),
+                        fetch(`https://api.alquran.cloud/v1/surah/${surah.n}/id.jalalayn`)
                     ]).then(async ([resTK, resTJ]) => {
                         let dTK = null, dTJ = null;
                         if (resTK.status === 'fulfilled' && resTK.value.ok) dTK = await resTK.value.json();
@@ -635,7 +709,7 @@
                                 if (dTJ && dTJ.data && dTJ.data.ayahs && dTJ.data.ayahs[index]) tJal = dTJ.data.ayahs[index].text;
                                 return { ...a, tafsirKemenag: tKem, tafsirJalalayn: tJal };
                             });
-                            window.AL_KAUTSAR_CACHE.surahs[surah.n] = updated; // Perbarui memori dengan Tafsir
+                            window.AL_KAUTSAR_CACHE.surahs[surah.n] = updated; // Update Cache dengan Tafsir
                             return updated;
                         });
                     });
@@ -652,7 +726,7 @@
                  setShowSwitcher(false);
             };
 
-            // Rendering Tajwid & Klik Popup
+            // Rendering Tajwid Aktif
             const renderArabicWithTajweed = (text, rules) => {
                 if (!showTajwid || !rules || rules.length === 0 || !text) return text;
                 let elements = []; let lastIndex = 0; const sortedRules = [...rules].sort((a, b) => a.start - b.start);
@@ -674,7 +748,7 @@
                 return (
                     <div className="pb-20 min-h-full relative bg-transparent">
                         
-                        {/* Header Pintar Premium (Tidak Melompat) */}
+                        {/* Header Dinamis (Muncul Saat Discroll) */}
                         <div className="sticky top-0 z-40 w-full bg-white shadow-sm border-b border-slate-100">
                             <div className="flex items-center justify-between px-3 py-3 h-[52px] relative z-20">
                                 <div className="flex items-center gap-1 flex-1 min-w-0">
@@ -682,7 +756,6 @@
                                         <ArrowLeft size={20} />
                                     </button>
                                     
-                                    {/* Judul Bergeser Masuk dengan Halus Saat Discroll */}
                                     <div className="flex flex-col justify-center ml-1 overflow-hidden h-full">
                                         <div className={`transition-all duration-300 ease-out flex flex-col ${isScrolled ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'}`}>
                                             <h2 className="font-black text-[13px] text-slate-800 tracking-tight leading-none truncate">{activeSurah.n}. {activeSurah.id}</h2>
@@ -710,7 +783,7 @@
                                 </div>
                             </div>
 
-                            {/* Dropdown Settings Ultra Premium Glassmorphism (Sesuai Foto 1) */}
+                            {/* Dropdown Settings */}
                             <div className="overflow-hidden transition-all duration-500 absolute w-full z-10 bg-white border-b border-slate-200" style={{ top: '100%', left: 0, boxShadow: showSettings ? '0 10px 15px -3px rgba(0, 0, 0, 0.05)' : 'none', maxHeight: showSettings ? '200px' : '0px', opacity: showSettings ? 1 : 0 }}>
                                 <div className="px-4 pb-4 pt-3" style={{ backgroundColor: theme.hex }}>
                                     <div className="flex flex-col gap-3 relative z-10">
@@ -745,9 +818,9 @@
                         </div>
 
                         {/* Banner Surah Minimalis (Ramping, Tidak Jumbo) */}
-                        <div onClick={() => setShowSwitcher(true)} className="mx-4 mt-5 mb-4 rounded-[16px] p-4 text-center shadow-sm relative overflow-hidden cursor-pointer active:scale-95 transition-transform" style={{ backgroundColor: theme.hex }}>
+                        <div onClick={() => setShowSwitcher(true)} className="mx-6 mt-4 mb-4 rounded-[16px] py-4 px-4 text-center shadow-sm relative overflow-hidden cursor-pointer active:scale-95 transition-transform" style={{ backgroundColor: theme.hex }}>
                             {/* Efek Polkadot Khusus Banner */}
-                            <div className="absolute w-16 h-16 rounded-full bg-white/15 top-[-10px] left-[-10px] blur-[1px]"></div>
+                            <div className="absolute w-20 h-20 rounded-full bg-white/15 top-[-10px] left-[-10px] blur-[1px]"></div>
                             <div className="absolute w-24 h-24 rounded-full bg-white/10 bottom-[-20px] right-[-20px] blur-sm"></div>
                             <div className="absolute w-8 h-8 rounded-full bg-white/20 top-[40%] right-[20%] blur-[2px]"></div>
                             
@@ -759,7 +832,6 @@
                             </div>
                         </div>
 
-                        {/* Indikator Loading Super Elegan & Tipis (Hanya muncul jika belum ada cache) */}
                         {isFetching && !surahDetail && (
                             <div className="flex flex-col items-center justify-center py-10 opacity-70 animate-pulse">
                                 <BookOpen size={24} className="mb-2" style={{ color: theme.hex }} />
@@ -781,7 +853,7 @@
                             </div>
                         )}
 
-                        {/* Pop-Up Tajwid Eksklusif (Mode Gelap + Suara) */}
+                        {/* Pop-Up Tajwid Eksklusif */}
                         {activeTajweed && TAJWEED_INFO[activeTajweed.ruleClass] && (
                             <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm animate-in fade-in" onClick={() => setActiveTajweed(null)}>
                                 <div className="bg-[#1E293B] w-full max-w-[340px] rounded-[24px] shadow-2xl p-6 relative text-white border border-slate-700" onClick={(e) => e.stopPropagation()}>
@@ -849,11 +921,11 @@
                             </div>
                         )}
 
-                        {}
+                        {/* Rendering Teks (Progressive & Instan) */}
                         <div className="space-y-3 px-3 pb-20">
                             {surahDetail && (
                                 isPageMode ? (
-                                    <div className="bg-white p-5 rounded-[20px] shadow-sm border border-slate-100 mx-1 mb-8 animate-in fade-in duration-300">
+                                    <div className="bg-white p-5 rounded-[20px] shadow-sm border border-slate-100 mx-1 mb-8">
                                         <div className={`text-justify font-${fontType} font-normal transition-all duration-300`} style={{ fontSize: `${fontSize}px`, lineHeight: '2.0' }} dir="rtl">
                                             {surahDetail.map((ayah) => (
                                                 <span key={ayah.numberInSurah} id={`ayah-${ayah.numberInSurah}`} className={`inline transition-colors ${playingAyah === ayah.numberInSurah ? 'text-blue-500 drop-shadow-sm' : 'text-slate-800'}`} onClick={() => {
@@ -862,7 +934,7 @@
                                                 }}>
                                                     {renderArabicWithTajweed(ayah.text, ayah.tajweedRules)}
                                                     
-                                                    {/* Simbol Ayat Porsional & Rapi (Angka Arab Asli) */}
+                                                    {/* Simbol Ayat Proporsional */}
                                                     <span className="inline-flex items-center justify-center relative mx-1.5 cursor-pointer select-none align-middle" style={{ width: '1.2em', height: '1.2em', verticalAlign: '-0.1em' }}>
                                                         <span className="absolute inset-0 flex items-center justify-center leading-none" style={{ color: '#D4AF37', fontFamily: 'Arial, sans-serif', fontSize: '1.2em' }}>۝</span>
                                                         <span className="absolute font-normal font-uthmani text-amber-900/90 leading-none pt-0.5" style={{ fontSize: '0.55em' }}>{toArabicNumeral(ayah.numberInSurah)}</span>
@@ -874,17 +946,17 @@
                                 ) : (
                                     surahDetail.map((ayah) => (
                                         <div id={`ayah-${ayah.numberInSurah}`} key={ayah.numberInSurah} className="p-4 rounded-[20px] shadow-sm border scroll-mt-20 transition-all duration-300 bg-white" style={{ borderColor: playingAyah === ayah.numberInSurah ? theme.hex : 'transparent', ...(playingAyah === ayah.numberInSurah ? { boxShadow: `0 4px 15px ${theme.hex}20` } : {}) }}>
-                                            <div className="flex justify-between items-center mb-2">
+                                            <div className="flex justify-between items-center mb-1.5">
                                                 <div className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold" style={{ backgroundColor: theme.light, color: theme.hex }}>
                                                     {ayah.numberInSurah}
                                                 </div>
                                                 <div className="flex gap-1.5">
                                                     <button className="p-1.5 text-slate-500 hover:bg-slate-50 border border-slate-100 rounded-[10px] transition-colors bg-white active:scale-95" onClick={() => {
                                                         let copyContent = ayah.text;
-                                                        if (showLatin && ayah.latin) { const tmp = document.createElement("div"); tmp.innerHTML = ayah.latin; copyContent += `\n\n${tmp.textContent || tmp.innerText}`; }
-                                                        if (showTrans && ayah.trans) copyContent += `\n\n${ayah.trans}`;
+                                                        if (showLatin && ayah.latin) { copyContent += `\n\n${cleanHtmlForCopy(ayah.latin)}`; }
+                                                        if (showTrans && ayah.trans) { copyContent += `\n\n${ayah.trans}`; }
                                                         handleCopyText(copyContent);
-                                                        setToastMsg(`Ayat ${ayah.numberInSurah} berhasil disalin!`);
+                                                        setToastMsg(`Ayat ${ayah.numberInSurah} tersalin!`);
                                                         setTimeout(() => setToastMsg(null), 2500);
                                                     }}><Copy size={13}/></button>
                                                     <button onClick={() => setOpenedTafsir(openedTafsir === ayah.numberInSurah ? null : ayah.numberInSurah)} className={`p-1.5 rounded-[10px] transition-colors border active:scale-95 ${openedTafsir === ayah.numberInSurah ? 'text-white' : 'bg-white text-slate-500 border-slate-100 hover:bg-slate-50'}`} style={openedTafsir === ayah.numberInSurah ? { backgroundColor: theme.hex, borderColor: theme.hex } : {}}>
@@ -904,12 +976,12 @@
                                             </div>
                                             
                                             {/* Area Arab Ramping, Spasi Ideal */}
-                                            <div className={`text-right mb-2 text-slate-800 font-${fontType} font-normal transition-all duration-300`} style={{ fontSize: `${fontSize}px`, lineHeight: '2.0' }} dir="rtl">
+                                            <div className={`text-right mb-1.5 text-slate-800 font-${fontType} font-normal transition-all duration-300`} style={{ fontSize: `${fontSize}px`, lineHeight: '2.0' }} dir="rtl">
                                                {renderArabicWithTajweed(ayah.text, ayah.tajweedRules)}
                                             </div>
                                             
                                             {/* Latin & Terjemahan Padat */}
-                                            {showLatin && <div className="text-[11px] leading-relaxed font-semibold mb-1 italic" style={{ color: theme.hex }} dangerouslySetInnerHTML={{__html: ayah.latin}}></div>}
+                                            {showLatin && <div className="text-[11px] leading-relaxed font-semibold mb-0.5 italic" style={{ color: theme.hex }} dangerouslySetInnerHTML={{__html: ayah.latin}}></div>}
                                             {showTrans && <div className="text-[11px] text-slate-600 leading-snug font-medium">{ayah.trans}</div>}
                                             
                                             {/* Panel Tafsir */}
@@ -970,22 +1042,64 @@
 
         function DoaView({ nav, theme }) {
             const [activeCat, setActiveCat] = useState(null);
+            const [activeSub, setActiveSub] = useState('semua');
+
+            // TEMA KHUSUS SETIAP KATEGORI MENU
+            const CAT_THEMES = { 
+                'shalat': { id: 'shalat', hex: '#14A895', light: '#E6F4F1', title: 'Bacaan Shalat', desc: 'Takbir, Ruku, Sujud', icon: <BookOpen size={24}/> },
+                'dzikir': { id: 'dzikir', hex: '#3B82F6', light: '#EFF6FF', title: 'Dzikir Ba\'da Shalat', desc: 'Sesuai Tuntunan', icon: <RotateCcw size={24}/> },
+                'harian': { id: 'harian', hex: '#F59E0B', light: '#FFFBEB', title: 'Doa Harian', desc: 'Aktivitas Sehari-hari', icon: <Compass size={24}/> },
+                'sunnah': { id: 'sunnah', hex: '#8B5CF6', light: '#F3E8FF', title: 'Amalan Sunnah', desc: 'Rawatib & Puasa', icon: <Star size={24}/> }
+            };
             
             if (activeCat) {
-                const filteredDoa = DOA_HPT.filter(d => d.category === activeCat);
+                let filteredDoa = DOA_HPT.filter(d => d.category === activeCat);
+                if (activeCat === 'sunnah' && activeSub !== 'semua') {
+                    filteredDoa = filteredDoa.filter(d => d.subCat === activeSub);
+                }
+                
+                const activeTheme = CAT_THEMES[activeCat] || theme;
+                const pageTitle = activeTheme.title;
+
+                const SUNNAH_SUBS = [
+                    { id: 'semua', label: 'Semua Amalan' },
+                    { id: 'pagi_petang', label: 'Pagi & Petang' },
+                    { id: 'puasa', label: 'Puasa' },
+                    { id: 'shalat', label: 'Shalat Sunnah' },
+                    { id: 'sosial', label: 'Alam & Sosial' }
+                ];
+
                 return (
-                    <div className="pb-10 animate-in slide-in-from-right-4 h-full bg-transparent relative z-10">
-                        <div className="sticky top-0 bg-white/90 backdrop-blur-md px-5 pt-6 pb-4 flex items-center z-30 shadow-sm border-b border-slate-100">
-                            <button onClick={() => setActiveCat(null)} className="p-2 rounded-xl mr-4 active:scale-95 transition-colors" style={{ backgroundColor: theme.light, color: theme.hex }}><ArrowLeft size={18} /></button>
-                            <div><h1 className="text-[15px] font-black text-slate-800 uppercase">Kategori Doa</h1><p className="text-[10px] font-bold" style={{ color: theme.hex }}>HPT Muhammadiyah</p></div>
+                    <div className="pb-32 animate-in slide-in-from-right-4 min-h-full bg-transparent relative z-10">
+                        <div className="sticky top-0 bg-white/90 backdrop-blur-md z-30 shadow-sm border-b border-slate-100 transition-colors duration-300">
+                            <div className={`px-5 pt-6 flex items-center ${activeCat === 'sunnah' ? 'pb-2' : 'pb-4'}`}>
+                                <button onClick={() => { setActiveCat(null); setActiveSub('semua'); }} className="p-2 rounded-xl mr-4 active:scale-95 transition-colors" style={{ backgroundColor: activeTheme.light, color: activeTheme.hex }}><ArrowLeft size={18} /></button>
+                                <div><h1 className="text-[15px] font-black text-slate-800 uppercase transition-colors">{pageTitle}</h1><p className="text-[10px] font-bold transition-colors" style={{ color: activeTheme.hex }}>HPT Muhammadiyah</p></div>
+                            </div>
+                            
+                            {activeCat === 'sunnah' && (
+                                <div className="flex gap-2 overflow-x-auto scrollbar-hide px-5 pb-3 pt-1">
+                                    {SUNNAH_SUBS.map(sub => (
+                                        <button 
+                                            key={sub.id} 
+                                            onClick={() => setActiveSub(sub.id)}
+                                            className="px-3.5 py-1.5 rounded-full text-[10px] font-bold whitespace-nowrap transition-all shadow-sm border"
+                                            style={activeSub === sub.id ? { backgroundColor: activeTheme.hex, color: 'white', borderColor: activeTheme.hex } : { backgroundColor: 'white', color: '#64748B', borderColor: '#F1F5F9' }}
+                                        >
+                                            {sub.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
                         </div>
+                        
                         <div className="p-4 space-y-4 relative z-10">
                             {filteredDoa.map(doa => (
-                                <div key={doa.id} className="bg-white p-5 rounded-[20px] shadow-sm border border-slate-100 relative overflow-hidden">
-                                    <div className="absolute top-0 right-0 w-16 h-16 bg-slate-50 rounded-full blur-xl"></div>
-                                    <h3 className="font-bold text-[13px] mb-4 relative z-10" style={{ color: theme.hex }}>{doa.title}</h3>
+                                <div key={doa.id} className="bg-white p-5 rounded-[20px] shadow-sm border border-slate-100 relative overflow-hidden transition-all duration-300 hover:shadow-md">
+                                    <div className="absolute top-0 right-0 w-16 h-16 rounded-full blur-xl opacity-60 transition-colors" style={{ backgroundColor: activeTheme.light }}></div>
+                                    <h3 className="font-bold text-[13px] mb-4 relative z-10 transition-colors" style={{ color: activeTheme.hex }}>{doa.title}</h3>
                                     <p className="text-right text-[22px] font-normal font-uthmani mb-4 text-slate-800 leading-[2.2] relative z-10" dir="rtl">{doa.ar}</p>
-                                    <div className="p-3 rounded-[12px] relative z-10" style={{ backgroundColor: theme.light }}><p className="text-[11px] text-slate-700 font-medium italic leading-relaxed">"{doa.tr}"</p></div>
+                                    <div className="p-3 rounded-[12px] relative z-10 transition-colors" style={{ backgroundColor: activeTheme.light }}><p className="text-[11px] text-slate-700 font-medium italic leading-relaxed">"{doa.tr}"</p></div>
                                 </div>
                             ))}
                         </div>
@@ -994,33 +1108,20 @@
             }
 
             return (
-                <div className="p-5 animate-in fade-in h-full bg-transparent relative z-10">
+                <div className="p-5 pb-28 animate-in fade-in min-h-full bg-transparent relative z-10">
                      <div className="flex items-center gap-3 mb-6 pt-2">
-                        <button onClick={() => nav('home')} className="p-2 rounded-[14px] bg-white shadow-sm mr-2 active:scale-95"><ArrowLeft size={18} className="text-slate-600" /></button>
-                        <div><h1 className="text-2xl font-black text-slate-800 tracking-tight">Doa Pilihan</h1><p className="text-[11px] font-bold" style={{ color: theme.hex }}>Sesuai HPT Muhammadiyah</p></div>
+                        <button onClick={() => nav('home')} className="p-2 rounded-[14px] bg-white shadow-sm mr-2 active:scale-95 transition-colors"><ArrowLeft size={18} className="text-slate-600" /></button>
+                        <div><h1 className="text-2xl font-black text-slate-800 tracking-tight">Doa Pilihan</h1><p className="text-[11px] font-bold transition-colors" style={{ color: theme.hex }}>Sesuai HPT Muhammadiyah</p></div>
                     </div>
                     
                     <div className="grid grid-cols-2 gap-4">
-                        <div onClick={() => setActiveCat('shalat')} className="bg-white p-5 rounded-[24px] shadow-sm flex flex-col items-center justify-center text-center cursor-pointer hover:shadow-md active:scale-95 transition-all border border-slate-100">
-                             <div className="w-12 h-12 rounded-[16px] flex items-center justify-center mb-3" style={{ backgroundColor: theme.light, color: theme.hex }}><BookOpen size={24}/></div>
-                             <h3 className="font-black text-slate-800 text-[13px]">Bacaan Shalat</h3>
-                             <p className="text-[9px] text-slate-500 font-medium mt-1">Takbir, Ruku, Sujud</p>
-                        </div>
-                        <div onClick={() => setActiveCat('dzikir')} className="bg-white p-5 rounded-[24px] shadow-sm flex flex-col items-center justify-center text-center cursor-pointer hover:shadow-md active:scale-95 transition-all border border-slate-100">
-                             <div className="w-12 h-12 rounded-[16px] flex items-center justify-center mb-3" style={{ backgroundColor: theme.light, color: theme.hex }}><RotateCcw size={24}/></div>
-                             <h3 className="font-black text-slate-800 text-[13px]">Dzikir Ba'da</h3>
-                             <p className="text-[9px] text-slate-500 font-medium mt-1">Sesuai Tuntunan</p>
-                        </div>
-                        <div onClick={() => setActiveCat('harian')} className="bg-white p-5 rounded-[24px] shadow-sm flex flex-col items-center justify-center text-center cursor-pointer hover:shadow-md active:scale-95 transition-all border border-slate-100">
-                             <div className="w-12 h-12 rounded-[16px] flex items-center justify-center mb-3" style={{ backgroundColor: theme.light, color: theme.hex }}><Compass size={24}/></div>
-                             <h3 className="font-black text-slate-800 text-[13px]">Doa Harian</h3>
-                             <p className="text-[9px] text-slate-500 font-medium mt-1">Aktivitas Sehari-hari</p>
-                        </div>
-                        <div onClick={() => setActiveCat('sunnah')} className="bg-white p-5 rounded-[24px] shadow-sm flex flex-col items-center justify-center text-center cursor-pointer hover:shadow-md active:scale-95 transition-all border border-slate-100">
-                             <div className="w-12 h-12 rounded-[16px] flex items-center justify-center mb-3" style={{ backgroundColor: theme.light, color: theme.hex }}><Star size={24}/></div>
-                             <h3 className="font-black text-slate-800 text-[13px]">Amalan Sunnah</h3>
-                             <p className="text-[9px] text-slate-500 font-medium mt-1">Rawatib & Puasa</p>
-                        </div>
+                        {Object.values(CAT_THEMES).map(cat => (
+                            <div key={cat.id} onClick={() => setActiveCat(cat.id)} className="bg-white p-5 rounded-[24px] shadow-sm flex flex-col items-center justify-center text-center cursor-pointer hover:shadow-md active:scale-95 transition-all border border-slate-100 group">
+                                 <div className="w-12 h-12 rounded-[16px] flex items-center justify-center mb-3 transition-colors group-hover:scale-110 duration-300" style={{ backgroundColor: cat.light, color: cat.hex }}>{cat.icon}</div>
+                                 <h3 className="font-black text-slate-800 text-[13px]">{cat.title}</h3>
+                                 <p className="text-[9px] text-slate-500 font-medium mt-1">{cat.desc}</p>
+                            </div>
+                        ))}
                     </div>
                 </div>
             );
@@ -1029,6 +1130,7 @@
         function DzikirView({ nav, theme }) {
             const [count, setCount] = useState(0);
             const [activeDzikir, setActiveDzikir] = useState(0);
+            const [ripples, setRipples] = useState([]);
             const target = 33;
             
             const list = [
@@ -1036,50 +1138,200 @@
                 { label: 'Alhamdulillah', ar: 'الْحَمْدُ لِلَّهِ', color: '#3B82F6' },
                 { label: 'Allahu Akbar', ar: 'اللَّهُ أَكْبَرُ', color: '#F97316' }  
             ];
-            const currentTheme = list[activeDzikir];
+            const currentDzikir = list[activeDzikir];
+            
+            const hour = new Date().getHours();
+            const isNight = hour >= 18 || hour < 4;
+            
+            // Konfigurasi Tema Premium Vector Landscape (Siang/Malam)
+            const themeConfig = isNight ? {
+                bg: 'from-[#141E30] to-[#243B55]',
+                celestialObj: 'bg-slate-100',
+                celestialShadow: '#E2E8F0',
+                isMoon: true,
+                mountBack: ['#3A6073', '#16222A'],
+                mountMid: ['#2C3E50', '#0f172a'],
+                mountFront: ['#1e293b', '#020617'],
+                water: ['#0F2027', '#203A43'],
+            } : {
+                bg: 'from-cyan-300 to-blue-500',
+                celestialObj: 'bg-yellow-300',
+                celestialShadow: '#FDE047',
+                isMoon: false,
+                mountBack: ['#38bdf8', '#2563eb'],
+                mountMid: ['#2dd4bf', '#0284c7'],
+                mountFront: ['#4ade80', '#059669'],
+                water: ['#22d3ee', '#3b82f6'],
+            };
 
-            const handleTap = () => {
-                if (count < target - 1) { setCount(c => c + 1); if (navigator.vibrate) navigator.vibrate(30); } 
-                else { setCount(0); if (navigator.vibrate) navigator.vibrate([100, 50, 100]); if (activeDzikir < list.length - 1) { setActiveDzikir(a => a + 1); } else { setActiveDzikir(0); } }
+            // LOGIKA ANIMASI MELENGKUNG (PARABOLA) PRESISI
+            const progress = count / target;
+            let celestialStyle = {};
+
+            if (activeDzikir === 0) { 
+                // Subhanallah: Terbit Kiri Bawah -> Tengah Atas
+                const scale = 0.4 + (progress * 0.6); 
+                const opacity = 0.2 + (progress * 0.8);
+                const x = -38 + (38 * progress); // Gerak dari -38vw ke 0vw
+                const y = 12 - (42 * progress);  // Start pas di horizon (12vh) naik ke -30vh
+                celestialStyle = {
+                    transform: `translate(${x}vw, ${y}vh) scale(${scale})`,
+                    opacity: opacity,
+                    boxShadow: `0 0 ${20 + (progress*30)}px ${themeConfig.celestialShadow}`
+                };
+            } else if (activeDzikir === 1) { 
+                // Alhamdulillah: Diam di Puncak, Membesar & Berdenyut Terang
+                const pulseScale = 1.0 + (progress * 0.5); 
+                const shadowIntensity = 50 + (progress * 80); 
+                celestialStyle = {
+                    transform: `translate(0vw, -30vh) scale(${pulseScale})`,
+                    opacity: 1,
+                    boxShadow: `0 0 ${shadowIntensity}px ${themeConfig.celestialShadow}`
+                };
+            } else { 
+                // Allahu Akbar: Tengah Atas -> Terbenam Kanan Bawah
+                const scale = 1.0 - (progress * 0.6); 
+                const opacity = 1.0 - (progress * 0.8);
+                const x = 0 + (38 * progress); // Gerak dari 0vw ke 38vw
+                const y = -30 + (42 * progress); // Turun dari -30vh pas ke horizon (12vh)
+                celestialStyle = {
+                    transform: `translate(${x}vw, ${y}vh) scale(${scale})`,
+                    opacity: opacity,
+                    boxShadow: `0 0 ${50 - (progress*30)}px ${themeConfig.celestialShadow}`
+                };
+            }
+
+            const handleScreenTap = (e) => {
+                const rect = e.currentTarget.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const newRipple = { id: Date.now(), x, y };
+                setRipples(prev => [...prev, newRipple]);
+                setTimeout(() => setRipples(prev => prev.filter(p => p.id !== newRipple.id)), 600);
+
+                if (count < target) { 
+                    const next = count + 1;
+                    setCount(next); 
+                    if (navigator.vibrate) navigator.vibrate(30); 
+                    
+                    if (next === target) {
+                        if (navigator.vibrate) navigator.vibrate([100, 50, 100]); 
+                        setTimeout(() => {
+                            setCount(0);
+                            setActiveDzikir(a => (a < list.length - 1 ? a + 1 : 0));
+                        }, 700);
+                    }
+                }
             };
 
             return (
-                <div className="px-5 pt-8 pb-10 animate-in fade-in h-[100dvh] flex flex-col bg-transparent relative z-10 overflow-hidden">
-                    <div className="flex items-center gap-3 mb-6 relative z-10">
-                        <button onClick={()=>nav('home')} className="p-2.5 rounded-[14px] bg-white shadow-sm hover:shadow-md transition-shadow active:scale-95" style={{ color: theme.hex }}><ArrowLeft size={20} /></button>
-                        <h1 className="text-2xl font-black text-slate-800 tracking-tight">Dzikir</h1>
-                    </div>
+                <div className={`animate-in fade-in h-[100dvh] w-full flex flex-col relative overflow-hidden select-none bg-gradient-to-b ${themeConfig.bg} transition-colors duration-1000 z-10`} onClick={handleScreenTap}>
+                    
+                    {/* Bintang Malam Hari */}
+                    {isNight && (
+                        <div className="absolute inset-0 z-0 opacity-80 pointer-events-none">
+                            <div className="absolute top-12 left-10 w-1 h-1 bg-white rounded-full shadow-[0_0_5px_white]"></div>
+                            <div className="absolute top-24 right-16 w-1.5 h-1.5 bg-white rounded-full shadow-[0_0_8px_white] animate-pulse"></div>
+                            <div className="absolute top-[20%] left-1/4 w-1 h-1 bg-white rounded-full shadow-[0_0_5px_white]"></div>
+                            <div className="absolute top-[15%] right-1/3 w-1 h-1 bg-white rounded-full shadow-[0_0_5px_white]"></div>
+                        </div>
+                    )}
 
-                    <div className="flex gap-2 overflow-x-auto scrollbar-hide mb-8 bg-transparent p-1 relative z-10">
-                        {list.map((d, i) => (
-                            <div key={i} className="flex-1 flex flex-col items-center">
-                                <button onClick={() => { setActiveDzikir(i); setCount(0); }} className="w-full px-2 py-3 rounded-xl font-bold text-[11px] whitespace-nowrap transition-all shadow-sm border border-slate-100" style={activeDzikir === i ? { backgroundColor: d.color, color: 'white' } : { backgroundColor: 'white', color: '#64748B' }}>
-                                    {d.label}
-                                </button>
-                                {activeDzikir === i && <div className="h-1.5 w-10/12 rounded-full mt-1.5 opacity-60 transition-all" style={{ backgroundColor: d.color, boxShadow: `0 2px 8px ${d.color}` }}></div>}
-                            </div>
+                    {/* Ripple Tap Layar */}
+                    <div className="absolute inset-0 pointer-events-none overflow-hidden z-10">
+                        {ripples.map(p => (
+                            <div key={p.id} className="absolute rounded-full anim-ripple border border-white/80 bg-white/10 shadow-[0_0_15px_rgba(255,255,255,0.5)]" style={{ left: p.x, top: p.y, width: 40, height: 40 }}></div>
                         ))}
                     </div>
 
-                    <div className="bg-white rounded-[24px] p-8 text-center shadow-sm border border-slate-100 mb-8 transition-colors duration-500 relative z-10">
-                        <h2 className="text-[38px] font-uthmani font-normal text-slate-800 mb-4 leading-relaxed mt-2 drop-shadow-sm">{currentTheme.ar}</h2>
-                        <p className="text-[12px] font-bold transition-colors duration-500 mb-2" style={{ color: currentTheme.color }}>{currentTheme.label}</p>
+                    {/* Benda Langit (Matahari / Bulan) */}
+                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none flex justify-center items-center w-full h-full">
+                        <div className={`w-[80px] h-[80px] rounded-full ${themeConfig.celestialObj} transition-all duration-[600ms] ease-out relative`} style={celestialStyle}>
+                            {themeConfig.isMoon && <div className="absolute w-[95%] h-[95%] bg-slate-900 rounded-full right-[10%] bottom-[10%] opacity-90"></div>}
+                        </div>
                     </div>
 
-                    <div className="mt-auto mb-20 flex flex-col items-center relative z-10">
-                        <div className="relative w-[240px] h-[240px] flex justify-center items-center cursor-pointer active:scale-95 transition-all duration-100 bg-white shadow-[0_10px_40px_rgba(0,0,0,0.04)] rounded-full border-[8px] border-white group" onClick={handleTap}>
-                            <svg className="absolute inset-0 w-full h-full transform -rotate-90 drop-shadow-sm">
-                                <circle cx="112" cy="112" r="98" fill="none" stroke="#F1F5F9" strokeWidth="14" />
-                                <circle cx="112" cy="112" r="98" fill="none" stroke="#F59E0B" strokeWidth="14" strokeDasharray={`${2 * Math.PI * 98}`} strokeDashoffset={`${2 * Math.PI * 98 * (1 - (count/target))}`} strokeLinecap="round" className="transition-all duration-300" />
-                            </svg>
-                            <div className="text-center transition-transform group-active:scale-95">
-                                <div className="text-[76px] font-black text-slate-800 tracking-tighter drop-shadow-sm select-none leading-none mb-3">{count}</div>
-                                <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest bg-slate-100 px-4 py-2.5 rounded-full inline-block shadow-inner">Tap Jempol</div>
+                    {/* Vektor Landscape Premium (Tanpa Shape Jadul) */}
+                    <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute bottom-0 left-0 w-full h-[45vh] z-20 transition-all duration-1000 pointer-events-none">
+                        <defs>
+                            <linearGradient id="gradBack" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stopColor={themeConfig.mountBack[0]} />
+                                <stop offset="100%" stopColor={themeConfig.mountBack[1]} />
+                            </linearGradient>
+                            <linearGradient id="gradMid" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stopColor={themeConfig.mountMid[0]} />
+                                <stop offset="100%" stopColor={themeConfig.mountMid[1]} />
+                            </linearGradient>
+                            <linearGradient id="gradFront" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stopColor={themeConfig.mountFront[0]} />
+                                <stop offset="100%" stopColor={themeConfig.mountFront[1]} />
+                            </linearGradient>
+                            <linearGradient id="gradWater" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stopColor={themeConfig.water[0]} />
+                                <stop offset="100%" stopColor={themeConfig.water[1]} />
+                            </linearGradient>
+                        </defs>
+                        
+                        {/* Gunung Belakang (Smooth) */}
+                        <path d="M0,100 L0,50 Q15,35 30,55 T65,45 T100,60 L100,100 Z" fill="url(#gradBack)" opacity="0.85"/>
+                        {/* Bukit Tengah */}
+                        <path d="M0,100 L0,65 Q20,45 45,65 T95,45 L100,50 L100,100 Z" fill="url(#gradMid)" opacity="0.95"/>
+                        {/* Daratan Hijau / Depan */}
+                        <path d="M-5,100 L-5,85 Q25,65 55,85 T110,75 L110,100 Z" fill="url(#gradFront)"/>
+                        
+                        {/* Air & Ombak Realistis */}
+                        <g className="animate-waves-1" style={{ opacity: 0.9 }}>
+                             <path d="M0,88 Q25,85 50,88 T100,85 L100,100 L0,100 Z" fill="url(#gradWater)" />
+                        </g>
+                        <g className="animate-waves-2" style={{ animationDelay: '-2s', opacity: 0.7 }}>
+                             <path d="M0,92 Q30,89 60,93 T120,90 L120,100 L0,100 Z" fill="url(#gradWater)" />
+                        </g>
+                    </svg>
+
+                    {/* UI LAYER (Glassmorphism Elegan) */}
+                    <div className="relative z-30 flex flex-col h-full px-5 pt-8 pb-10">
+                        
+                        <div className="flex items-center gap-3 mb-6">
+                            <button onClick={(e)=>{ e.stopPropagation(); nav('home'); }} className="p-2.5 rounded-[14px] bg-white/10 backdrop-blur-md shadow-sm active:scale-95 text-white border border-white/20 hover:bg-white/20 transition-all"><ArrowLeft size={20} /></button>
+                            <h1 className="text-[20px] font-black text-white tracking-tight drop-shadow-md">Dzikir Pilihan</h1>
+                        </div>
+
+                        {/* Kapsul Pilihan Dzikir */}
+                        <div className="flex bg-black/20 backdrop-blur-md p-1.5 rounded-[20px] border border-white/10 shadow-inner">
+                            {list.map((d, i) => (
+                                <button key={i} onClick={(e) => { e.stopPropagation(); setActiveDzikir(i); setCount(0); }} className="flex-1 py-2.5 rounded-[16px] font-bold text-[11px] whitespace-nowrap transition-all duration-300" style={activeDzikir === i ? { backgroundColor: 'white', color: d.color, boxShadow: `0 4px 15px rgba(0,0,0,0.2)` } : { backgroundColor: 'transparent', color: 'rgba(255,255,255,0.6)' }}>
+                                    {d.label}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Area Teks & Angka */}
+                        <div className="flex-1 flex flex-col items-center justify-center mt-2 pointer-events-none">
+                            <h2 className="text-[48px] font-uthmani font-normal text-white mb-1 leading-normal drop-shadow-xl text-center w-full" dir="rtl">{currentDzikir.ar}</h2>
+                            <p className="text-[12px] font-black tracking-widest uppercase mb-10 text-white drop-shadow-md opacity-90">{currentDzikir.label}</p>
+                            
+                            {/* Lingkaran Angka */}
+                            <div className="relative w-36 h-36 flex justify-center items-center bg-white/10 backdrop-blur-xl border border-white/20 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.1)] ring-[6px] ring-white/5 transition-all duration-300">
+                                <div className="text-[64px] font-black text-white tracking-tighter leading-none drop-shadow-lg">{count}</div>
+                            </div>
+
+                            {/* Tombol Reset */}
+                            <div className="mt-8 pointer-events-auto">
+                                <button onClick={(e) => { e.stopPropagation(); setCount(0); }} className="px-5 py-2.5 bg-white/10 backdrop-blur-md border border-white/20 rounded-full shadow-sm text-[10px] font-bold text-white flex items-center gap-2 active:scale-95 tracking-widest hover:bg-white/20 transition-all">
+                                    <RotateCcw size={14}/> RESET
+                                </button>
                             </div>
                         </div>
-                        <button onClick={() => setCount(0)} className="mt-8 px-8 py-3 bg-white rounded-full shadow-sm text-[11px] font-bold text-red-500 border border-red-50 flex items-center gap-2 active:scale-95 tracking-wider hover:bg-red-50 transition-colors">
-                            <RotateCcw size={14}/> Reset
-                        </button>
+
+                        {/* Petunjuk Tap */}
+                        <div className="mt-auto flex flex-col items-center pointer-events-none pb-4">
+                            <div className="opacity-80 flex flex-col items-center animate-bounce-soft">
+                                <div className="w-9 h-9 rounded-full border border-dashed border-white/50 flex items-center justify-center mb-2 bg-black/10 backdrop-blur-sm shadow-sm"><span className="text-sm drop-shadow-md">👆</span></div>
+                                <span className="text-[9px] font-black text-white uppercase tracking-widest drop-shadow-md">Tap Sembarang Tempat</span>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             );
@@ -1317,8 +1569,8 @@
                             <div className="p-3 text-center">
                                 <div className="w-12 h-12 rounded-[16px] mx-auto flex items-center justify-center mb-2 shadow-sm" style={{ backgroundColor: theme.light, color: theme.hex }}><BookOpen size={24} /></div>
                                 <h4 className="font-black text-slate-800 text-sm">Al Kautsar Islamic</h4>
-                                <p className="text-[9px] text-slate-400 font-bold mb-3">Versi 11.0 (Speed Edition)</p>
-                                <p className="text-[10px] text-slate-500 leading-relaxed font-medium mb-4 text-justify">Aplikasi resmi SDIT Muhammadiyah Al Kautsar. Dilengkapi teknologi Memory Cache Instan, Al-Quran digital tajwid cerdas bersuara, GPS Masjid Terdekat, Arah Kiblat Real-time, dan fitur interaktif premium tanpa loading lama.</p>
+                                <p className="text-[9px] text-slate-400 font-bold mb-3">Versi 16.0 (Clean Architecture)</p>
+                                <p className="text-[10px] text-slate-500 leading-relaxed font-medium mb-4 text-justify">Aplikasi resmi SDIT Muhammadiyah Al Kautsar. Dilengkapi teknologi Memory Cache Instan, Al-Quran digital tajwid cerdas bersuara, Dzikir Dinamis, Arah Kiblat Real-time, dan Doa HPT komplit bebas error.</p>
                             </div>
                         </Section>
                     </div>
