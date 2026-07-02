@@ -6,36 +6,9 @@
     <title>Al Kautsar Islamic</title>
     
     <!-- Ikon Aplikasi untuk Install di HP -->
-    <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/nashrulaziz7/ALKAUTSAR-ISLAMIC/main/islamic.png" />
-    <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/nashrulaziz7/ALKAUTSAR-ISLAMIC/main/islamic.png" />
+    <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/nashrulaziz7/quran-data/main/islamic.png" />
+    <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/nashrulaziz7/quran-data/main/islamic.png" />
     
-    <script>
-        // TRIK SILUMAN: Membuat Manifest PWA & Service Worker secara dinamis di memori
-        const manifestData = {
-            "name": "Al Kautsar Islamic",
-            "short_name": "Al Kautsar",
-            "start_url": window.location.href,
-            "display": "standalone",
-            "background_color": "#F8FAFC",
-            "theme_color": "#14A895",
-            "icons": [{"src": "https://raw.githubusercontent.com/nashrulaziz7/ALKAUTSAR-ISLAMIC/main/islamic.png", "sizes": "512x512", "type": "image/png"}]
-        };
-        const manifestBlob = new Blob([JSON.stringify(manifestData)], {type: 'application/json'});
-        document.write('<link rel="manifest" href="' + URL.createObjectURL(manifestBlob) + '">');
-
-        if ('serviceWorker' in navigator) {
-            const swBlob = new Blob(["self.addEventListener('fetch', function(e) {});"], {type: 'application/javascript'});
-            navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(()=>{});
-        }
-
-        // Menangkap event Install Native bawaan Chrome/Android
-        window.deferredInstallPrompt = null;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            window.deferredInstallPrompt = e;
-        });
-    </script>
-
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
@@ -123,6 +96,20 @@
 
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
+
+        // Custom Hook Untuk Persistent State (Memori Permanen)
+        function useStickyState(defaultValue, key) {
+            const [value, setValue] = React.useState(() => {
+                try {
+                    const stickyValue = window.localStorage.getItem(key);
+                    return stickyValue !== null ? JSON.parse(stickyValue) : defaultValue;
+                } catch (e) { return defaultValue; }
+            });
+            React.useEffect(() => {
+                try { window.localStorage.setItem(key, JSON.stringify(value)); } catch(e) {}
+            }, [key, value]);
+            return [value, setValue];
+        }
 
         // GLOBAL MEMORY CACHE
         if (!window.AL_KAUTSAR_CACHE) {
@@ -266,6 +253,7 @@
         };
 
         const DOA_HPT = [
+            // BACAAN SHALAT HPT MUHAMMADIYAH KOMPLIT
             { category: 'shalat', id: 101, title: 'Doa Iftitah', ar: 'اللَّهُمَّ بَاعِدْ بَيْنِي وَبَيْنَ خَطَايَايَ، كَمَا بَاعَدْتَ بَيْنَ المَشْرِقِ وَالمَغْرِبِ، اللَّهُمَّ نَقِّنِي مِنَ الْخَطَايَا كَمَا يُنَقَّى الثَّوْبُ الْأَبْيَضُ مِنَ الدَّنَسِ، اللَّهُمَّ اغْسِلْ خَطَايَايَ بِالْمَاءِ وَالثَّلْجِ وَالْبَرَدِ', tr: 'Ya Allah, jauhkanlah antara aku dan kesalahan-kesalahanku, sebagaimana Engkau menjauhkan antara timur dan barat. Ya Allah, bersihkanlah aku dari kesalahan sebagaimana pakaian putih dibersihkan dari kotoran. Ya Allah, cucilah kesalahan-kesalahanku dengan air, salju, dan embun.' },
             { category: 'shalat', id: 102, title: 'Doa Ruku\'', ar: 'سُبْحَانَكَ اللَّهُمَّ رَبَّنَا وَبِحَمْدِكَ اللَّهُمَّ اغْفِرْ لِي', tr: 'Maha Suci Engkau Ya Allah, Tuhan kami, dan dengan memuji-Mu. Ya Allah, ampunilah aku.' },
             { category: 'shalat', id: 103, title: 'Doa I\'tidal', ar: 'سَمِعَ اللَّهُ لِمَنْ حَمِدَهُ رَبَّنَا وَلَكَ الْحَمْدُ، حَمْدًا كَثِيرًا طَيِّبًا مُبَارَكًا فِيهِ', tr: 'Allah Maha Mendengar pujian orang yang memuji-Nya. Wahai Tuhan kami, bagi-Mu segala puji, aku memuji-Mu dengan pujian yang banyak, yang baik dan penuh berkah.' },
@@ -276,6 +264,7 @@
             { category: 'shalat', id: 108, title: 'Doa Sebelum Salam', ar: 'اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنْ عَذَابِ جَهَنَّمَ، وَمِنْ عَذَابِ الْقَبْرِ، وَمِنْ فِتْنَةِ الْمَحْيَا وَالْمَمَاتِ، وَمِنْ شَرِّ فِتْنَةِ الْمَسِيحِ الدَّجَّالِ', tr: 'Ya Allah, aku berlindung kepada-Mu dari siksa neraka Jahanam, siksa kubur, fitnah hidup dan mati, serta dari keburukan fitnah Dajal.' },
             { category: 'shalat', id: 109, title: 'Salam', ar: 'السَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللَّهِ', tr: 'Semoga keselamatan dan rahmat Allah dilimpahkan kepadamu.' },
             
+            // DZIKIR BA'DA SHALAT HPT MUHAMMADIYAH KOMPLIT
             { category: 'dzikir', id: 201, title: '1. Istighfar (3x)', ar: 'أَسْتَغْفِرُ اللَّهَ', tr: 'Aku memohon ampun kepada Allah.' },
             { category: 'dzikir', id: 202, title: '2. Doa Keselamatan', ar: 'اللَّهُمَّ أَنْتَ السَّلَامُ، وَمِنْكَ السَّلَامُ، تَبَارَكْتَ يَا ذَا الْجَلَالِ وَالْإِكْرَامِ', tr: 'Ya Allah, Engkau Mahasejahtera, dan dari-Mu kesejahteraan, Mahasuci Engkau, wahai Tuhan Pemilik keagungan dan kemuliaan.' },
             { category: 'dzikir', id: 203, title: '3. Ketauhidan', ar: 'لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ. اللَّهُمَّ لَا مَانِعَ لِمَا أَعْطَيْتَ، وَلَا مُعْطِيَ لِمَا مَنَعْتَ، وَلَا يَنْفَعُ ذَا الْجَدِّ مِنْكَ الْجَدِّ', tr: 'Tiada tuhan selain Allah Yang Maha Esa, tiada sekutu bagi-Nya. Bagi-Nya kerajaan dan bagi-Nya segala puji. Dia Mahakuasa atas segala sesuatu. Ya Allah, tidak ada yang dapat mencegah apa yang Engkau berikan, tidak ada yang dapat memberikan apa yang Engkau cegah, dan tidak bermanfaat kekayaan bagi orang yang memilikinya (kecuali amal ketaatannya), hanya dari-Mu lah segala kekayaan.' },
@@ -283,11 +272,12 @@
             { category: 'dzikir', id: 205, title: '5. Tahmid (33x)', ar: 'الْحَمْدُ لِلَّهِ', tr: 'Segala puji bagi Allah.' },
             { category: 'dzikir', id: 206, title: '6. Takbir (33x)', ar: 'اللَّهُ أَكْبَرُ', tr: 'Allah Maha Besar.' },
             { category: 'dzikir', id: 207, title: '7. Pelengkap ke-100', ar: 'لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ', tr: 'Tidak ada tuhan yang berhak disembah selain Allah semata, tidak ada sekutu bagi-Nya. Milik-Nya segala kerajaan dan milik-Nya segala pujian. Dan Dia Mahakuasa atas segala sesuatu.' },
-            { category: 'dzikir', id: 208, title: '8. Ayat Kursi & Ayat 256', ar: 'اللَّهُ لَا إِلَهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ ۚ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ ۚ لَّهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ ۗ مَنْ ذَا الَّذِي يَشْفَعُ عِنْدَهُ إِلَّا بِإِذْنِهِ ۚ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ ۖ وَلَا يُحِيطُونَ بِشَيْءٍ مِنْ عِلْمِهِ إِلَّا بِمَا شَاءَ ۚ وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ ۖ وَلَا يَئُودُهُ حِفْظُهُمَا ۚ وَهُوَ الْعَلِيُّ الْعَظِيمُ ۝٢٥٥ لَا إِكْرَاهَ فِي الدِّينِ ۖ قَدْ تَبَيَّنَ الرُّشْدُ مِنَ الْغَيِّ ۚ فَمَنْ يَكْفُرْ بِالطَّاغُوتِ وَيُؤْمِنْ بِاللَّهِ فَقَدِ اسْتَمْسَكَ بِالْعُرْوَةِ الْوُثْقَىٰ لَا انْفِصَامَ لَهَا ۗ وَاللَّهُ سَمِيعٌ عَلِيمٌ ۝٢٥٦', tr: 'Allah, tidak ada tuhan selain Dia. Yang Mahahidup, Yang terus menerus mengurus (makhluk-Nya), tidak mengantuk dan tidak tidur. Milik-Nya apa yang ada di langit dan apa yang ada di bumi. Tidak ada yang dapat memberi syafaat di sisi-Nya tanpa izin-Nya. Dia mengetahui apa yang di hadapan mereka dan apa yang di belakang mereka, dan mereka tidak mengetahui sesuatu apa pun tentang ilmu-Nya melainkan apa yang Dia kehendaki. Kursi-Nya meliputi langit dan bumi. Dan Dia tidak merasa berat memelihara keduanya, dan Dia Mahatinggi, Mahabesar. (255) Tidak ada paksaan dalam (menganut) agama (Islam), sesungguhnya telah jelas (perbedaan) antara jalan yang benar dengan jalan yang sesat. Barang siapa ingkar kepada Tagut dan beriman kepada Allah, maka sungguh, dia telah berpegang (teguh) pada tali yang sangat kuat yang tidak akan putus. Allah Maha Mendengar, Maha Mengetahui. (256)' },
+            { category: 'dzikir', id: 208, title: '8. Ayat Kursi', ar: 'اللَّهُ لَا إِلَهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ ۚ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ ۚ لَّهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ ۗ مَنْ ذَا الَّذِي يَشْفَعُ عِنْدَهُ إِلَّا بِإِذْنِهِ ۚ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ ۖ وَلَا يُحِيطُونَ بِشَيْءٍ مِنْ عِلْمِهِ إِلَّا بِمَا شَاءَ ۚ وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ ۖ وَلَا يَئُودُهُ حِفْظُهُمَا ۚ وَهُوَ الْعَلِيُّ الْعَظِيمُ', tr: 'Allah, tidak ada tuhan selain Dia. Yang Mahahidup, Yang terus menerus mengurus (makhluk-Nya), tidak mengantuk dan tidak tidur. Milik-Nya apa yang ada di langit dan apa yang ada di bumi. Tidak ada yang dapat memberi syafaat di sisi-Nya tanpa izin-Nya. Dia mengetahui apa yang di hadapan mereka dan apa yang di belakang mereka, dan mereka tidak mengetahui sesuatu apa pun tentang ilmu-Nya melainkan apa yang Dia kehendaki. Kursi-Nya meliputi langit dan bumi. Dan Dia tidak merasa berat memelihara keduanya, dan Dia Mahatinggi, Mahabesar.' },
             { category: 'dzikir', id: 209, title: '9. Surah Al-Ikhlas', ar: 'قُلْ هُوَ اللَّهُ أَحَدٌ. اللَّهُ الصَّمَدُ. لَمْ يَلِدْ وَلَمْ يُولَدْ. وَلَمْ يَكُنْ لَهُ كُفُوًا أَحَدٌ', tr: 'Katakanlah (Muhammad), "Dialah Allah, Yang Maha Esa. Allah tempat meminta segala sesuatu. (Allah) tidak beranak dan tidak pula diperanakkan. Dan tidak ada sesuatu yang setara dengan Dia."' },
             { category: 'dzikir', id: 210, title: '10. Surah Al-Falaq', ar: 'قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ. مِنْ شَرِّ مَا خَلَقَ. وَمِنْ شَرِّ غَاسِقٍ إِذَا وَقَبَ. وَمِنْ شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ. وَمِنْ شَرِّ حَاسِدٍ إِذَا حَسَدَ', tr: 'Katakanlah, "Aku berlindung kepada Tuhan yang menguasai subuh (fajar), dari kejahatan (makhluk yang) Dia ciptakan, dan dari kejahatan malam apabila telah gelap gulita, dan dari kejahatan (perempuan-perempuan) penyihir yang meniup pada buhul-buhul (talinya), dan dari kejahatan orang yang dengki apabila dia dengki."' },
             { category: 'dzikir', id: 211, title: '11. Surah An-Nas', ar: 'قُلْ أَعُوذُ بِرَبِّ النَّاسِ. مَلِكِ النَّاسِ. إِلَهِ النَّاسِ. مِنْ شَرِّ الْوَسْوَاسِ الْخَنَّاسِ. الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ. مِنَ الْجِنَّةِ وَالنَّاسِ', tr: 'Katakanlah, "Aku berlindung kepada Tuhannya manusia, Raja manusia, sembahan manusia, dari kejahatan (bisikan) setan yang bersembunyi, yang membisikkan (kejahatan) ke dalam dada manusia, dari (golongan) jin dan manusia."' },
             
+            // DOA HARIAN LENGKAP (STANDAR PENDIDIKAN SD MUHAMMADIYAH)
             { category: 'harian', id: 301, title: 'Doa Sebelum Belajar', ar: 'رَضِيتُ بِاللَّهِ رَبًّا، وَبِالْإِسْلَامِ دِينًا، وَبِمُحَمَّدٍ نَبِيًّا وَرَسُولًا. رَبِّ زِدْنِي عِلْمًا وَارْزُقْنِي فَهْمًا', tr: 'Aku rida Allah sebagai Tuhanku, Islam sebagai agamaku, dan Muhammad sebagai nabi dan rasulku. Ya Tuhanku, tambahkanlah kepadaku ilmu dan berikanlah aku karunia untuk memahaminya.' },
             { category: 'harian', id: 302, title: 'Doa untuk Kedua Orang Tua', ar: 'رَبِّ اغْفِرْ لِي وَلِوَالِدَيَّ وَارْحَمْهُمَا كَمَا رَبَّيَانِي صَغِيرًا', tr: 'Ya Tuhanku, ampunilah aku dan kedua orang tuaku, dan sayangilah keduanya sebagaimana mereka menyayangiku di waktu kecil.' },
             { category: 'harian', id: 303, title: 'Doa Sebelum Makan', ar: 'اللَّهُمَّ بَارِكْ لَنَا فِيمَا رَزَقْتَنَا وَقِنَا عَذَابَ النَّارِ', tr: 'Ya Allah, berkahilah kami dalam rezeki yang telah Engkau berikan kepada kami dan peliharalah kami dari siksa api neraka.' },
@@ -300,6 +290,7 @@
             { category: 'harian', id: 310, title: 'Doa Naik Kendaraan', ar: 'سُبْحَانَ الَّذِي سَخَّرَ لَنَا هَذَا وَمَا كُنَّا لَهُ مُقْرِنِينَ، وَإِنَّا إِلَى رَبِّنَا لَمُنْقَلِبُونَ', tr: 'Maha Suci Allah yang telah menundukkan kendaraan ini bagi kami, padahal kami sebelumnya tidak mampu menguasainya. Dan sesungguhnya kepada Tuhan kami lah kami akan kembali.' },
             { category: 'harian', id: 311, title: 'Doa Sapu Jagat', ar: 'رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ', tr: 'Ya Tuhan kami, berilah kami kebaikan di dunia dan kebaikan di akhirat, dan peliharalah kami dari siksa api neraka.' },
             
+            // AMALAN SUNNAH
             { category: 'sunnah', subCat: 'pagi_petang', id: 401, title: 'Sayyidul Istighfar', ar: 'اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ، أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ، أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَيَّ، وَأَبُوءُ بِذَنْبِي فَاغْفِرْ لِي فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ', tr: 'Ya Allah, Engkau adalah Tuhanku, tidak ada Tuhan yang berhak disembah selain Engkau. Engkau telah menciptakanku dan aku adalah hamba-Mu. Aku senantiasa berada dalam perjanjian dan janji-Mu semampuku. Aku berlindung kepada-Mu dari keburukan perbuatanku. Aku mengakui nikmat-Mu kepadaku dan aku mengakui dosaku, maka ampunilah aku. Sesungguhnya tidak ada yang dapat mengampuni dosa kecuali Engkau.' },
             { category: 'sunnah', subCat: 'puasa', id: 402, title: 'Doa Berbuka Puasa', ar: 'ذَهَبَ الظَّمَأُ، وَابْتَلَّتِ الْعُرُوقُ، وَثَبَتَ الْأَجْرُ إِنْ شَاءَ اللَّهُ', tr: 'Telah hilang rasa haus, telah basah urat-urat, dan telah ditetapkan pahala, insya Allah.' },
             { category: 'sunnah', subCat: 'shalat', id: 403, title: 'Dzikir Setelah Witir', ar: 'سُبْحَانَ الْمَلِكِ الْقُدُّوسِ', tr: 'Maha Suci Allah, Raja Yang Maha Suci. (Dibaca 3x, yang ketiga dipanjangkan dan dikeraskan suaranya)' },
@@ -313,66 +304,73 @@
         ];
 
         function App() {
-            const [activeTab, setActiveTab] = useState('home');
+            // STATE DENGAN MEMORI PERMANEN (LocalStorage)
+            const [activeTab, setActiveTab] = useStickyState('home', 'ak_activeTab');
             const [navParams, setNavParams] = useState(null);
             
-            // Pengaturan Global
-            const [appTheme, setAppTheme] = useState(THEMES.hijau); 
-            const [appQari, setAppQari] = useState('alafasy'); 
-            const [appFont, setAppFont] = useState('uthmani'); 
-            const [globalTajwid, setGlobalTajwid] = useState(true);
-            const [globalLatin, setGlobalLatin] = useState(false);
-            const [globalTrans, setGlobalTrans] = useState(true);
-            const [globalFontSize, setGlobalFontSize] = useState(26);
+            const [appTheme, setAppTheme] = useStickyState(THEMES.hijau, 'ak_theme'); 
+            const [appQari, setAppQari] = useStickyState('alafasy', 'ak_qari'); 
+            const [appFont, setAppFont] = useStickyState('uthmani', 'ak_font'); 
+            const [globalTajwid, setGlobalTajwid] = useStickyState(true, 'ak_tajwid');
+            const [globalLatin, setGlobalLatin] = useStickyState(false, 'ak_latin');
+            const [globalTrans, setGlobalTrans] = useStickyState(true, 'ak_trans');
+            const [globalFontSize, setGlobalFontSize] = useStickyState(26, 'ak_fontSize');
 
-            // State untuk Wajib Install & Versi
-            const APP_VERSION = '18.0'; // Ganti angka ini jika ada update fitur baru agar pop-up muncul lagi 1x
+            const [notif10Min, setNotif10Min] = useStickyState(true, 'ak_notif10Min');
+            const [adzanAlarms, setAdzanAlarms] = useStickyState({ Imsak: false, Fajr: true, Dhuhr: true, Asr: true, Maghrib: true, Isha: true }, 'ak_adzanAlarms');
+            const [adzanSounds, setAdzanSounds] = useStickyState({ Fajr: 'makkah', Dhuhr: 'makkah', Asr: 'makkah', Maghrib: 'makkah', Isha: 'makkah' }, 'ak_adzanSounds');
+            
+            // Simpan Data Audio Lokal ke memori
+            const [customAdzanFiles, setCustomAdzanFiles] = useStickyState({}, 'ak_customAdzanFiles');
+            const [customAdzanNames, setCustomAdzanNames] = useStickyState({}, 'ak_customAdzanNames');
+            
+            // Simpan Bookmark ke Memori
+            const [bookmarks, setBookmarks] = useStickyState([
+                { id: 1, surahId: 36, name: 'Ya Sin', desc: 'Jantung Al-Quran', isPinned: true }, 
+                { id: 2, surahId: 114, name: 'An-Nas', desc: 'Sering dibaca', isPinned: false },
+                { id: 3, surahId: 18, name: 'Al-Kahf', desc: 'Sunnah Jumat', isPinned: false }
+            ], 'ak_bookmarks');
+
+            // LOGIKA PWA (Hanya Muncul 1x)
+            const APP_VERSION = 'v21'; 
             const [showInstall, setShowInstall] = useState(false);
-            const [isStandalone, setIsStandalone] = useState(false);
+            const [showSplash, setShowSplash] = useState(true);
 
-            // Pengaturan Alarm & Adzan (Dinamic Per Waktu)
-            const [notif10Min, setNotif10Min] = useState(true);
-            const [adzanAlarms, setAdzanAlarms] = useState({ Imsak: false, Fajr: true, Dhuhr: true, Asr: true, Maghrib: true, Isha: true });
-            const [adzanSounds, setAdzanSounds] = useState({ Fajr: 'makkah', Dhuhr: 'makkah', Asr: 'makkah', Maghrib: 'makkah', Isha: 'makkah' });
-            
-            // State untuk menyimpan MP3 Lokal (File dari HP)
-            const [customAdzanFiles, setCustomAdzanFiles] = useState({});
-            const [customAdzanNames, setCustomAdzanNames] = useState({});
-
-            const [showSplash, setShowSplash] = useState(true); // State for Splash Screen
-            const [userLoc, setUserLoc] = useState(window.AL_KAUTSAR_CACHE.loc);
-            const [prayerTimes, setPrayerTimes] = useState(window.AL_KAUTSAR_CACHE.prayerTimes);
-
-            const [ringingAdzan, setRingingAdzan] = useState(null);
-            const adzanAudio = useRef(null);
-            const notifiedPrayers = useRef({});
-
-            useEffect(() => { adzanAudio.current = new Audio(); }, []);
-            
-            // Splash Screen Timer & Cek Versi Instalasi
             useEffect(() => {
                 const splashTimer = setTimeout(() => {
                     setShowSplash(false);
-                    // Cek status install dan versi setelah splash screen selesai
-                    const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-                    setIsStandalone(standalone);
-                    const savedVer = localStorage.getItem('alkautsar_ver');
-                    if (savedVer !== APP_VERSION) {
-                        setShowInstall(true); // Tampilkan pop-up jika versi baru/belum pernah klik
+                    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+                    const hasInstalled = window.localStorage.getItem('ak_installed_' + APP_VERSION);
+                    if (!isStandalone && !hasInstalled) {
+                        setShowInstall(true);
                     }
                 }, 2500);
                 return () => clearTimeout(splashTimer);
             }, []);
 
+            const handleInstallClick = () => {
+                window.localStorage.setItem('ak_installed_' + APP_VERSION, 'true');
+                setShowInstall(false);
+                initNotifAndAudio();
+                alert('Mengunduh dan Mengaktifkan fitur...');
+            };
+
+            const [userLoc, setUserLoc] = useState(window.AL_KAUTSAR_CACHE.loc);
+            const [prayerTimes, setPrayerTimes] = useState(window.AL_KAUTSAR_CACHE.prayerTimes);
+            const [ringingAdzan, setRingingAdzan] = useState(null);
+            const adzanAudio = useRef(null);
+            const notifiedPrayers = useRef({});
+
+            useEffect(() => { adzanAudio.current = new Audio(); }, []);
+
             const initNotifAndAudio = () => {
                 if ('Notification' in window) Notification.requestPermission();
                 if (adzanAudio.current) {
-                    adzanAudio.current.src = 'data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4LjI5LjEwMAAAAAAAAAAAAAAA//tQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAAEAAABIwBRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFR'; 
+                    adzanAudio.current.src = 'data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4LjI5LjEwMAAAAAAAAAAAAAAA//tQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAAEAAABIwBRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFR'; 
                     adzanAudio.current.play().then(() => { adzanAudio.current.pause(); }).catch(e => {});
                 }
             };
 
-            // Checker Alarm Berjalan Di Balik Layar
             useEffect(() => {
                 const checker = setInterval(() => {
                     if (!prayerTimes || prayerTimes.length === 0) return;
@@ -392,7 +390,6 @@
                         const key10m = `${dateStr}_${p.id}_10m`;
                         const keyExact = `${dateStr}_${p.id}_exact`;
 
-                        // Notifikasi 10 Menit Sebelum Shalat
                         if (notif10Min && adzanAlarms[p.id] && p.id !== 'Imsak' && currentHHMM === beforeHHMM && !notifiedPrayers.current[key10m]) {
                             notifiedPrayers.current[key10m] = true;
                             if ('Notification' in window && Notification.permission === 'granted') {
@@ -400,7 +397,6 @@
                             }
                         }
 
-                        // Alarm & Notifikasi Tepat Waktu Shalat
                         if (adzanAlarms[p.id] && currentHHMM === p.time && !notifiedPrayers.current[keyExact]) {
                             notifiedPrayers.current[keyExact] = true;
                             
@@ -408,13 +404,12 @@
                                 new Notification(`Waktu ${p.label} Tiba`, { body: `Telah masuk waktu ${p.label} untuk wilayah ${userLoc.name} dan sekitarnya.` });
                             }
                             
-                            // Eksekusi Pemutaran MP3 (Sesuai Pilihan Per-Alarm)
                             if (p.id !== 'Imsak') {
                                 if (adzanAudio.current) {
                                     let sUrl = '';
                                     const soundId = adzanSounds[p.id] || 'makkah';
                                     if(soundId === 'custom_file' && customAdzanFiles[p.id]) {
-                                        sUrl = customAdzanFiles[p.id]; // Ambil file lokal HP
+                                        sUrl = customAdzanFiles[p.id]; 
                                     } else {
                                         const found = ADZAN_SOUNDS.find(s => s.id === soundId);
                                         sUrl = found ? found.url : ADZAN_SOUNDS[0].url;
@@ -478,7 +473,6 @@
 
             const navigate = (tab, params = null) => { setActiveTab(tab); setNavParams(params); };
 
-            // Render Splash Screen
             if (showSplash) {
                 return (
                     <div className="w-full max-w-[390px] h-[100dvh] bg-white flex flex-col items-center justify-center relative overflow-hidden shadow-2xl mx-auto">
@@ -488,13 +482,13 @@
                         </div>
                         <div className="relative z-10 flex flex-col items-center animate-in zoom-in duration-700">
                             <img 
-                                src="https://raw.githubusercontent.com/nashrulaziz7/ALKAUTSAR-ISLAMIC/main/islamic.png" 
+                                src="https://raw.githubusercontent.com/nashrulaziz7/quran-data/main/islamic.png" 
                                 alt="Logo Al Kautsar" 
                                 className="w-32 h-32 object-contain mb-6 drop-shadow-xl animate-bounce-soft" 
                                 onError={(e) => { e.target.onerror = null; e.target.style.display = 'none'; }} 
                             />
                             <h1 className="text-2xl font-black text-slate-800 tracking-tight">AL KAUTSAR ISLAMIC</h1>
-                            <p className="text-[10px] font-bold text-slate-500 tracking-widest mt-2 uppercase">SDIT Muhammadiyah Al Kautsar</p>
+                            <p className="text-[10px] font-bold text-slate-500 tracking-widest mt-2 uppercase">SDIT Muhammadiyah</p>
                         </div>
                         <div className="absolute bottom-12 flex flex-col items-center">
                             <div className="w-6 h-6 border-4 border-slate-200 border-t-[#14A895] rounded-full animate-spin"></div>
@@ -507,7 +501,7 @@
             return (
                 <div className={`w-full max-w-[390px] h-[100dvh] bg-[#F8FAFC] flex flex-col relative overflow-hidden shadow-2xl ring-1 ring-white/50 mx-auto`}>
                     
-                    {/* Popup Premium Install / Update Fitur Khusus 1x */}
+                    {/* Popup Premium Install (1x Muncul) */}
                     {showInstall && (
                         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-5 bg-slate-900/95 backdrop-blur-md animate-in fade-in zoom-in-95 duration-300">
                             <div className="bg-white w-full max-w-[340px] rounded-[32px] shadow-[0_20px_50px_rgba(0,0,0,0.3)] p-6 relative flex flex-col items-center overflow-hidden border-2 border-slate-100">
@@ -517,54 +511,29 @@
                                     <Sparkles size={36} className="animate-pulse" />
                                 </div>
                                 
-                                <h2 className="text-[24px] font-black text-slate-800 mb-2 relative z-10 tracking-tight text-center">
-                                    {isStandalone ? 'Fitur Baru! ✨' : 'Akses Premium! 🚀'}
-                                </h2>
+                                <h2 className="text-[24px] font-black text-slate-800 mb-2 relative z-10 tracking-tight text-center">Akses Premium! 🚀</h2>
                                 <p className="text-[11px] text-slate-500 font-bold mb-4 relative z-10 text-center px-1 leading-relaxed">
-                                    {isStandalone 
-                                        ? `Selamat datang di versi ${APP_VERSION}. Nikmati update fitur tingkat dewa terbaru:` 
-                                        : 'Aplikasi Al Kautsar Islamic belum di-install di perangkat Anda. Install sekarang untuk mengaktifkan fitur tingkat dewa:'}
+                                    Aplikasi Al Kautsar Islamic belum di-install di perangkat Anda. Install sekarang untuk mengaktifkan fitur tingkat dewa:
                                 </p>
                                 
                                 <div className="w-full bg-slate-50 rounded-[20px] p-4 mb-6 relative z-10 border border-slate-100">
                                     <ul className="text-[11px] font-bold text-slate-700 space-y-3 text-left">
                                         <li className="flex items-center gap-3"><div className="bg-white p-1.5 rounded-lg shadow-sm text-green-500"><BookOpen size={14}/></div> Al-Qur'an Tajwid & Suara Jernih</li>
-                                        <li className="flex items-center gap-3"><div className="bg-white p-1.5 rounded-lg shadow-sm text-blue-500"><Clock size={14}/></div> Notifikasi & Alarm Adzan Real-time</li>
+                                        <li className="flex items-center gap-3"><div className="bg-white p-1.5 rounded-lg shadow-sm text-blue-500"><Clock size={14}/></div> Notifikasi & Alarm Adzan MP3</li>
                                         <li className="flex items-center gap-3"><div className="bg-white p-1.5 rounded-lg shadow-sm text-amber-500"><RotateCcw size={14}/></div> Dzikir Alam Animasi Premium</li>
                                         <li className="flex items-center gap-3"><div className="bg-white p-1.5 rounded-lg shadow-sm text-purple-500"><Compass size={14}/></div> Kompas Kiblat 4 Tema</li>
                                     </ul>
                                 </div>
                                 
                                 <div className="w-full relative z-10">
-                                    <button onClick={async () => { 
-                                        localStorage.setItem('alkautsar_ver', APP_VERSION);
-                                        setShowInstall(false); 
-                                        initNotifAndAudio(); 
-                                        
-                                        if (!isStandalone) {
-                                            if (window.deferredInstallPrompt) {
-                                                window.deferredInstallPrompt.prompt();
-                                                const { outcome } = await window.deferredInstallPrompt.userChoice;
-                                                window.deferredInstallPrompt = null;
-                                            } else {
-                                                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-                                                if(isIOS) {
-                                                    alert('Untuk Install di iPhone/iPad:\n1. Tap ikon Share (Kotak dengan panah ke atas) di menu bawah browser.\n2. Scroll ke bawah dan pilih "Add to Home Screen".');
-                                                } else {
-                                                    alert('Sistem PWA di browser ini butuh instalasi manual.\n\nCARA INSTALL:\n1. Ketuk ikon Menu (titik tiga ⋮) di pojok browser.\n2. Pilih "Tambahkan ke Layar Utama" atau "Install Aplikasi".');
-                                                }
-                                            }
-                                        }
-                                    }} className="w-full py-4 bg-slate-900 hover:bg-black text-white font-black text-[13px] rounded-[18px] active:scale-95 transition-all shadow-[0_8px_20px_rgba(0,0,0,0.3)] flex items-center justify-center gap-2 uppercase tracking-widest">
-                                        {isStandalone ? <Check size={16}/> : <Download size={16}/>}
-                                        {isStandalone ? 'LANJUTKAN' : 'INSTALL SEKARANG'}
+                                    <button onClick={handleInstallClick} className="w-full py-4 bg-slate-900 hover:bg-black text-white font-black text-[13px] rounded-[18px] active:scale-95 transition-all shadow-[0_8px_20px_rgba(0,0,0,0.3)] flex items-center justify-center gap-2 uppercase tracking-widest">
+                                        <Download size={16}/> INSTALL SEKARANG
                                     </button>
                                 </div>
                             </div>
                         </div>
                     )}
 
-                    {/* Pop-up Adzan Berbunyi (Layar Penuh) */}
                     {ringingAdzan && (
                         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-5 bg-slate-900/90 backdrop-blur-xl animate-in fade-in">
                             <div className="bg-white w-full max-w-[320px] rounded-[32px] shadow-2xl p-8 relative flex flex-col items-center overflow-hidden border border-slate-100 text-center">
@@ -583,20 +552,19 @@
                         </div>
                     )}
 
-                    {/* Polkadot Global */}
                     <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden mix-blend-multiply opacity-20">
                         <div className="polka-dot w-[45rem] h-[45rem] top-[-25%] left-[-30%]" style={{ animationDelay: '0s', backgroundColor: appTheme.hex }}></div>
                         <div className="polka-dot w-[35rem] h-[35rem] top-[40%] right-[-20%]" style={{ animationDelay: '5s', backgroundColor: appTheme.hex }}></div>
                         <div className="polka-dot w-[28rem] h-[28rem] bottom-[-15%] left-[-15%]" style={{ animationDelay: '10s', backgroundColor: appTheme.hex }}></div>
                     </div>
 
-                    <main id="main-scroll-container" className="flex-1 overflow-y-auto pb-24 scroll-smooth relative z-10">
+                    <main id="main-scroll-container" className="flex-1 overflow-y-auto pb-[70px] scroll-smooth relative z-10">
                         {activeTab === 'home' && <HomeView nav={navigate} theme={appTheme} userLoc={userLoc} prayerTimes={prayerTimes} />}
-                        {activeTab === 'quran' && <QuranView nav={navigate} navParams={navParams} theme={appTheme} qari={appQari} setQari={setAppQari} fontType={appFont} setFontType={setAppFont} globalTajwid={globalTajwid} globalLatin={globalLatin} globalTrans={globalTrans} globalFontSize={globalFontSize} />}
+                        {activeTab === 'quran' && <QuranView nav={navigate} navParams={navParams} theme={appTheme} qari={appQari} setQari={setAppQari} fontType={appFont} setFontType={setAppFont} globalTajwid={globalTajwid} globalLatin={globalLatin} globalTrans={globalTrans} globalFontSize={globalFontSize} bookmarks={bookmarks} setBookmarks={setBookmarks} />}
                         {activeTab === 'doa' && <DoaView nav={navigate} theme={appTheme} />}
                         {activeTab === 'masjid' && <MasjidView nav={navigate} theme={appTheme} userLoc={userLoc} />}
                         {activeTab === 'chat' && <ChatView nav={navigate} theme={appTheme} />}
-                        {activeTab === 'bookmark' && <BookmarkView nav={navigate} theme={appTheme} />}
+                        {activeTab === 'bookmark' && <BookmarkView nav={navigate} theme={appTheme} bookmarks={bookmarks} setBookmarks={setBookmarks} />}
                         {activeTab === 'dzikir' && <DzikirView theme={appTheme} nav={navigate} />}
                         {activeTab === 'qibla' && <QiblaView theme={appTheme} nav={navigate} userLoc={userLoc} />}
                         {activeTab === 'cerita' && <CeritaView nav={navigate} theme={appTheme} />}
@@ -617,7 +585,6 @@
                         />}
                     </main>
                     
-                    {/* Navigasi Bawah */}
                     <nav className="absolute bottom-0 w-full bg-[#F8FAFC]/95 backdrop-blur-xl border-t border-slate-200/60 pb-safe shadow-[0_-8px_30px_rgba(0,0,0,0.05)] z-50">
                         <div className="flex justify-evenly items-center h-[70px]">
                             <NavItem icon={<Home />} label="Beranda" active={activeTab==='home'} onClick={()=>navigate('home')} theme={appTheme} />
@@ -749,7 +716,7 @@
             );
         }
 
-        function QuranView({ nav, navParams, theme, qari, setQari, fontType, setFontType, globalTajwid, globalLatin, globalTrans, globalFontSize }) {
+        function QuranView({ nav, navParams, theme, qari, setQari, fontType, setFontType, globalTajwid, globalLatin, globalTrans, globalFontSize, bookmarks, setBookmarks }) {
             const [search, setSearch] = useState('');
             const [activeSurah, setActiveSurah] = useState(null);
             
@@ -978,11 +945,27 @@
                 return elements;
             };
 
+            const handleAddBookmarkSurah = () => {
+                const exists = bookmarks.find(b => b.surahId === activeSurah.n);
+                if(!exists) {
+                    setBookmarks([...bookmarks, { id: Date.now(), surahId: activeSurah.n, name: activeSurah.id, desc: 'Tersimpan', isPinned: false }]);
+                    setToastMsg(`Surah ${activeSurah.id} ditambahkan ke Bookmark!`);
+                } else {
+                    setToastMsg(`Surah ${activeSurah.id} sudah ada di Bookmark!`);
+                }
+                setTimeout(() => setToastMsg(null), 2500);
+            };
+
+            const handleAddBookmarkAyah = (ayahNum) => {
+                setBookmarks([...bookmarks, { id: Date.now(), surahId: activeSurah.n, name: activeSurah.id, desc: `Ayat ${ayahNum}`, isPinned: false }]);
+                setToastMsg(`Ayat ${ayahNum} ditambahkan ke Bookmark!`);
+                setTimeout(() => setToastMsg(null), 2500);
+            };
+
             if (activeSurah) {
                 return (
                     <div className="pb-4 min-h-full relative bg-transparent flex flex-col">
                         
-                        {/* Header Dinamis */}
                         <div className="sticky top-0 z-40 w-full bg-white shadow-sm border-b border-slate-100">
                             <div className="flex items-center justify-between px-3 py-3 h-[52px] relative z-20">
                                 <div className="flex items-center gap-1 flex-1 min-w-0">
@@ -1004,7 +987,7 @@
                                     <button onClick={() => setIsPageMode(!isPageMode)} className={`p-2 rounded-xl transition-all hover:bg-slate-100 active:scale-95 ${isPageMode ? 'bg-slate-100 text-slate-900' : ''}`} title="Mode Halaman">
                                         {isPageMode ? <BookOpen size={18} /> : <LayoutGrid size={18} />}
                                     </button>
-                                    <button onClick={() => { setToastMsg(`Surah ${activeSurah.id} di-bookmark!`); setTimeout(() => setToastMsg(null), 2500); }} className="p-2 rounded-xl transition-all hover:bg-slate-100 active:scale-95" title="Bookmark Surah">
+                                    <button onClick={handleAddBookmarkSurah} className="p-2 rounded-xl transition-all hover:bg-slate-100 active:scale-95" title="Bookmark Surah">
                                         <Bookmark size={18} />
                                     </button>
                                     <button onClick={() => setShowAsbabun(true)} className="p-2 rounded-xl transition-all hover:bg-slate-100 active:scale-95" title="Asbabun Nuzul">
@@ -1055,7 +1038,6 @@
                             </div>
                         </div>
 
-                        {/* Banner Surah Minimalis */}
                         <div onClick={() => setShowSwitcher(true)} className="mx-6 mt-4 mb-4 rounded-[16px] py-4 px-4 text-center shadow-sm relative overflow-hidden cursor-pointer active:scale-95 transition-transform" style={{ backgroundColor: theme.hex }}>
                             <div className="absolute w-20 h-20 rounded-full bg-white/20 top-[-10px] left-[-10px] blur-[1px] anim-banner-polka" style={{animationDelay: '0s'}}></div>
                             <div className="absolute w-24 h-24 rounded-full bg-white/15 bottom-[-20px] right-[-20px] blur-sm anim-banner-polka" style={{animationDelay: '1s'}}></div>
@@ -1076,7 +1058,6 @@
                             </div>
                         )}
 
-                        {/* Pop-up Asbabun Nuzul */}
                         {showAsbabun && (
                             <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in" onClick={() => setShowAsbabun(false)}>
                                 <div className="bg-white w-full max-w-[340px] rounded-[24px] shadow-2xl p-6 relative" onClick={(e) => e.stopPropagation()}>
@@ -1090,7 +1071,6 @@
                             </div>
                         )}
 
-                        {/* Pop-Up Tajwid Eksklusif */}
                         {activeTajweed && TAJWEED_INFO[activeTajweed.ruleClass] && (
                             <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm animate-in fade-in" onClick={() => setActiveTajweed(null)}>
                                 <div className="bg-[#1E293B] w-full max-w-[340px] rounded-[24px] shadow-2xl p-6 relative text-white border border-slate-700" onClick={(e) => e.stopPropagation()}>
@@ -1124,7 +1104,6 @@
                             </div>
                         )}
 
-                        {/* Switcher Navigasi */}
                         {showSwitcher && (
                             <div className="fixed inset-0 z-[60] flex flex-col justify-end bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setShowSwitcher(false)}>
                                 <div className="bg-white w-full h-[75dvh] max-w-[390px] mx-auto rounded-t-[32px] shadow-2xl flex flex-col animate-in slide-in-from-bottom-8 duration-300" onClick={e=>e.stopPropagation()}>
@@ -1158,7 +1137,6 @@
                             </div>
                         )}
 
-                        {/* Rendering Teks */}
                         <div className="space-y-3 px-3 pb-0">
                             {surahDetail && (
                                 isPageMode ? (
@@ -1187,10 +1165,7 @@
                                                     {ayah.numberInSurah}
                                                 </div>
                                                 <div className="flex gap-1.5">
-                                                    <button className="p-1.5 text-slate-500 hover:bg-slate-50 border border-slate-100 rounded-[10px] transition-colors bg-white active:scale-95" onClick={() => {
-                                                        setToastMsg(`Ayat ${ayah.numberInSurah} di-bookmark!`);
-                                                        setTimeout(() => setToastMsg(null), 2500);
-                                                    }}><Bookmark size={13}/></button>
+                                                    <button className="p-1.5 text-slate-500 hover:bg-slate-50 border border-slate-100 rounded-[10px] transition-colors bg-white active:scale-95" onClick={() => handleAddBookmarkAyah(ayah.numberInSurah)}><Bookmark size={13}/></button>
 
                                                     <button className="p-1.5 text-slate-500 hover:bg-slate-50 border border-slate-100 rounded-[10px] transition-colors bg-white active:scale-95" onClick={() => {
                                                         let copyContent = ayah.text;
@@ -1247,7 +1222,6 @@
                             )}
                         </div>
 
-                        {/* Navigasi Antar Surah */}
                         {surahDetail && !isFetching && (
                             <div className="flex justify-between gap-3 px-3 mt-4 relative z-10">
                                 {activeSurah.n > 1 ? (
@@ -1798,6 +1772,50 @@
             );
         }
 
+        function BookmarkView({ nav, theme, bookmarks, setBookmarks }) {
+            
+            const togglePin = (id) => {
+                setBookmarks(prev => {
+                    const next = prev.map(b => b.id === id ? { ...b, isPinned: !b.isPinned } : b);
+                    return next.sort((a, b) => (a.isPinned === b.isPinned) ? 0 : a.isPinned ? -1 : 1);
+                });
+            };
+
+            const deleteBookmark = (id) => {
+                setBookmarks(prev => prev.filter(b => b.id !== id));
+            };
+
+            return (
+                <div className="animate-in slide-in-from-right-4 h-full flex flex-col bg-transparent relative z-10 overflow-hidden">
+                    <div className="bg-white/90 backdrop-blur-md px-5 py-4 flex items-center shadow-sm z-30">
+                        <button onClick={() => nav('home')} className="p-2 rounded-[14px] bg-slate-100 mr-3 active:scale-95 transition-transform"><ArrowLeft size={18} className="text-slate-600" /></button>
+                        <h1 className="text-[15px] font-black text-slate-800">Bookmark Saya</h1>
+                    </div>
+                    <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                        {bookmarks.length === 0 ? (
+                            <div className="text-center p-10 opacity-50"><Bookmark size={40} className="mx-auto mb-3 text-slate-400"/><p className="text-xs font-bold uppercase tracking-widest">Kosong</p></div>
+                        ) : (
+                            bookmarks.map((b) => (
+                                <div key={b.id} onClick={() => nav('quran', { surahId: b.surahId })} className={`bg-white p-4 rounded-[20px] shadow-sm flex flex-col gap-3 cursor-pointer active:scale-95 border hover:border-slate-300 transition-all ${b.isPinned ? 'border-amber-300' : 'border-slate-100'}`}>
+                                    <div className="flex justify-between items-center w-full">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-[14px] flex items-center justify-center" style={{ backgroundColor: theme.light, color: theme.hex }}><Bookmark size={18} /></div>
+                                            <div><h3 className="font-bold text-[13px] text-slate-800 flex items-center gap-1">Surah {b.name} {b.isPinned && <Pin size={10} className="text-amber-500 fill-amber-500" />}</h3><p className="text-[10px] text-slate-500 font-medium">{b.desc}</p></div>
+                                        </div>
+                                        <div className="text-[9px] font-bold text-blue-500 flex items-center gap-1 bg-blue-50 px-2.5 py-1.5 rounded-[10px]">Buka <ChevronRight size={12}/></div>
+                                    </div>
+                                    <div className="flex gap-2 w-full justify-end border-t border-slate-50 pt-3">
+                                        <button onClick={(e) => { e.stopPropagation(); togglePin(b.id); }} className={`px-4 py-1.5 rounded-[10px] flex items-center gap-1.5 font-bold text-[10px] transition-all border ${b.isPinned ? 'bg-amber-50 text-amber-600 border-amber-200' : 'bg-slate-50 text-slate-500 border-slate-100'}`}><Pin size={12} className={b.isPinned ? 'fill-amber-500' : ''} /> {b.isPinned ? 'Unpin' : 'Pin'}</button>
+                                        <button onClick={(e) => { e.stopPropagation(); deleteBookmark(b.id); }} className="px-4 py-1.5 rounded-[10px] flex items-center gap-1.5 font-bold text-[10px] transition-all border bg-slate-50 text-red-500 hover:bg-red-50 border-slate-100"><Trash2 size={12} /> Hapus</button>
+                                    </div>
+                                </div>
+                            ))
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
         function SettingsView({ 
             nav, theme, setTheme, globalTajwid, setGlobalTajwid, 
             globalLatin, setGlobalLatin, globalTrans, setGlobalTrans, 
@@ -1861,9 +1879,21 @@
                                                                     onChange={(e) => {
                                                                         const file = e.target.files[0];
                                                                         if(file) {
-                                                                            const fileUrl = URL.createObjectURL(file);
-                                                                            setCustomAdzanFiles({...customAdzanFiles, [p.id]: fileUrl});
-                                                                            setCustomAdzanNames({...customAdzanNames, [p.id]: file.name});
+                                                                            if (file.size > 2 * 1024 * 1024) { 
+                                                                                alert("Ukuran file terlalu besar! Maksimal 2MB untuk mencegah memori penuh.");
+                                                                                return;
+                                                                            }
+                                                                            const reader = new FileReader();
+                                                                            reader.onload = (event) => {
+                                                                                const base64Audio = event.target.result;
+                                                                                try {
+                                                                                    setCustomAdzanFiles({...customAdzanFiles, [p.id]: base64Audio});
+                                                                                    setCustomAdzanNames({...customAdzanNames, [p.id]: file.name});
+                                                                                } catch(error) {
+                                                                                    alert("Memori Browser Penuh! File tidak dapat disimpan.");
+                                                                                }
+                                                                            };
+                                                                            reader.readAsDataURL(file);
                                                                         }
                                                                     }}
                                                                     className="w-full text-[10px] text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-[8px] file:border-0 file:text-[10px] file:font-bold file:bg-emerald-50 file:text-emerald-600 hover:file:bg-emerald-100 cursor-pointer"
@@ -1881,7 +1911,7 @@
                                                             
                                                             if(sUrl) {
                                                                 const testAudio = new Audio(sUrl); 
-                                                                testAudio.play(); 
+                                                                testAudio.play().catch(() => alert('Browser tidak mengizinkan play')); 
                                                                 setTimeout(()=>testAudio.pause(), 7000); 
                                                             } else {
                                                                 alert('Silakan pilih file MP3 terlebih dahulu.');
@@ -1953,7 +1983,7 @@
                             <div className="p-1 text-center">
                                 <div className="w-12 h-12 rounded-[16px] mx-auto flex items-center justify-center mb-2 shadow-sm" style={{ backgroundColor: theme.light, color: theme.hex }}><BookOpen size={24} /></div>
                                 <h4 className="font-black text-slate-800 text-sm">Al Kautsar Islamic</h4>
-                                <p className="text-[9px] text-slate-400 font-bold mb-3">Versi 20.0 (Masterpiece Edition)</p>
+                                <p className="text-[9px] text-slate-400 font-bold mb-3">Versi 21.0 (Masterpiece Edition)</p>
                                 <p className="text-[10px] text-slate-500 leading-relaxed font-medium text-justify">Aplikasi resmi SDIT Muhammadiyah Al Kautsar. Dilengkapi teknologi Memory Cache Instan, Al-Quran digital tajwid cerdas bersuara, Dzikir Dinamis Parabola, Arah Kiblat Real-time tanpa scroll, Alarm Adzan MP3 Lokal, dan Doa HPT komplit.</p>
                             </div>
                         </Section>
